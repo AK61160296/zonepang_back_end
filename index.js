@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
   res.send("API Facebook Send");
 });
 
-app.use("/api/group", apiKeyMiddleware, groupsRouter);
+app.use("/api", apiKeyMiddleware, groupsRouter);
 
 
 const port = process.env.API_PORT ? process.env.API_PORT : 3000;

@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "zp-back-end",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,6 +17,8 @@
     "bull-arena": "^3.30.4",
     "bullmq": "^3.10.2",
     "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "form-data": "^4.0.0",
     "mariadb": "^3.1.1",
@@ -22,6 +27,7 @@
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "mysql2": "^3.2.0",
+    "nodemon": "^2.0.22",
     "request": "^2.88.2",
     "sequelize": "^6.30.0"
   }

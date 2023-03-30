@@ -1,14 +1,22 @@
 import { Sequelize } from "sequelize";
 
-const connectDb =  new Sequelize({
-    database: process.env.DB_NAME,
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    dialect: process.env.DB_CLIENT,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    logging: false
+const connectDb = new Sequelize({
+  database: 'db_zonepang',
+  username: 'zonepang',
+  password: '4Ko6my901300!9qa',
+  dialect: 'mysql',
+  host: '159.65.131.15',
+  port: '3306',
+  logging: false
 });
+
+connectDb.showAllSchemas()
+  .then((schemas) => {
+    console.log(schemas);
+  })
+  .catch((err) => {
+    console.error('Unable to show schemas:', err);
+  });
 
 connectDb
   .authenticate()
@@ -16,4 +24,4 @@ connectDb
   .catch(err => console.error('Unable to connect to the database:', err));
 
 
-export {connectDb};
+export { connectDb };

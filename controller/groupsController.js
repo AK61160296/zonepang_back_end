@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpGroupsModel, zpUserGroupsModel, zpUserModel } from '../models/index.js';
+import { zpGroupsModel, zpUserGroupsModel, zpUsersModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
@@ -17,6 +17,7 @@ async function getGroupsAll() {
 
 async function getGroupsByUserId(userId) {
     try {
+
         const groups = await zpUserGroupsModel.findAll({
             where: {
                 user_id: userId,
@@ -25,6 +26,7 @@ async function getGroupsByUserId(userId) {
                 model: zpGroupsModel,
                 foreignKey: 'group_id'
             }],
+
         });
         return { status: 'success', data: groups };
     } catch (error) {

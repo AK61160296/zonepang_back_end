@@ -1,6 +1,6 @@
 import { connectDb } from "../config/database.js";
 import { DataTypes } from "sequelize";
-const zpUserModel = connectDb.define("users", {
+const zpUsersModel = connectDb.define("users", {
     id: {
         type: DataTypes.INTEGER.UNSIGNED,
         primaryKey: true,
@@ -123,4 +123,4 @@ const zpUserModel = connectDb.define("users", {
     freezeTableName: true
 });
 
-export { zpUserModel }
+export { zpUsersModel }

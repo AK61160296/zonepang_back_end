@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import {
   groupsRouter,
+  postsRouter,
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
@@ -28,9 +29,10 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", apiKeyMiddleware, groupsRouter);
+app.use("/api", apiKeyMiddleware, postsRouter);
 
 
-const port = process.env.API_PORT ? process.env.API_PORT : 3000;
+const port = process.env.API_PORT ? process.env.API_PORT : 4000;
 server.listen(port, () => {
   console.log("API Running on port : ", port);
 });

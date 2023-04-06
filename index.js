@@ -7,6 +7,7 @@ import cors from "cors";
 import {
   groupsRouter,
   postsRouter,
+  userRouter
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";

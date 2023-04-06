@@ -34,8 +34,19 @@ async function getGroupsByUserId(userId) {
         return { status: 'error', error: error };
     }
 }
+async function getGroupsmore() {
+    try {
+        const groups = await zpGroupsModel.findAll();
+        return { status: 'success', groups };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
 
 export {
     getGroupsAll,
+    getGroupsmore,
     getGroupsByUserId
 }

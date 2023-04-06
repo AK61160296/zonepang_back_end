@@ -1,6 +1,6 @@
 import express from 'express';
 const groupsRouter = express.Router();
-import { getGroupsAll, getGroupsByUserId } from '../controller/groupsController.js';
+import { getGroupsAll, getGroupsByUserId, getGroupsmore } from '../controller/groupsController.js';
 
 groupsRouter.get('/getGroupsAll', async function (req, res) {
     try {
@@ -19,6 +19,16 @@ groupsRouter.post('/getGroupsByUserId', async function (req, res) {
         res.json({
             data: groups
         });
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+groupsRouter.post('/getGroupsmore', async function (req, res) {
+    try {
+        const userId = req.body.userId;
+        const groups = await getGroupsmore(userId);
+        res.json(groups);
     } catch (error) {
         console.log(error)
     }

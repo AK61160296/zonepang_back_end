@@ -24,7 +24,7 @@ async function createPostGroups(content, user_id, groupIds, files) {
         if (files && files.length > 0) {
             for (const file of files) {
                 const attchmentsPost = await zpAttchmentsPostsModel.create({
-                    file_name: file.originalname,
+                    file_name: file.key,
                     file_type: file.mimetype,
                     get_type: file.mimetype,
                 });

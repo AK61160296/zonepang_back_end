@@ -1,7 +1,7 @@
-import express from 'express';
 const postsRouter = express.Router();
 import { getInfinitePosts, createPostGroups } from '../controller/postsController.js';
 import path from 'path'
+import express from 'express';
 import multer from "multer";
 import AWS from 'aws-sdk'
 import multerS3 from 'multer-s3'
@@ -23,52 +23,37 @@ const upload = multer({
         acl: 'public-read',
         contentType: multerS3.AUTO_CONTENT_TYPE,
         key: function (req, file, cb) {
-            cb(null, 'post-img/' + Date.now().toString() + '-' + file.originalname)
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+            cb(null, 'post-img/' + uniqueSuffix + '-' + file.originalname);
         }
     })
 });
 
+
+
 postsRouter.post('/createPostGroups', upload.any('file'), async function (req, res) {
     try {
+
         const files = req.files;
-        console.log(files)
         const { content, user_id, group_id } = req.body;
         const groupIds = group_id.split(',').map(id => parseInt(id.trim())); // แปลง string ให้เป็น array ของ integer
         const createPostGroupsRes = await createPostGroups(content, user_id, groupIds, files);
         if (createPostGroupsRes.status === 'success') {
             res.json({
-                data: createPostGroupsRes 
+                data: createPostGroupsRes
             });
         } else {
-            files.forEach(file => {
-                s3.deleteObject({
-                    Bucket: 'zonepang',
-                    Key: file.key
-                }, function (err, data) {
-                    if (err) {
-                        console.log(err, err.stack);
-                    } else {
-                        console.log(data);
-                    }
-                });
-            });
+            for (const file of files) {
+                await deleteS3File(file.key);
+            }
             res.status(500).json({
                 message: 'Internal server error'
             });
         }
     } catch (error) {
-        files.forEach(file => {
-            s3.deleteObject({
-                Bucket: 'zonepang',
-                Key: file.key
-            }, function (err, data) {
-                if (err) {
-                    console.log(err, err.stack);
-                } else {
-                    console.log(data);
-                }
-            });
-        });
+        for (const file of files) {
+            await deleteS3File(file.key);
+        }
         res.status(500).json({
             message: 'Internal server error'
         });

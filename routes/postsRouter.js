@@ -34,10 +34,10 @@ postsRouter.post('/createPostGroups', upload.any('file'), async function (req, r
         console.log(files)
         const { content, user_id, group_id } = req.body;
         const groupIds = group_id.split(',').map(id => parseInt(id.trim())); // แปลง string ให้เป็น array ของ integer
-        const res = await createPostGroups(content, user_id, groupIds, files);
-        if (res.status === 'success') {
+        const createPostGroupsRes = await createPostGroups(content, user_id, groupIds, files);
+        if (createPostGroupsRes.status === 'success') {
             res.json({
-                data: res
+                data: createPostGroupsRes 
             });
         } else {
             files.forEach(file => {

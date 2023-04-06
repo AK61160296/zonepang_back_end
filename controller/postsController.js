@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel } from '../models/index.js';
+import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
@@ -33,7 +33,7 @@ async function createPostGroups(content, user_id, groupIds, files) {
         }
         let atmIdStr = atmIds.join();
         for (const postId of postIds) {
- 
+
             const matchAttchmentsPost = await zpMatchAttachmentsModel.create({
                 post_id: postId,
                 atm_post_id: atmIdStr,
@@ -105,13 +105,18 @@ async function getInfinitePosts(page) {
                     }
                 });
             }
-
+            const totalComment = await zpCommentsModel.count({
+                where: {
+                    post_id: post.post_id,
+                },
+            });
             const totalLike = post.likes.length;
 
             return {
                 ...post.get({ plain: true }),
                 totalLike,
                 attachments,
+                totalComment
             };
         };
 
@@ -125,9 +130,23 @@ async function getInfinitePosts(page) {
         return { status: 'error', error: error };
     }
 }
+async function getPostComments(postId) {
+    try {
+        const comments = await zpCommentsModel.findAll({
+            where: {
+                post_id: postId,
+            },
+        });
+        return { status: 'success', comments };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 
 
 export {
     getInfinitePosts,
-    createPostGroups
+    createPostGroups,
+    getPostComments
 }

@@ -9,6 +9,7 @@ import { zpGroupsModel } from "./groups.js";
 import { zpMatchAttachmentsModel } from "./match_attachments.js";
 import { zpUserGroupsModel } from "./user_groups.js";
 import { zpAttchmentsPostsModel } from "./attachments_posts.js";
+import { zpCommentsModel } from "./comments.js";
 
 export {
     zpGroupsModel,
@@ -17,5 +18,6 @@ export {
     zpPostsModel,
     zpAttchmentsPostsModel,
     zpLikesModel,
-    zpMatchAttachmentsModel
+    zpMatchAttachmentsModel,
+    zpCommentsModel
 }

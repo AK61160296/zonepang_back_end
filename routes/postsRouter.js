@@ -1,5 +1,5 @@
 const postsRouter = express.Router();
-import { getInfinitePosts, createPostGroups } from '../controller/postsController.js';
+import { getInfinitePosts, createPostGroups, getPostComments } from '../controller/postsController.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -74,12 +74,9 @@ postsRouter.get('/getInfinitePosts', async function (req, res) {
 
 postsRouter.get('/getPostComments', async function (req, res) {
     try {
-        const comments = "comments"
-        // const page = req.query.page
-        // const feedPost = await getInfinitePosts(page);
-        res.json({
-            data: comments
-        });
+        const postId = req.query
+        const comments = await getPostComments(postId);
+        res.json(comments);
     } catch (error) {
         console.log(error)
     }

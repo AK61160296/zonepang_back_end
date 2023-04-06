@@ -30,6 +30,7 @@ app.get("/", (req, res) => {
 
 app.use("/api", apiKeyMiddleware, groupsRouter);
 app.use("/api", apiKeyMiddleware, postsRouter);
+app.use("/api", apiKeyMiddleware, userRouter);
 
 
 const port = process.env.API_PORT ? process.env.API_PORT : 4000;

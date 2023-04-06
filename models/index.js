@@ -6,6 +6,7 @@ import { zpPostsModel } from "./posts.js";
 import { zpUsersModel } from "./users.js";
 import { zpLikesModel } from "./likes.js";
 import { zpGroupsModel } from "./groups.js";
+import { zpMatchAttachmentsModel } from "./match_attachments.js";
 import { zpUserGroupsModel } from "./user_groups.js";
 import { zpAttchmentsPostsModel } from "./attachments_posts.js";
 
@@ -15,6 +16,6 @@ export {
     zpUsersModel,
     zpPostsModel,
     zpAttchmentsPostsModel,
-    zpLikesModel
-    
+    zpLikesModel,
+    zpMatchAttachmentsModel
 }

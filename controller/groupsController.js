@@ -44,9 +44,22 @@ async function getGroupsmore() {
     }
 }
 
+async function getPathGroups() {
+    try {
+        const groupId = await zpGroupsModel.findAll({attributes: ['group_id']}
+
+        );
+
+        return { status: 'success', groupId };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 
 export {
     getGroupsAll,
     getGroupsmore,
-    getGroupsByUserId
+    getGroupsByUserId,
+    getPathGroups
 }

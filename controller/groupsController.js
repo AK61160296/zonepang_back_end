@@ -34,6 +34,15 @@ async function getGroupsByUserId(userId) {
         return { status: 'error', error: error };
     }
 }
+async function getGroupssuggest() {
+    try {
+        const groups = await zpGroupsModel.findAll();
+        return { status: 'success', groups };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 async function getGroupsmore() {
     try {
         const groups = await zpGroupsModel.findAll();
@@ -46,7 +55,7 @@ async function getGroupsmore() {
 
 async function getPathGroups() {
     try {
-        const groupId = await zpGroupsModel.findAll({attributes: ['group_id']}
+        const groupId = await zpGroupsModel.findAll({ attributes: ['group_id'] }
 
         );
 
@@ -56,10 +65,26 @@ async function getPathGroups() {
         return { status: 'error', error: error };
     }
 }
+async function getGroupsById(id) {
+    try {
+
+        const groups = await zpGroupsModel.findAll({
+            where: {
+                group_id: id,
+            },
+        });
+        return { status: 'success', data: groups };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 
 export {
     getGroupsAll,
     getGroupsmore,
+    getGroupssuggest,
     getGroupsByUserId,
-    getPathGroups
+    getPathGroups,
+    getGroupsById
 }

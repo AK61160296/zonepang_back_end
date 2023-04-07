@@ -49,7 +49,7 @@ async function createPostGroups(content, user_id, groupIds, files) {
 }
 
 
-async function getInfinitePosts(page) {
+async function getInfinitePosts(page,user_id) {
     try {
         const limit = 3;
         const offset = (page - 1) * limit;
@@ -108,13 +108,23 @@ async function getInfinitePosts(page) {
             const totalComment = await zpCommentsModel.count({
                 where: {
                     post_id: post.post_id,
+                    reply: 0,
                 },
             });
+
+            const userLike = await zpLikesModel.findOne({
+                where: {
+                    post_id: post.post_id,
+                    user_id: user_id,
+                },
+            });
+            
             const totalLike = post.likes.length;
 
             return {
                 ...post.get({ plain: true }),
                 totalLike,
+                userLike,
                 attachments,
                 totalComment
             };

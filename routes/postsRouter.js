@@ -63,7 +63,9 @@ postsRouter.post('/createPostGroups', upload.any('file'), async function (req, r
 postsRouter.get('/getInfinitePosts', async function (req, res) {
     try {
         const page = req.query.page
-        const feedPost = await getInfinitePosts(page);
+        const user_id = req.query.user_id
+        console.log(user_id)
+        const feedPost = await getInfinitePosts(page,user_id);
         res.json({
             data: feedPost
         });

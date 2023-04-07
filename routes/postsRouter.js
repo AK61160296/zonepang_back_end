@@ -1,5 +1,5 @@
 const postsRouter = express.Router();
-import { getInfinitePosts, createPostGroups, getPostComments } from '../controller/postsController.js';
+import { getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost } from '../controller/postsController.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -72,13 +72,67 @@ postsRouter.get('/getInfinitePosts', async function (req, res) {
     }
 });
 
-postsRouter.get('/getPostComments', async function (req, res) {
+postsRouter.post('/likePost', async function (req, res) {
     try {
-        const postId = req.query
-        const comments = await getPostComments(postId);
-        res.json(comments);
+        const { user_id,post_id, type } = req.body;
+        const status = await likePost(user_id, post_id, type);
+        res.json({ status });
     } catch (error) {
         console.log(error)
+    }
+});
+
+postsRouter.get('/getPostComments', async function (req, res) {
+    try {
+        const postId = req.query.postId;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 3;
+        const offset = (page - 1) * limit;
+
+        const comments = await getPostComments(postId, limit, offset);
+
+        if (comments.status === 'error') {
+            return res.status(500).json({
+                status: 'error',
+                message: 'Failed to get post comments',
+                error: comments.error
+            });
+        }
+
+        res.json(comments);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to get post comments',
+            error: error.message
+        });
+    }
+});
+
+postsRouter.get('/getPostReplyComments', async function (req, res) {
+    try {
+        const comment_id = req.query.comment_id;
+        console.log(comment_id)
+
+        const replyComments = await getPostReplyComments(comment_id);
+
+        if (replyComments.status === 'error') {
+            return res.status(500).json({
+                status: 'error',
+                message: 'Failed to get post comments',
+                error: comments.error
+            });
+        }
+
+        res.json(replyComments);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to get post comments',
+            error: error.message
+        });
     }
 });
 

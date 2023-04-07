@@ -1,14 +1,16 @@
 
 import { zpGroupsModel } from "./groups.js";
+import { zpPostsModel } from "./posts.js";
+import { zpUsersModel } from "./users.js";
+import { zpCommentsModel } from "./comments.js";
+import { zpLikesModel } from "./likes.js";
 import { zpUserGroupsModel } from "./user_groups.js";
+import { zpAttchmentsPostsModel } from "./attachments_posts.js";
+
 zpGroupsModel.hasMany(zpUserGroupsModel, { foreignKey: 'group_id' });
 zpUserGroupsModel.belongsTo(zpGroupsModel, { foreignKey: 'group_id' });
 
 
-import { zpPostsModel } from "./posts.js";
-import { zpUsersModel } from "./users.js";
-import { zpLikesModel } from "./likes.js";
-import { zpAttchmentsPostsModel } from "./attachments_posts.js";
 zpPostsModel.belongsTo(zpUsersModel, { foreignKey: 'user_id' });
 zpUsersModel.hasMany(zpPostsModel, { foreignKey: 'user_id' });
 
@@ -25,3 +27,6 @@ zpLikesModel.belongsTo(zpPostsModel, { foreignKey: 'post_id' });
 
 //ความสัมพันธ์ ตาราง Likes กับ Users 1-1
 zpLikesModel.belongsTo(zpUsersModel, { foreignKey: 'user_id' });
+
+
+zpCommentsModel.belongsTo(zpUsersModel, { foreignKey: 'user_id' });

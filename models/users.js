@@ -6,6 +6,10 @@ const zpUsersModel = connectDb.define("users", {
         primaryKey: true,
         autoIncrement: true,
     },
+    bio: {
+        type: DataTypes.STRING(300),
+        allowNull: true,
+    },
     name: {
         type: DataTypes.STRING(191),
         allowNull: true,

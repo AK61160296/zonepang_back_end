@@ -120,8 +120,6 @@ async function getInfinitePosts(page) {
             };
         };
 
-
-        // Use the asynchronous mapping function
         posts = await Promise.all(posts.map(post => getModifiedPost(post)));
 
         return posts;
@@ -130,23 +128,99 @@ async function getInfinitePosts(page) {
         return { status: 'error', error: error };
     }
 }
-async function getPostComments(postId) {
+async function getPostComments(postId, limit, offset) {
     try {
-        const comments = await zpCommentsModel.findAll({
+        let comments = await zpCommentsModel.findAll({
             where: {
                 post_id: postId,
+                reply: 0,
             },
+            limit: limit,
+            offset: offset,
+            include: [
+                {
+                    model: zpUsersModel,
+                    required: true,
+                    attributes: ['id', 'name', 'avatar']
+                },
+            ]
+            // order: [['created_at', 'DESC']],
         });
+
+        const getModifiedComment = async (comment) => {
+            const totalReplyComment = await zpCommentsModel.count({
+                where: {
+                    reply_to_reply: comment.comment_id,
+                },
+            });
+
+            return {
+                ...comment.get({ plain: true }),
+                totalReplyComment,
+            };
+        };
+
+
+        // Use the asynchronous mapping function
+        comments = await Promise.all(comments.map(comment => getModifiedComment(comment)));
+
         return { status: 'success', comments };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
     }
 }
+async function getPostReplyComments(comment_id) {
+    try {
+        let replyComments = await zpCommentsModel.findAll({
+            where: {
+                reply_to_reply: comment_id,
+                reply: 1,
+            },
+            include: [
+                {
+                    model: zpUsersModel,
+                    required: true,
+                    attributes: ['id', 'name', 'avatar']
+                },
+            ]
+            // order: [['created_at', 'DESC']],
+        });
 
+
+        return { status: 'success', replyComments };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+async function likePost(user_id, post_id, type) {
+    try {
+        if (type === "like") {
+            const like = await zpLikesModel.create({
+                user_id,
+                post_id
+            });
+        } else if (type === "dislike") {
+            const like = await zpLikesModel.destroy({
+                where: {
+                    user_id,
+                    post_id
+                }
+            });
+        }
+
+        return { status: 'success' };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 
 export {
     getInfinitePosts,
     createPostGroups,
-    getPostComments
+    getPostComments,
+    getPostReplyComments,
+    likePost,
 }

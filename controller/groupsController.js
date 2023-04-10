@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpGroupsModel, zpUserGroupsModel, zpUsersModel, zpPinsModel,zpPostsModel } from '../models/index.js';
+import { zpGroupsModel, zpUserGroupsModel, zpUsersModel, zpPinsModel, zpPostsModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
@@ -116,8 +116,51 @@ async function getPinGroups(userId) {
     }
 }
 
+async function addPinGroup(user_id, group_id, type) {
+    try {
+        if (type === "pin") {
+            let sortLast = await zpPinsModel.findAll({
+                user_id,
+                attributes: [[Sequelize.fn('max', Sequelize.col('sort')), 'maxSort']],
+                raw: true,
+            })
+            console.log(sortLast[0]['maxSort'])
+            const pin = await zpPinsModel.create({
+                user_id,
+                group_id,
+                sort: sortLast[0]['maxSort'] + 1
+            });
+        } else if (type === "dispin") {
+            const pin = await zpPinsModel.destroy({
+                where: {
+                    user_id,
+                    group_id
+                }
+            });
+            const pins = await zpPinsModel.findAll({
+                where: {
+                    user_id,
+                },
+                order: [['sort', 'ASC']],
+            });
+            console.log(JSON.stringify(pins));
+            // อัพเดทลำดับ sort ใหม่โดยใช้คำสั่ง sort และ loop
+            let sort = 1;
+            for (const pin of pins) {
+                await pin.update({ sort });
+                sort++;
+            }
+        }
+
+        return { status: 'success' };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 
 export {
+    addPinGroup,
     getPinGroups,
     getGroupsAll,
     getGroupsmore,

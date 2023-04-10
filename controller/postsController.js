@@ -16,8 +16,8 @@ async function createPostGroups(content, user_id, groupIds, files) {
                 content,
                 user_id,
                 group_id: groupId,
-                create_at : Date.now(),
-                update_at : Date.now()
+                create_at: Date.now(),
+                update_at: Date.now()
             });
 
             // บันทึก post_id ไว้ใน array
@@ -51,7 +51,7 @@ async function createPostGroups(content, user_id, groupIds, files) {
 }
 
 
-async function getInfinitePosts(page,user_id) {
+async function getInfinitePosts(page, user_id) {
     try {
         const limit = 3;
         const offset = (page - 1) * limit;
@@ -114,13 +114,17 @@ async function getInfinitePosts(page,user_id) {
                 },
             });
 
-            const userLike = await zpLikesModel.findOne({
-                where: {
-                    post_id: post.post_id,
-                    user_id: user_id,
-                },
-            });
-            
+            let userLike = null;
+            if (user_id) {
+                userLike = await zpLikesModel.findOne({
+                    where: {
+                        post_id: post.post_id,
+                        user_id: user_id,
+                    },
+                });
+            }
+
+
             const totalLike = post.likes.length;
 
             return {

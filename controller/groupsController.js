@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpGroupsModel, zpUserGroupsModel, zpUsersModel, zpPinsModel } from '../models/index.js';
+import { zpGroupsModel, zpUserGroupsModel, zpUsersModel, zpPinsModel,zpPostsModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
@@ -82,7 +82,6 @@ async function getGroupsById(id) {
 
 async function getPinGroups(userId) {
     try {
-
         const groups = await zpPinsModel.findAll({
             where: {
                 user_id: userId,
@@ -91,12 +90,32 @@ async function getPinGroups(userId) {
                 model: zpGroupsModel,
             }],
         });
-        return { status: 'success', data: groups };
+        const promises = groups.map(async (group) => {
+            const { group_id } = group.group;
+            const totalPost = await zpPostsModel.count({
+                where: {
+                    group_id,
+                },
+            });
+            const totalUserGroups = await zpUserGroupsModel.count({
+                where: {
+                    group_id,
+                },
+            });
+            return {
+                ...group.toJSON(),
+                totalPost,
+                totalUserGroups,
+            };
+        });
+        const results = await Promise.all(promises);
+        return { status: 'success', data: results };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
     }
 }
+
 
 export {
     getPinGroups,

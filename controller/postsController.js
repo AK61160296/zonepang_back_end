@@ -15,7 +15,9 @@ async function createPostGroups(content, user_id, groupIds, files) {
             const post = await zpPostsModel.create({
                 content,
                 user_id,
-                group_id: groupId
+                group_id: groupId,
+                create_at : Date.now(),
+                update_at : Date.now()
             });
 
             // บันทึก post_id ไว้ใน array

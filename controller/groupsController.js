@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpGroupsModel, zpUserGroupsModel, zpUsersModel } from '../models/index.js';
+import { zpGroupsModel, zpUserGroupsModel, zpUsersModel, zpPinsModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
@@ -71,7 +71,25 @@ async function getGroupsById(id) {
         const groups = await zpGroupsModel.findAll({
             where: {
                 group_id: id,
+            }
+        });
+        return { status: 'success', data: groups };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
+async function getPinGroups(userId) {
+    try {
+
+        const groups = await zpPinsModel.findAll({
+            where: {
+                user_id: userId,
             },
+            include: [{
+                model: zpGroupsModel,
+            }],
         });
         return { status: 'success', data: groups };
     } catch (error) {
@@ -81,6 +99,7 @@ async function getGroupsById(id) {
 }
 
 export {
+    getPinGroups,
     getGroupsAll,
     getGroupsmore,
     getGroupssuggest,

@@ -1,5 +1,5 @@
 const postsRouter = express.Router();
-import { getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost } from '../controller/postsController.js';
+import { getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost,bookmarkPost } from '../controller/postsController.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -65,7 +65,7 @@ postsRouter.get('/getInfinitePosts', async function (req, res) {
         const page = req.query.page
         const user_id = req.query.user_id
         console.log(user_id)
-        const feedPost = await getInfinitePosts(page,user_id);
+        const feedPost = await getInfinitePosts(page, user_id);
         res.json({
             data: feedPost
         });
@@ -76,13 +76,23 @@ postsRouter.get('/getInfinitePosts', async function (req, res) {
 
 postsRouter.post('/likePost', async function (req, res) {
     try {
-        const { user_id,post_id, type } = req.body;
+        const { user_id, post_id, type } = req.body;
         const status = await likePost(user_id, post_id, type);
         res.json({ status });
     } catch (error) {
         console.log(error)
     }
 });
+postsRouter.post('/bookmarkPost', async function (req, res) {
+    try {
+        const { user_id, post_id, type } = req.body;
+        const status = await bookmarkPost(user_id, post_id, type);
+        res.json({ status });
+    } catch (error) {
+        console.log(error)
+    }
+});
+
 
 postsRouter.get('/getPostComments', async function (req, res) {
     try {

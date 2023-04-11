@@ -11,7 +11,7 @@ import { zpUserGroupsModel } from "./user_groups.js";
 import { zpAttchmentsPostsModel } from "./attachments_posts.js";
 import { zpCommentsModel } from "./comments.js";
 import { zpPinsModel } from "./pins.js";
-
+import { zpBookmarksModel } from "./bookmarks.js";
 
 export {
     zpPinsModel,
@@ -22,5 +22,6 @@ export {
     zpAttchmentsPostsModel,
     zpLikesModel,
     zpMatchAttachmentsModel,
-    zpCommentsModel
+    zpCommentsModel,
+    zpBookmarksModel
 }

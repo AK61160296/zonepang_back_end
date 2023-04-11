@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel } from '../models/index.js';
+import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel,zpBookmarksModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
@@ -115,8 +115,16 @@ async function getInfinitePosts(page, user_id) {
             });
 
             let userLike = null;
+            let userBookmark = null;
             if (user_id) {
                 userLike = await zpLikesModel.findOne({
+                    where: {
+                        post_id: post.post_id,
+                        user_id: user_id,
+                    },
+                });
+
+                userBookmark = await zpBookmarksModel.findOne({
                     where: {
                         post_id: post.post_id,
                         user_id: user_id,
@@ -132,7 +140,8 @@ async function getInfinitePosts(page, user_id) {
                 totalLike,
                 userLike,
                 attachments,
-                totalComment
+                totalComment,
+                userBookmark
             };
         };
 
@@ -197,7 +206,16 @@ async function getPostReplyComments(comment_id) {
                 {
                     model: zpUsersModel,
                     required: true,
-                    attributes: ['id', 'name', 'avatar']
+                    attributes: ['id', 'name', 'avatar'],
+                },
+                {
+                    model: zpUsersModel,
+                    required: true,
+                    attributes: ['id', 'name', 'avatar'],
+                    as: 'user_reply',
+                    where: {
+                        id: Sequelize.col('comments.user_id_reply')
+                    }
                 },
             ]
             // order: [['created_at', 'DESC']],
@@ -233,7 +251,42 @@ async function likePost(user_id, post_id, type) {
     }
 }
 
+async function createComments(post_id, user_id, reply_id, files) {
+    try {
+
+        return { status: 'success', atmIdStr };
+
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+async function bookmarkPost(user_id, post_id, type) {
+    try {
+        if (type === "bookmark") {
+            const like = await zpLikesModel.create({
+                user_id,
+                post_id
+            });
+        } else if (type === "disbookmark") {
+            const like = await zpLikesModel.destroy({
+                where: {
+                    user_id,
+                    post_id
+                }
+            });
+        }
+
+        return { status: 'success' };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
 export {
+    bookmarkPost,
+    createComments,
     getInfinitePosts,
     createPostGroups,
     getPostComments,

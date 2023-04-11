@@ -30,6 +30,22 @@ const zpCommentsModel = connectDb.define("comments", {
         type: DataTypes.STRING(100),
         allowNull: true,
     },
+    count_reject: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    reply: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    reply_to_reply: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    user_id_reply: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
     create_at: {
         type: DataTypes.DATE,
         allowNull: true,

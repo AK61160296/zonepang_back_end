@@ -1,6 +1,6 @@
 import express from 'express';
 const groupsRouter = express.Router();
-import { getGroupsAll, getGroupsByUserId, getGroupsmore, getPathGroups, getGroupsById, getGroupssuggest, getPinGroups, addPinGroup } from '../controller/groupsController.js';
+import { sortPinGroup, getGroupsAll, getGroupsByUserId, getGroupsmore, getPathGroups, getGroupsById, getGroupssuggest, getPinGroups, addPinGroup } from '../controller/groupsController.js';
 
 groupsRouter.get('/getGroupsAll', async function (req, res) {
     try {
@@ -65,7 +65,6 @@ groupsRouter.get('/getGroupsById', async function (req, res) {
 groupsRouter.get('/getPinGroups', async function (req, res) {
     try {
         const userId = req.query.userId;
-        console.log(userId)
         const groups = await getPinGroups(userId);
         res.json(groups);
     } catch (error) {
@@ -78,6 +77,19 @@ groupsRouter.post('/addPinGroup', async function (req, res) {
         const { user_id, group_id, type } = req.body;
         const status = await addPinGroup(user_id, group_id, type);
         res.json(status);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+groupsRouter.put('/sortPinGroup/:id', async function (req, res) {
+    try {
+
+        const { id } = req.params;
+
+        const { newItems } = req.body;
+        const status = await sortPinGroup(newItems);
+        res.json(newItems);
     } catch (error) {
         console.log(error)
     }

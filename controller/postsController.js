@@ -168,8 +168,8 @@ async function getPostComments(postId, limit, offset) {
                     required: true,
                     attributes: ['id', 'name', 'avatar']
                 },
-            ]
-            // order: [['created_at', 'DESC']],
+            ],
+            order: [['created_at', 'ASC']],
         });
 
         const getModifiedComment = async (comment) => {
@@ -254,14 +254,23 @@ async function likePost(user_id, post_id, type) {
 async function createComments(post_id, user_id, text, reply_id, user_id_reply, files) {
     try {
         let comment = []
+        if (files && files.length > 0) {
+            var file_name = files[0].key
+            var file_type = files[0].mimetype
+            var get_type = files[0].mimetype
+        }else{
+            var file_name = null
+            var file_type = null
+            var get_type = null
+        }
         if (reply_id) {
             comment = await zpCommentsModel.create({
                 text,
                 user_id,
                 post_id,
-                file_name: files[0].key,
-                file_type: files[0].mimetype,
-                get_type: files[0].mimetype,
+                file_name: file_name,
+                file_type: file_type,
+                get_type: get_type,
                 reply: 1,
                 reply_to_reply: reply_id,
                 user_id_reply: user_id_reply,
@@ -273,9 +282,9 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, f
                 text,
                 user_id,
                 post_id,
-                file_name: files[0].key,
-                file_type: files[0].mimetype,
-                get_type: files[0].mimetype,
+                file_name: file_name,
+                file_type: file_type,
+                get_type: get_type,
                 create_at: Date.now(),
                 update_at: Date.now()
             });

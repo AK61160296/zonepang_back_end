@@ -21,6 +21,11 @@ async function getGroupsByUserId(userId) {
         const groups = await zpUserGroupsModel.findAll({
             where: {
                 user_id: userId,
+                group_id: {
+                    [Op.notIn]: Sequelize.literal(
+                        `(SELECT DISTINCT group_id FROM pins WHERE user_id = ${userId})`
+                    ),
+                },
             },
             include: [{
                 model: zpGroupsModel,
@@ -43,9 +48,17 @@ async function getGroupssuggest() {
         return { status: 'error', error: error };
     }
 }
-async function getGroupsmore() {
+async function getGroupsmore(userId) {
     try {
-        const groups = await zpGroupsModel.findAll();
+        const groups = await zpGroupsModel.findAll({
+            where: {
+                group_id: {
+                    [Op.notIn]: Sequelize.literal(
+                        `(SELECT DISTINCT group_id FROM user_groups WHERE user_id = ${userId})`
+                    ),
+                },
+            },
+        });
         return { status: 'success', groups };
     } catch (error) {
         console.error(error);
@@ -89,6 +102,7 @@ async function getPinGroups(userId) {
             include: [{
                 model: zpGroupsModel,
             }],
+            order: [['sort', 'ASC']],
         });
         const promises = groups.map(async (group) => {
             const { group_id } = group.group;
@@ -116,30 +130,30 @@ async function getPinGroups(userId) {
     }
 }
 
-async function addPinGroup(user_id, group_id, type) {
+async function addPinGroup(userId, group_id, type) {
     try {
         if (type === "pin") {
             let sortLast = await zpPinsModel.findAll({
-                user_id,
+                user_id: userId,
                 attributes: [[Sequelize.fn('max', Sequelize.col('sort')), 'maxSort']],
                 raw: true,
             })
             console.log(sortLast[0]['maxSort'])
             const pin = await zpPinsModel.create({
-                user_id,
-                group_id,
+                user_id: userId,
+                group_id: group_id,
                 sort: sortLast[0]['maxSort'] + 1
             });
         } else if (type === "dispin") {
             const pin = await zpPinsModel.destroy({
                 where: {
-                    user_id,
-                    group_id
+                    user_id: userId,
+                    group_id: group_id,
                 }
             });
             const pins = await zpPinsModel.findAll({
                 where: {
-                    user_id,
+                    user_id: userId,
                 },
                 order: [['sort', 'ASC']],
             });
@@ -159,7 +173,30 @@ async function addPinGroup(user_id, group_id, type) {
     }
 }
 
+async function sortPinGroup(newItems) {
+    try {
+        const items = newItems.map((item, index) => ({
+            id: item.id,
+            sort: index + 1,
+        }));
+
+        const promises = items.map((item) =>
+            zpPinsModel.update(
+                { sort: item.sort },
+                { where: { pin_id: item.id } } // กำหนดค่า group_id ตามต้องการ
+            )
+        );
+        await Promise.all(promises);
+
+        return { status: 'success' };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
 export {
+    sortPinGroup,
     addPinGroup,
     getPinGroups,
     getGroupsAll,

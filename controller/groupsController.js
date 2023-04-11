@@ -28,7 +28,7 @@ async function getGroupsByUserId(userId) {
             }],
 
         });
-        return { status: 'success', data: groups };
+        return { status: 'success', groups };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };

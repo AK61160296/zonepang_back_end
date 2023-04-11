@@ -33,8 +33,8 @@ createCommentsRouter.post('/createComments', upload.any('file'), async function 
     try {
 
         const files = req.files;
-        const { post_id, user_id, reply_id } = req.body;
-        const createCommentsRes = await createComments(post_id, user_id, reply_id, files);
+        const { post_id, user_id, text, reply_id, user_id_reply } = req.body;
+        const createCommentsRes = await createComments(post_id, user_id, text, reply_id, user_id_reply, files);
         if (createCommentsRes.status === 'success') {
             res.json({
                 data: createCommentsRes
@@ -56,3 +56,14 @@ createCommentsRouter.post('/createComments', upload.any('file'), async function 
         });
     }
 });
+
+async function deleteS3File(fileKey) {
+    try {
+        await s3.deleteObject({ Bucket: 'zonepang', Key: fileKey }).promise();
+        console.log(`File ${fileKey} has been deleted from S3.`);
+    } catch (error) {
+        console.error(`Failed to delete file ${fileKey} from S3: ${error}`);
+    }
+}
+
+export { createCommentsRouter };

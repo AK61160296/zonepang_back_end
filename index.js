@@ -7,7 +7,8 @@ import cors from "cors";
 import {
   groupsRouter,
   postsRouter,
-  userRouter
+  userRouter,
+  createCommentsRouter
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
   res.send("API Facebook Send");
 });
 
+app.use("/api", apiKeyMiddleware, createCommentsRouter);
 app.use("/api", apiKeyMiddleware, groupsRouter);
 app.use("/api", apiKeyMiddleware, postsRouter);
 app.use("/api", apiKeyMiddleware, userRouter);

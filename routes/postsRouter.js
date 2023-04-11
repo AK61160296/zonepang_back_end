@@ -1,5 +1,5 @@
 const postsRouter = express.Router();
-import { getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost,bookmarkPost } from '../controller/postsController.js';
+import { getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost, bookmarkPost } from '../controller/postsController.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -29,7 +29,14 @@ const upload = multer({
     })
 });
 
-
+async function deleteS3File(fileKey) {
+    try {
+        await s3.deleteObject({ Bucket: 'zonepang', Key: fileKey }).promise();
+        console.log(`File ${fileKey} has been deleted from S3.`);
+    } catch (error) {
+        console.error(`Failed to delete file ${fileKey} from S3: ${error}`);
+    }
+}
 
 postsRouter.post('/createPostGroups', upload.any('file'), async function (req, res) {
     try {

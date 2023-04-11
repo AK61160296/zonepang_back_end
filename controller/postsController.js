@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel,zpBookmarksModel } from '../models/index.js';
+import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel, zpBookmarksModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
@@ -251,10 +251,38 @@ async function likePost(user_id, post_id, type) {
     }
 }
 
-async function createComments(post_id, user_id, reply_id, files) {
+async function createComments(post_id, user_id, text, reply_id, user_id_reply, files) {
     try {
+        let comment = []
+        if (reply_id) {
+            comment = await zpCommentsModel.create({
+                text,
+                user_id,
+                post_id,
+                file_name: files[0].key,
+                file_type: files[0].mimetype,
+                get_type: files[0].mimetype,
+                reply: 1,
+                reply_to_reply: reply_id,
+                user_id_reply: user_id_reply,
+                create_at: Date.now(),
+                update_at: Date.now()
+            });
+        } else {
+            comment = await zpCommentsModel.create({
+                text,
+                user_id,
+                post_id,
+                file_name: files[0].key,
+                file_type: files[0].mimetype,
+                get_type: files[0].mimetype,
+                create_at: Date.now(),
+                update_at: Date.now()
+            });
+        }
 
-        return { status: 'success', atmIdStr };
+
+        return { status: 'success', comment };
 
     } catch (error) {
         console.error(error);

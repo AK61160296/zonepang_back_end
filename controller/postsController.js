@@ -169,7 +169,7 @@ async function getPostComments(postId, limit, offset) {
                     attributes: ['id', 'name', 'avatar']
                 },
             ],
-            order: [['created_at', 'ASC']],
+            order: [['create_at', 'asc']],
         });
 
         const getModifiedComment = async (comment) => {

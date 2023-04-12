@@ -1,6 +1,6 @@
 import express from 'express';
 const groupsRouter = express.Router();
-import { sortPinGroup, getGroupsAll, getGroupsByUserId, getGroupsmore, getPathGroups, getGroupsById, getGroupssuggest, getPinGroups, addPinGroup } from '../controller/groupsController.js';
+import { joinGroup, sortPinGroup, getGroupsAll, getGroupsByUserId, getGroupsmore, getPathGroups, getGroupsById, getGroupssuggest, getPinGroups, addPinGroup } from '../controller/groupsController.js';
 
 groupsRouter.get('/getGroupsAll', async function (req, res) {
     try {
@@ -90,6 +90,16 @@ groupsRouter.put('/sortPinGroup/:id', async function (req, res) {
         const { newItems } = req.body;
         const status = await sortPinGroup(newItems);
         res.json(newItems);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+groupsRouter.post('/joinGroup', async function (req, res) {
+    try {
+        const { group_id, user_id } = req.body;
+        const status = await joinGroup(group_id, user_id);
+        res.json(status);
     } catch (error) {
         console.log(error)
     }

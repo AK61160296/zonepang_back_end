@@ -194,8 +194,19 @@ async function sortPinGroup(newItems) {
         return { status: 'error', error: error };
     }
 }
+async function joinGroup(group, user_id) {
+    try {
+
+        return { status: 'success' };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
 
 export {
+    joinGroup,
     sortPinGroup,
     addPinGroup,
     getPinGroups,

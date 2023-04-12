@@ -4,7 +4,7 @@ import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zp
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
-
+import Fuse from 'fuse.js';
 async function createPostGroups(content, user_id, groupIds, files) {
     try {
         const postIds = [];
@@ -258,7 +258,7 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, f
             var file_name = files[0].key
             var file_type = files[0].mimetype
             var get_type = files[0].mimetype
-        }else{
+        } else {
             var file_name = null
             var file_type = null
             var get_type = null
@@ -298,23 +298,36 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, f
         return { status: 'error', error: error };
     }
 }
-async function bookmarkPost(user_id, post_id, type) {
-    try {
-        if (type === "bookmark") {
-            const like = await zpLikesModel.create({
-                user_id,
-                post_id
-            });
-        } else if (type === "disbookmark") {
-            const like = await zpLikesModel.destroy({
-                where: {
-                    user_id,
-                    post_id
-                }
-            });
-        }
 
-        return { status: 'success' };
+async function seachUserAndGroup(keywords) {
+    try {
+        const users = await zpUsersModel.findAll({
+            where: {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${keywords}%` } },
+                    { fullname: { [Op.like]: `%${keywords}%` } },
+                ],
+            },
+            attributes: ["id", "name", "avatar"],
+        }).then(users => users.map(user => ({ ...user.toJSON(), type: 'user' })));
+
+        const groups = await zpGroupsModel.findAll({
+            where: {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${keywords}%` } },
+                ],
+            },
+            attributes: ["group_id", "name", "image_group"],
+        }).then(groups => groups.map(group => ({ ...group.toJSON(), type: 'group' })));
+
+        const fuse = new Fuse([...users, ...groups], {
+            keys: ["name"],
+        });
+
+        let sliceArr = fuse.search(keywords);
+        const result = sliceArr.slice(0,7);
+        return { status: "success",result };
+
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
@@ -322,11 +335,11 @@ async function bookmarkPost(user_id, post_id, type) {
 }
 
 export {
-    bookmarkPost,
     createComments,
     getInfinitePosts,
     createPostGroups,
     getPostComments,
     getPostReplyComments,
     likePost,
+    seachUserAndGroup
 }

@@ -86,7 +86,6 @@ groupsRouter.put('/sortPinGroup/:id', async function (req, res) {
     try {
 
         const { id } = req.params;
-
         const { newItems } = req.body;
         const status = await sortPinGroup(newItems);
         res.json(newItems);
@@ -97,8 +96,8 @@ groupsRouter.put('/sortPinGroup/:id', async function (req, res) {
 
 groupsRouter.post('/joinGroup', async function (req, res) {
     try {
-        const { group_id, user_id } = req.body;
-        const status = await joinGroup(group_id, user_id);
+        const { group_id, user_id, type } = req.body;
+        const status = await joinGroup(user_id, group_id, type);
         res.json(status);
     } catch (error) {
         console.log(error)

@@ -1,7 +1,7 @@
 import { connectDb } from "../config/database.js";
 import { DataTypes } from "sequelize";
-const zpBookmarksModel = connectDb.define("bookmarks", {
-    bookmark_id: {
+const zpFollowsModel = connectDb.define("follows", {
+    follow_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -10,11 +10,7 @@ const zpBookmarksModel = connectDb.define("bookmarks", {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
-    post_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-    },
-    sort: {
+    user_follow_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
@@ -31,4 +27,4 @@ const zpBookmarksModel = connectDb.define("bookmarks", {
     freezeTableName: true
 });
 
-export { zpBookmarksModel }
+export { zpFollowsModel }

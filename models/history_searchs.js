@@ -1,7 +1,8 @@
 import { connectDb } from "../config/database.js";
 import { DataTypes } from "sequelize";
-const zpBookmarksModel = connectDb.define("bookmarks", {
-    bookmark_id: {
+import { zpGroupsModel } from "./groups.js";
+const zpHistorySearchsModel = connectDb.define("history_searchs", {
+    history_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -10,12 +11,24 @@ const zpBookmarksModel = connectDb.define("bookmarks", {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
-    post_id: {
+    name: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+    },
+    user_search_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
-    sort: {
+    group_search_id: {
         type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    file_name: {
+        type: DataTypes.STRING(199),
+        allowNull: true,
+    },
+    type: {
+        type: DataTypes.STRING(100),
         allowNull: true,
     },
     create_at: {
@@ -31,4 +44,5 @@ const zpBookmarksModel = connectDb.define("bookmarks", {
     freezeTableName: true
 });
 
-export { zpBookmarksModel }
+
+export { zpHistorySearchsModel }

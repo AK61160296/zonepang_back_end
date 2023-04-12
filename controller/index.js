@@ -1,8 +1,11 @@
-import { groupsController } from "./groupsController.js";
-import { postsController } from "./postsController.js";
-import { authController } from "./authController.js";
+import { sortBookmark, bookmarkPost } from "./bookmarkController.js";
+import { followUser } from "./usersController.js";
+import { seachHistory, deleteSeachHistory, addSeachHistory } from "./feedController.js";
 export {
-    groupsController,
-    postsController,
-    authController
+    sortBookmark,
+    bookmarkPost,
+    followUser,
+    seachHistory,
+    deleteSeachHistory,
+    addSeachHistory
 }

@@ -1,6 +1,7 @@
 
 const userRouter = express.Router();
 import { editProfile } from '../controller/authController.js';
+import { sortBookmark } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -42,5 +43,29 @@ userRouter.post('/editProfile', upload.any('file'), async function (req, res) {
         console.log(error)
     }
 });
+
+userRouter.put('/sortBookmark/:id', async function (req, res) {
+    try {
+
+        const { id } = req.params;
+
+        const { newItems } = req.body;
+        const status = await sortBookmark(newItems);
+        res.json(newItems);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+userRouter.post('/followUser', async function (req, res) {
+    try {
+        const { user_id, user_follow_id, type } = req.body;
+        const status = await followUser(user_id, user_follow_id, type);
+        res.json(status);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
 
 export { userRouter };

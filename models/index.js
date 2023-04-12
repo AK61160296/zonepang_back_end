@@ -12,6 +12,8 @@ import { zpAttchmentsPostsModel } from "./attachments_posts.js";
 import { zpCommentsModel } from "./comments.js";
 import { zpPinsModel } from "./pins.js";
 import { zpBookmarksModel } from "./bookmarks.js";
+import { zpFollowsModel } from "./follows.js";
+import { zpHistorySearchsModel } from "./history_searchs.js";
 
 export {
     zpPinsModel,
@@ -23,5 +25,7 @@ export {
     zpLikesModel,
     zpMatchAttachmentsModel,
     zpCommentsModel,
-    zpBookmarksModel
+    zpBookmarksModel,
+    zpFollowsModel,
+    zpHistorySearchsModel
 }

@@ -194,8 +194,21 @@ async function sortPinGroup(newItems) {
         return { status: 'error', error: error };
     }
 }
-async function joinGroup(group, user_id) {
+async function joinGroup(userId, groupId, type) {
     try {
+        if (type == 'join') {
+            const userGroup = await zpUserGroupsModel.create({
+                user_id: userId,
+                group_id: groupId,
+                create_at: Date.now(),
+                update_at: Date.now()
+            });
+        } else {
+            const userGroup = await zpUserGroupsModel.destroy({
+                user_id: userId,
+                group_id: groupId,
+            });
+        }
 
         return { status: 'success' };
     } catch (error) {

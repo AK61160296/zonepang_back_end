@@ -1,5 +1,6 @@
 const postsRouter = express.Router();
-import { getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost, bookmarkPost } from '../controller/postsController.js';
+import { seachUserAndGroup, getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost } from '../controller/postsController.js';
+import { bookmarkPost } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -71,7 +72,6 @@ postsRouter.get('/getInfinitePosts', async function (req, res) {
     try {
         const page = req.query.page
         const user_id = req.query.user_id
-        console.log(user_id)
         const feedPost = await getInfinitePosts(page, user_id);
         res.json({
             data: feedPost
@@ -152,6 +152,16 @@ postsRouter.get('/getPostReplyComments', async function (req, res) {
             message: 'Failed to get post comments',
             error: error.message
         });
+    }
+});
+
+postsRouter.get('/seachUserAndGroup', async function (req, res) {
+    try {
+        const keywords = req.query.keywords;
+        const userAndGroups = await seachUserAndGroup(keywords);
+        res.json(userAndGroups);
+    } catch (error) {
+        console.log(error)
     }
 });
 

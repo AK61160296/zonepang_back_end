@@ -78,8 +78,9 @@ userRouter.get('/getUserPath', async function (req, res) {
 
 userRouter.get('/getUserProfile', async function (req, res) {
     try {
+        const userProfileId = req.query.userProfileId;
         const userId = req.query.userId;
-        const path = await getUserProfile(userId);
+        const path = await getUserProfile(userProfileId,userId);
         res.json(path);
     } catch (error) {
         console.log(error)

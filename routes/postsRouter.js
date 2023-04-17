@@ -1,5 +1,5 @@
 const postsRouter = express.Router();
-import { seachUserAndGroup, getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost } from '../controller/postsController.js';
+import { seachUserAndGroup, getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost,getInfinitePostsByUserId } from '../controller/postsController.js';
 import { bookmarkPost } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
@@ -70,9 +70,23 @@ postsRouter.post('/createPostGroups', upload.any('file'), async function (req, r
 
 postsRouter.get('/getInfinitePosts', async function (req, res) {
     try {
+        const userIdProfile = req.query.userIdProfile
         const page = req.query.page
         const user_id = req.query.user_id
-        const feedPost = await getInfinitePosts(page, user_id);
+        const feedPost = await getInfinitePosts(userIdProfile,page, user_id);
+        res.json({
+            data: feedPost
+        });
+    } catch (error) {
+        console.log(error)
+    }
+});
+postsRouter.get('/getInfinitePostsByUserId', async function (req, res) {
+    try {
+        const userIdProfile = req.query.userIdProfile
+        const page = req.query.page
+        const user_id = req.query.user_id
+        const feedPost = await getInfinitePostsByUserId(userIdProfile,page, user_id);
         res.json({
             data: feedPost
         });

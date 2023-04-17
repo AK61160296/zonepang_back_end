@@ -1,5 +1,5 @@
 import { sortBookmark, bookmarkPost } from "./bookmarkController.js";
-import { followUser,settingNotification,getUserProfile,getUserPath } from "./usersController.js";
+import { followUser,settingNotification,getSettingNotification,getUserProfile,getUserPath } from "./usersController.js";
 import { seachHistory, deleteSeachHistory, addSeachHistory } from "./feedController.js";
 export {
     sortBookmark,
@@ -7,6 +7,7 @@ export {
     followUser,
     getUserProfile,
     settingNotification,
+    getSettingNotification,
     seachHistory,
     deleteSeachHistory,
     addSeachHistory,

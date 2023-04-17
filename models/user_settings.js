@@ -14,26 +14,6 @@ const zpUserSettingsModel = connectDb.define("user_settings", {
         type: DataTypes.TEXT,
         allowNull: true,
     },
-    comment: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-    },
-    follow: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-    },
-    tag: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-    },
-    group: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-    },
-    is_setting_all: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-    },
 }, {
     timestamps: false,
     freezeTableName: true

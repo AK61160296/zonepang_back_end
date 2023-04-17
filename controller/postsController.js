@@ -316,7 +316,7 @@ async function getPostComments(postId, limit, offset) {
                     attributes: ['id', 'name', 'avatar']
                 },
             ],
-            order: [['create_at', 'asc']],
+            order: [['create_at', 'desc']],
         });
 
         const getModifiedComment = async (comment) => {
@@ -436,7 +436,16 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, f
                 update_at: Date.now()
             });
         }
+   // เชื่อมโยงกับตารางผู้ใช้งาน (zpUsersModel) โดยใช้ user_id เป็น key
+        const user = await zpUsersModel.findOne({
+            where: {
+                id: user_id
+            },
+            attributes: ['id', 'name', 'avatar'] // ระบุฟิลด์ที่ต้องการ
+        });
 
+        // เพิ่มข้อมูลผู้ใช้งานใน object comment
+        comment.dataValues.user = user;
 
         return { status: 'success', comment };
 

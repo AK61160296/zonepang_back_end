@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel, zpBookmarksModel, zpFollowsModel } from '../models/index.js';
+import { zpPostsModel, zpUserSettingsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel, zpBookmarksModel, zpFollowsModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
@@ -34,16 +34,63 @@ async function followUser(userId, userFollowId, type) {
 
 }
 
-async function settingNotification() {
+async function getSettingNotification(userId) {
 
     try {
-
-        return { status: 'success' };
+        const settingNoti = await zpUserSettingsModel.findOne({
+            where: {
+                user_id: userId
+            }
+        })
+        return { status: 'success', settingNoti };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
     }
 
+}
+
+
+async function settingNotification(userId, all, comment, follow, tag, group) {
+    try {
+        if (all) {
+            var settingData = {
+                all: true,
+                comment: false,
+                follow: false,
+                tag: false,
+                group: false,
+            };
+        } else {
+            var settingData = {
+                all: all,
+                comment: comment,
+                follow: follow,
+                tag: tag,
+                group: group,
+            };
+
+
+        }
+
+        const stringifiedSettingData = JSON.stringify(settingData);
+
+        const result = await zpUserSettingsModel.update(
+            {
+                setting: stringifiedSettingData,
+            },
+            {
+                where: {
+                    user_id: userId,
+                },
+            }
+        );
+
+        return { status: "success" };
+    } catch (error) {
+        console.error(error);
+        return { status: "error", error: error };
+    }
 }
 
 async function getUserProfile(userProfileId, userId) {
@@ -80,9 +127,9 @@ async function getUserProfile(userProfileId, userId) {
                 user_follow_id: userProfile.id
             }
         })
-        if(isFollow){
+        if (isFollow) {
             isFollow = true
-        }else{
+        } else {
             isFollow = false
         }
 
@@ -109,9 +156,11 @@ async function getUserPath() {
 }
 
 
+
 export {
     followUser,
     settingNotification,
+    getSettingNotification,
     getUserProfile,
     getUserPath
 }

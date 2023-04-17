@@ -18,6 +18,10 @@ const zpUsersModel = connectDb.define("users", {
         type: DataTypes.STRING(191),
         allowNull: true,
     },
+    email: {
+        type: DataTypes.STRING(191),
+        allowNull: true,
+    },
     email_verified_at: {
         type: DataTypes.DATE,
         allowNull: true,

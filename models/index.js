@@ -14,6 +14,7 @@ import { zpPinsModel } from "./pins.js";
 import { zpBookmarksModel } from "./bookmarks.js";
 import { zpFollowsModel } from "./follows.js";
 import { zpHistorySearchsModel } from "./history_searchs.js";
+import { zpUserSettingsModel } from "./user_settings.js";
 
 export {
     zpPinsModel,
@@ -27,5 +28,6 @@ export {
     zpCommentsModel,
     zpBookmarksModel,
     zpFollowsModel,
-    zpHistorySearchsModel
+    zpHistorySearchsModel,
+    zpUserSettingsModel
 }

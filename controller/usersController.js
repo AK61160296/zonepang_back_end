@@ -34,6 +34,52 @@ async function followUser(userId, userFollowId, type) {
 
 }
 
+async function settingNotification() {
+
+    try {
+
+        return { status: 'success' };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+
+}
+
+async function getUserProfile(userId) {
+
+    try {
+        const userProfile = await zpUsersModel.findOne({
+            where: {
+                code_user: userId
+            }
+        })
+        return { status: 'success', userProfile };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+
+}
+
+async function getUserPath() {
+
+    try {
+        const userPath = await zpUsersModel.findAll({
+            attributes: ["code_user"]
+        })
+        return { status: 'success', userPath };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+
+}
+
+
 export {
-    followUser
+    followUser,
+    settingNotification,
+    getUserProfile,
+    getUserPath
 }

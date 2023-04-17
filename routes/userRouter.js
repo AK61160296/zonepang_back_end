@@ -1,7 +1,7 @@
 
 const userRouter = express.Router();
 import { editProfile } from '../controller/authController.js';
-import { sortBookmark } from '../controller/index.js';
+import { sortBookmark, getUserPath, getUserProfile } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -67,5 +67,23 @@ userRouter.post('/followUser', async function (req, res) {
     }
 });
 
+userRouter.get('/getUserPath', async function (req, res) {
+    try {
+        const path = await getUserPath();
+        res.json(path);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+userRouter.get('/getUserProfile', async function (req, res) {
+    try {
+        const userId = req.query.userId;
+        const path = await getUserProfile(userId);
+        res.json(path);
+    } catch (error) {
+        console.log(error)
+    }
+});
 
 export { userRouter };

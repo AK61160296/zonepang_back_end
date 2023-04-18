@@ -18,7 +18,7 @@ async function getGroupsAll() {
 async function getGroupsByUserId(userId) {
     try {
 
-        const groups = await zpUserGroupsModel.findAll({
+        let groupsData = await zpUserGroupsModel.findAll({
             where: {
                 user_id: userId,
                 group_id: {
@@ -31,17 +31,59 @@ async function getGroupsByUserId(userId) {
                 model: zpGroupsModel,
                 foreignKey: 'group_id'
             }],
-
         });
+        const promises = groupsData.map(async (group) => {
+            console.log(group)
+             const { group_id } = group.group;
+            const totalPost = await zpPostsModel.count({
+                where: {
+                    group_id,
+                },
+            });
+            const totalUserGroups = await zpUserGroupsModel.count({
+                where: {
+                    group_id,
+                },
+            });
+            return {
+                ...group.toJSON(),
+                totalPost,
+                totalUserGroups,
+            };
+        });
+        const groups = await Promise.all(promises);
+
+
         return { status: 'success', groups };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
     }
 }
-async function getGroupssuggest() {
+async function getGroupssuggest(userId) {
     try {
-        const groups = await zpGroupsModel.findAll();
+        const groups = await zpGroupsModel.findAll({
+            attributes: {
+                include: [
+                    [
+                        Sequelize.literal(`(
+                      SELECT COUNT(*) 
+                      FROM user_groups 
+                      WHERE user_groups.group_id = groups.group_id
+                    )`),
+                        'member_count'
+                    ]
+                ]
+            },
+            order: [[Sequelize.literal('member_count'), 'DESC']],
+            where: {
+                group_id: {
+                    [Op.notIn]: Sequelize.literal(
+                        `(SELECT DISTINCT group_id FROM user_groups WHERE user_id = ${userId})`
+                    ),
+                },
+            },
+        });
         return { status: 'success', groups };
     } catch (error) {
         console.error(error);

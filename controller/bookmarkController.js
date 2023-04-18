@@ -69,7 +69,70 @@ async function sortBookmark(newItems) {
         return { status: 'error', error: error };
     }
 }
+
+async function getBookmarks(userId) {
+    try {
+        let bookmarks = await zpBookmarksModel.findAll({
+            where: {
+                user_id: 1
+            },
+            include: [
+                {
+                    model: zpPostsModel,
+                    required: false,
+                    include: [
+                        {
+                            model: zpUsersModel,
+                            attributes: ['id', 'name', 'avatar'],
+                            required: true
+                        },
+                        {
+                            model: zpGroupsModel,
+                            required: true,
+                        },
+                        {
+                            model: zpMatchAttachmentsModel,
+                            attributes: ['atm_post_id'],
+                            required: false,
+                        }
+                    ]
+                },
+            ]
+        })
+
+        const getModifiedPost = async (bookmark) => {
+            let attachments = [];
+            let atm_post_ids = [];
+            if (bookmark.post.match_attachments && bookmark.post.match_attachments.length > 0) {
+                atm_post_ids = bookmark.post.match_attachments[0].atm_post_id.split(',');
+
+                // Query the zpAttchmentsPostsModel for the required information
+                attachments = await zpAttchmentsPostsModel.findAll({
+                    where: {
+                        atm_post_id: {
+                            [Op.in]: atm_post_ids
+                        }
+                    }
+                });
+            }
+
+
+            return {
+                ...bookmark.get({ plain: true }),
+                attachments,
+            };
+        };
+
+        bookmarks = await Promise.all(bookmarks.map(bookmark => getModifiedPost(bookmark)));
+
+        return { status: 'success', bookmarks };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 export {
     sortBookmark,
-    bookmarkPost
+    bookmarkPost,
+    getBookmarks
 }

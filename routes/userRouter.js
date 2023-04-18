@@ -77,7 +77,8 @@ userRouter.get('/getUserPath', async function (req, res) {
 });
 userRouter.get('/getBookmarks', async function (req, res) {
     try {
-        const bookmark = await getBookmarks();
+        const userId = req.query.user_id;
+        const bookmark = await getBookmarks(userId);
         res.json(bookmark);
     } catch (error) {
         console.log(error)

@@ -9,7 +9,8 @@ import {
   postsRouter,
   userRouter,
   createCommentsRouter,
-  feedRouter
+  feedRouter,
+  notificationRouter
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
@@ -36,6 +37,7 @@ app.use("/api", apiKeyMiddleware, groupsRouter);
 app.use("/api", apiKeyMiddleware, postsRouter);
 app.use("/api", apiKeyMiddleware, userRouter);
 app.use("/api", apiKeyMiddleware, feedRouter);
+app.use("/api", apiKeyMiddleware, notificationRouter);
 
 
 const port = process.env.API_PORT ? process.env.API_PORT : 4000;

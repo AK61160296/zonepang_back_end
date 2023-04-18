@@ -74,7 +74,7 @@ async function getBookmarks(userId) {
     try {
         let bookmarks = await zpBookmarksModel.findAll({
             where: {
-                user_id: 1
+                user_id: userId
             },
             include: [
                 {

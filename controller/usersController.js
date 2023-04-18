@@ -42,6 +42,8 @@ async function getSettingNotification(userId) {
                 user_id: userId
             }
         })
+        const setting = JSON.parse(settingNoti.setting);
+
         return { status: 'success', settingNoti };
     } catch (error) {
         console.error(error);

@@ -213,7 +213,7 @@ async function getInfinitePosts(userIdProfile, page, user_id) {
                         include: [{
                             model: zpUsersModel,
                             required: false,
-                            attributes: ['id', 'name', 'avatar','code_user'],
+                            attributes: ['id', 'name', 'avatar', 'code_user'],
                         }]
                     },
                     {
@@ -321,7 +321,7 @@ async function getInfinitePostsByUserId(userIdProfile, page, user_id) {
                     include: [{
                         model: zpUsersModel,
                         required: false,
-                        attributes: ['id', 'name', 'avatar','code_user'],
+                        attributes: ['id', 'name', 'avatar', 'code_user'],
                     }]
                 },
                 {
@@ -362,6 +362,7 @@ async function getInfinitePostsByUserId(userIdProfile, page, user_id) {
                     where: {
                         post_id: post.post_id,
                         user_id: user_id,
+                        comment_id : null
                     },
                 });
 
@@ -408,7 +409,7 @@ async function getPostComments(postId, limit, offset) {
                 {
                     model: zpUsersModel,
                     required: true,
-                    attributes: ['id', 'name', 'avatar','code_user'],
+                    attributes: ['id', 'name', 'avatar', 'code_user'],
                 },
             ],
             order: [['create_at', 'desc']],
@@ -448,12 +449,12 @@ async function getPostReplyComments(comment_id) {
                 {
                     model: zpUsersModel,
                     required: true,
-                    attributes: ['id', 'name', 'avatar','code_user'],
+                    attributes: ['id', 'name', 'avatar', 'code_user'],
                 },
                 {
                     model: zpUsersModel,
                     required: true,
-                    attributes: ['id', 'name', 'avatar','code_user'],
+                    attributes: ['id', 'name', 'avatar', 'code_user'],
                     as: 'user_reply',
                     where: {
                         id: Sequelize.col('comments.user_id_reply')
@@ -470,20 +471,39 @@ async function getPostReplyComments(comment_id) {
         return { status: 'error', error: error };
     }
 }
-async function likePost(user_id, post_id, type) {
+async function likePost(user_id, post_id, type, comment_id) {
     try {
         if (type === "like") {
-            const like = await zpLikesModel.create({
-                user_id,
-                post_id
-            });
-        } else if (type === "dislike") {
-            const like = await zpLikesModel.destroy({
-                where: {
+            if (comment_id) {
+                const like = await zpLikesModel.create({
+                    user_id,
+                    post_id,
+                    comment_id
+                });
+            } else {
+                const like = await zpLikesModel.create({
                     user_id,
                     post_id
-                }
-            });
+                });
+            }
+
+        } else if (type === "dislike") {
+            if (comment_id) {
+                const like = await zpLikesModel.destroy({
+                    where: {
+                        user_id,
+                        post_id,
+                        comment_id
+                    }
+                });
+            } else {
+                const like = await zpLikesModel.destroy({
+                    where: {
+                        user_id,
+                        post_id,
+                    }
+                });
+            }
         }
 
         return { status: 'success' };

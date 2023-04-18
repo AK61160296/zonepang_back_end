@@ -97,8 +97,8 @@ postsRouter.get('/getInfinitePostsByUserId', async function (req, res) {
 
 postsRouter.post('/likePost', async function (req, res) {
     try {
-        const { user_id, post_id, type } = req.body;
-        const status = await likePost(user_id, post_id, type);
+        const { user_id, post_id, type,comment_id } = req.body;
+        const status = await likePost(user_id, post_id, type,comment_id);
         res.json({ status });
     } catch (error) {
         console.log(error)

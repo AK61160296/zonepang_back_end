@@ -5,6 +5,19 @@ import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
 
+
+async function createNotification(userId,typeNoti) {
+    try {
+
+        return { status: "success" }
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+
+}
+
+
 async function getNotificationByUserId(page, userId) {
     try {
         const limit = 3;
@@ -22,25 +35,25 @@ async function getNotificationByUserId(page, userId) {
             var groupDetail = {}
             var postDetail = {}
             var userActive = {}
-            if (noti.group_id_active) {
+            if (noti.group_id_target) {
                 groupDetail = await zpGroupsModel.findAll({
                     where: {
-                        group_id: noti.group_id_active
+                        group_id: noti.group_id_target
                     },
                 });
             }
-            if (noti.post_id_active) {
+            if (noti.post_id_target) {
                 postDetail = await zpPostsModel.findAll({
                     where: {
-                        post_id: noti.post_id_active
+                        post_id: noti.post_id_target
                     },
                 });
             }
 
-            if (noti.user_id_active) {
+            if (noti.user_id_target) {
                 userActive = await zpUsersModel.findAll({
                     where: {
-                        id: noti.user_id_active
+                        id: noti.user_id_target
                     },
                     attributes: ['id', 'name', 'avatar']
                 });

@@ -8,15 +8,15 @@ import axios from 'axios';
 async function bookmarkPost(userId, post_id, type) {
     try {
         if (type === "bookmark") {
-            let sortLast = await zpBookmarksModel.findAll({
-                user_id: userId,
-                attributes: [[Sequelize.fn('max', Sequelize.col('sort')), 'maxSort']],
-                raw: true,
-            })
+            // let sortLast = await zpBookmarksModel.findAll({
+            //     user_id: userId,
+            //     attributes: [[Sequelize.fn('max', Sequelize.col('sort')), 'maxSort']],
+            //     raw: true,
+            // })
             const bookmark = await zpBookmarksModel.create({
                 user_id: userId,
                 post_id: post_id,
-                sort: sortLast[0]['maxSort'] + 1,
+                // sort: sortLast[0]['maxSort'] + 1,
                 create_at: Date.now(),
                 update_at: Date.now()
             });
@@ -27,17 +27,17 @@ async function bookmarkPost(userId, post_id, type) {
                     post_id: post_id,
                 }
             });
-            const bookmarks = await zpBookmarksModel.findAll({
-                where: {
-                    user_id: userId,
-                },
-                order: [['sort', 'ASC']],
-            });
-            let sort = 1;
-            for (const bookmark of bookmarks) {
-                await bookmark.update({ sort });
-                sort++;
-            }
+            // const bookmarks = await zpBookmarksModel.findAll({
+            //     where: {
+            //         user_id: userId,
+            //     },
+            //     order: [['sort', 'ASC']],
+            // });
+            // let sort = 1;
+            // for (const bookmark of bookmarks) {
+            //     await bookmark.update({ sort });
+            //     sort++;
+            // }
         }
 
         return { status: 'success' };
@@ -72,10 +72,12 @@ async function sortBookmark(newItems) {
 
 async function getBookmarks(userId) {
     try {
-        let bookmarks = await zpBookmarksModel.findAll({
+        let bookmarksUnpin = await zpBookmarksModel.findAll({
             where: {
-                user_id: userId
+                user_id: userId,
+                pin: 0
             },
+            order: [['create_at', 'asc']],
             include: [
                 {
                     model: zpPostsModel,
@@ -99,7 +101,37 @@ async function getBookmarks(userId) {
                 },
             ]
         })
-
+        let bookmarkspin = await zpBookmarksModel.findAll({
+            where: {
+                user_id: userId,
+                pin: {
+                    [Op.ne]: 0
+                }
+            },
+            order: [['sort', 'asc']],
+            include: [
+                {
+                    model: zpPostsModel,
+                    required: false,
+                    include: [
+                        {
+                            model: zpUsersModel,
+                            attributes: ['id', 'name', 'avatar'],
+                            required: true
+                        },
+                        {
+                            model: zpGroupsModel,
+                            required: true,
+                        },
+                        {
+                            model: zpMatchAttachmentsModel,
+                            attributes: ['atm_post_id'],
+                            required: false,
+                        }
+                    ]
+                },
+            ]
+        })
         const getModifiedPost = async (bookmark) => {
             let attachments = [];
             let atm_post_ids = [];
@@ -123,9 +155,10 @@ async function getBookmarks(userId) {
             };
         };
 
-        bookmarks = await Promise.all(bookmarks.map(bookmark => getModifiedPost(bookmark)));
+        bookmarkspin = await Promise.all(bookmarkspin.map(bookmark => getModifiedPost(bookmark)));
+        bookmarksUnpin = await Promise.all(bookmarksUnpin.map(bookmark => getModifiedPost(bookmark)));
 
-        return { status: 'success', bookmarks };
+        return { status: 'success', bookmarksUnpin, bookmarkspin };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };

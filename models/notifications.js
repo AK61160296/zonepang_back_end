@@ -22,6 +22,18 @@ const zpNotificationsModel = connectDb.define("notifications", {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
+    group_id_active: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    user_id_active: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    post_id_active: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
     create_at: {
         type: DataTypes.DATE,
         allowNull: true,

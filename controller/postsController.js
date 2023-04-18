@@ -213,7 +213,7 @@ async function getInfinitePosts(userIdProfile, page, user_id) {
                         include: [{
                             model: zpUsersModel,
                             required: false,
-                            attributes: ['id', 'name', 'avatar']
+                            attributes: ['id', 'name', 'avatar','code_user'],
                         }]
                     },
                     {
@@ -321,7 +321,7 @@ async function getInfinitePostsByUserId(userIdProfile, page, user_id) {
                     include: [{
                         model: zpUsersModel,
                         required: false,
-                        attributes: ['id', 'name', 'avatar']
+                        attributes: ['id', 'name', 'avatar','code_user'],
                     }]
                 },
                 {
@@ -408,7 +408,7 @@ async function getPostComments(postId, limit, offset) {
                 {
                     model: zpUsersModel,
                     required: true,
-                    attributes: ['id', 'name', 'avatar']
+                    attributes: ['id', 'name', 'avatar','code_user'],
                 },
             ],
             order: [['create_at', 'desc']],
@@ -448,12 +448,12 @@ async function getPostReplyComments(comment_id) {
                 {
                     model: zpUsersModel,
                     required: true,
-                    attributes: ['id', 'name', 'avatar'],
+                    attributes: ['id', 'name', 'avatar','code_user'],
                 },
                 {
                     model: zpUsersModel,
                     required: true,
-                    attributes: ['id', 'name', 'avatar'],
+                    attributes: ['id', 'name', 'avatar','code_user'],
                     as: 'user_reply',
                     where: {
                         id: Sequelize.col('comments.user_id_reply')

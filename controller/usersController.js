@@ -95,7 +95,7 @@ async function settingNotification(userId, all, comment, follow, tag, group) {
     }
 }
 
-async function getUserProfile(userProfileId, userId) {
+async function getUserProfile(userProfileId) {
 
     try {
 
@@ -123,19 +123,7 @@ async function getUserProfile(userProfileId, userId) {
             }
         })
 
-        let isFollow = await zpFollowsModel.findOne({
-            where: {
-                user_id: userId,
-                user_follow_id: userProfile.id
-            }
-        })
-        if (isFollow) {
-            isFollow = true
-        } else {
-            isFollow = false
-        }
-
-        return { status: 'success', userProfile, postCount, follower, following, isFollow };
+        return { status: 'success', userProfile, postCount, follower, following };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };

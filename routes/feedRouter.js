@@ -10,7 +10,7 @@ import multerS3 from 'multer-s3'
 
 feedRouter.get('/searchHistory', async function (req, res) {
     try {
-        const userId = req.query.userId;
+        const userId = req.headers['x-user-id'];
         const historyData = await seachHistory(userId);
         res.json(historyData);
     } catch (error) {

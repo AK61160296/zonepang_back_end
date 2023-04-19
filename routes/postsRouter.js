@@ -159,9 +159,7 @@ postsRouter.get('/getPostReplyComments', async function (req, res) {
 postsRouter.get('/seachUserAndGroup', async function (req, res) {
     try {
         const keywords = req.query.keywords;
-        const isGroup = req.query.isGroup;
-        const userId = req.query.user_id;
-        const userAndGroups = await seachUserAndGroup(keywords,isGroup,userId);
+        const userAndGroups = await seachUserAndGroup(keywords);
         res.json(userAndGroups);
     } catch (error) {
         console.log(error)

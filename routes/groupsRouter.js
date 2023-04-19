@@ -12,10 +12,11 @@ groupsRouter.get('/getGroupsAll', async function (req, res) {
         console.log(error)
     }
 });
-groupsRouter.post('/getGroupsByUserId', async function (req, res) {
+groupsRouter.get('/getGroupsByUserId', async function (req, res) {
     try {
-        const userId = req.body.userId;
-        const groups = await getGroupsByUserId(userId);
+        const keywords = req.query.keywords;
+        const userId = req.headers['x-user-id'];
+        const groups = await getGroupsByUserId(keywords,userId);
         res.json({
             data: groups
         });
@@ -64,7 +65,7 @@ groupsRouter.get('/getGroupsById', async function (req, res) {
 });
 groupsRouter.get('/getPinGroups', async function (req, res) {
     try {
-        const userId = req.query.userId;
+        const userId = req.headers['x-user-id'];
         const groups = await getPinGroups(userId);
         res.json(groups);
     } catch (error) {

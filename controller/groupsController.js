@@ -15,25 +15,56 @@ async function getGroupsAll() {
     }
 }
 
-async function getGroupsByUserId(userId) {
+async function getGroupsByUserId(keywords, userId) {
     try {
-
-        let groupsData = await zpUserGroupsModel.findAll({
-            where: {
-                user_id: userId,
-                group_id: {
-                    [Op.notIn]: Sequelize.literal(
-                        `(SELECT DISTINCT group_id FROM pins WHERE user_id = ${userId})`
-                    ),
+        if (keywords) {
+            console.log("aaa")
+            var groupsData = await zpUserGroupsModel.findAll({
+                where: {
+                    user_id: userId,
+                    [Op.and]: [
+                        {
+                            group_id: {
+                                [Op.notIn]: Sequelize.literal(
+                                    `(SELECT DISTINCT group_id FROM pins WHERE user_id = ${userId})`
+                                ),
+                            },
+                        },
+                        {
+                            "$group.name$": {
+                                [Op.like]: `%${keywords}%`,
+                            },
+                        },
+                    ],
                 },
-            },
-            include: [{
-                model: zpGroupsModel,
-                foreignKey: 'group_id'
-            }],
-        });
+                include: [
+                    {
+                        model: zpGroupsModel,
+                        foreignKey: 'group_id',
+                        as: 'group',
+                    },
+                ],
+            });
+        } else {
+            console.log("bbbb")
+            var groupsData = await zpUserGroupsModel.findAll({
+                where: {
+                    user_id: userId,
+                    group_id: {
+                        [Op.notIn]: Sequelize.literal(
+                            `(SELECT DISTINCT group_id FROM pins WHERE user_id = ${userId})`
+                        ),
+                    },
+                },
+                include: [{
+                    model: zpGroupsModel,
+                    foreignKey: 'group_id'
+                }],
+            });
+        }
+
         const promises = groupsData.map(async (group) => {
-             const { group_id } = group.group;
+            const { group_id } = group.group;
             const totalPost = await zpPostsModel.count({
                 where: {
                     group_id,

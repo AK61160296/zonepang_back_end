@@ -77,7 +77,7 @@ userRouter.get('/getUserPath', async function (req, res) {
 });
 userRouter.get('/getBookmarks', async function (req, res) {
     try {
-        const userId = req.query.user_id;
+        const userId = req.headers['x-user-id'];
         const bookmark = await getBookmarks(userId);
         res.json(bookmark);
     } catch (error) {
@@ -88,8 +88,7 @@ userRouter.get('/getBookmarks', async function (req, res) {
 userRouter.get('/getUserProfile', async function (req, res) {
     try {
         const userProfileId = req.query.userProfileId;
-        const userId = req.query.userId;
-        const userProfile = await getUserProfile(userProfileId, userId);
+        const userProfile = await getUserProfile(userProfileId);
         res.json(userProfile);
     } catch (error) {
         console.log(error)

@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel, zpBookmarksModel } from '../models/index.js';
+import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel, zpBookmarksModel,zpUserGroupsModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
@@ -247,7 +247,7 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id) {
             };
         };
 
-         posts = await Promise.all(posts.map(post => getModifiedPost(post)));
+        posts = await Promise.all(posts.map(post => getModifiedPost(post)));
 
         return posts;
     } catch (error) {
@@ -433,30 +433,52 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, f
     }
 }
 
-async function seachUserAndGroup(keywords) {
+async function seachUserAndGroup(keywords, isGroup,userId) {
     try {
-        const users = await zpUsersModel.findAll({
-            where: {
-                [Op.or]: [
-                    { name: { [Op.like]: `%${keywords}%` } },
-                    { fullname: { [Op.like]: `%${keywords}%` } },
-                ],
-            },
-            attributes: ["id", "name", "avatar"],
-        }).then(users => users.map(user => ({ ...user.toJSON(), type: 'user' })));
+        if (isGroup) {
+            const groups = await zpGroupsModel.findAll({
+                where: {
+                    [Op.or]: [
+                        { name: { [Op.like]: `%${keywords}%` } },
+                    ],
+                    group_id: {
+                        [Op.in]: Sequelize.literal(
+                            `(SELECT DISTINCT group_id FROM user_groups WHERE user_id = ${userId})`
+                        ),
+                    },
+                },
+                attributes: ["group_id", "name", "image_group"],
+            }).then(groups => groups.map(group => ({ ...group.toJSON(), type: 'group' })));
 
-        const groups = await zpGroupsModel.findAll({
-            where: {
-                [Op.or]: [
-                    { name: { [Op.like]: `%${keywords}%` } },
-                ],
-            },
-            attributes: ["group_id", "name", "image_group"],
-        }).then(groups => groups.map(group => ({ ...group.toJSON(), type: 'group' })));
+            var fuse = new Fuse([...groups], {
+                keys: ["name"],
+            });
 
-        const fuse = new Fuse([...users, ...groups], {
-            keys: ["name"],
-        });
+        } else {
+            const users = await zpUsersModel.findAll({
+                where: {
+                    [Op.or]: [
+                        { name: { [Op.like]: `%${keywords}%` } },
+                        { fullname: { [Op.like]: `%${keywords}%` } },
+                    ],
+                },
+                attributes: ["id", "name", "avatar"],
+            }).then(users => users.map(user => ({ ...user.toJSON(), type: 'user' })));
+
+            const groups = await zpGroupsModel.findAll({
+                where: {
+                    [Op.or]: [
+                        { name: { [Op.like]: `%${keywords}%` } },
+                    ],
+                },
+                attributes: ["group_id", "name", "image_group"],
+            }).then(groups => groups.map(group => ({ ...group.toJSON(), type: 'group' })));
+
+            var fuse = new Fuse([...users, ...groups], {
+                keys: ["name"],
+            });
+
+        }
 
         let sliceArr = fuse.search(keywords);
         const result = sliceArr.slice(0, 7);

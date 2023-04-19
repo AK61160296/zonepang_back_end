@@ -51,7 +51,7 @@ async function bookmarkPost(userId, post_id, type) {
 async function sortBookmark(newItems) {
     try {
         const items = newItems.map((item, index) => ({
-            id: item.id,
+            id: item.bookmark_id,
             sort: index + 1,
         }));
 
@@ -84,18 +84,30 @@ async function addPinBookmark(userId, bookmarkId, type) {
                 raw: true,
             })
             console.log(sortLast[0]['maxSort'])
-            const bookmark = await zpBookmarksModel.create({
-                user_id: userId,
-                bookmark_id: bookmarkId,
-                sort: sortLast[0]['maxSort'] + 1
-            });
+            const bookmark = await zpBookmarksModel.update(
+                {
+                    sort: sortLast[0]['maxSort'] + 1,
+                    pin: 1
+                },
+                {
+                    where: {
+                        user_id: userId,
+                        bookmark_id: bookmarkId,
+                    }
+                }
+            );
         } else if (type === "dispin") {
-            const bookmark = await zpBookmarksModel.destroy({
+            const bookmark = await zpBookmarksModel.update(
+                {
+                    sort: null,
+                    pin: 0
+                }, {
                 where: {
                     user_id: userId,
                     bookmark_id: bookmarkId,
                 }
-            });
+            }
+            );
             const bookmarks = await zpBookmarksModel.findAll({
                 where: {
                     user_id: userId,
@@ -136,7 +148,7 @@ async function getBookmarks(userId) {
                     include: [
                         {
                             model: zpUsersModel,
-                            attributes: ['id', 'name', 'avatar','code_user'],
+                            attributes: ['id', 'name', 'avatar', 'code_user'],
                             required: true
                         },
                         {
@@ -167,7 +179,7 @@ async function getBookmarks(userId) {
                     include: [
                         {
                             model: zpUsersModel,
-                            attributes: ['id', 'name', 'avatar','code_user'],
+                            attributes: ['id', 'name', 'avatar', 'code_user'],
                             required: true
                         },
                         {

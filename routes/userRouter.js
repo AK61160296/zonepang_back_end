@@ -44,10 +44,10 @@ userRouter.post('/editProfile', upload.any('file'), async function (req, res) {
     }
 });
 
-userRouter.put('/sortBookmark/:id', async function (req, res) {
+userRouter.put('/sortBookmark/:bookmark_id', async function (req, res) {
     try {
 
-        const { id } = req.params;
+        const { bookmark_id } = req.params;
 
         const { newItems } = req.body;
         const status = await sortBookmark(newItems);

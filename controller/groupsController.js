@@ -33,7 +33,6 @@ async function getGroupsByUserId(userId) {
             }],
         });
         const promises = groupsData.map(async (group) => {
-            console.log(group)
              const { group_id } = group.group;
             const totalPost = await zpPostsModel.count({
                 where: {

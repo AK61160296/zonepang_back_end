@@ -9,7 +9,6 @@ async function editProfile(user_id, userName, userBio, files) {
     try {
         // หา user ด้วย user_id จากฐานข้อมูล
         const user = await zpUsersModel.findOne({ where: { id: user_id } });
-        console.log(user)
         // // อัพเดทข้อมูล
         const fileName = files[0].key;
         const cleanFileName = fileName.replace(/^avatar\//i, "");

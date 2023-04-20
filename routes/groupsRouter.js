@@ -1,6 +1,8 @@
 import express from 'express';
 const groupsRouter = express.Router();
 import { joinGroup, sortPinGroup, getGroupsAll, getGroupsByUserId, getGroupsmore, getPathGroups, getGroupsById, getGroupssuggest, getPinGroups, addPinGroup } from '../controller/groupsController.js';
+import multer from 'multer';
+groupsRouter.use(multer().any());
 
 groupsRouter.get('/getGroupsAll', async function (req, res) {
     try {
@@ -12,11 +14,11 @@ groupsRouter.get('/getGroupsAll', async function (req, res) {
         console.log(error)
     }
 });
-groupsRouter.get('/getGroupsByUserId', async function (req, res) {
+groupsRouter.post('/getGroupsByUserId', async function (req, res) {
     try {
-        const keywords = req.query.keywords;
-        const userId = req.headers['x-user-id'];
-        const groups = await getGroupsByUserId(keywords,userId);
+        const keywords = req.body.keywords;
+        const userId = req.body.userId;
+        const groups = await getGroupsByUserId(keywords, userId);
         res.json({
             data: groups
         });
@@ -53,9 +55,9 @@ groupsRouter.post('/getGroupsmore', async function (req, res) {
 });
 groupsRouter.get('/getGroupsById', async function (req, res) {
     try {
-        const userId = req.query.id;
+        const id = req.query.id;
         // console.log(req.body);
-        const groups = await getGroupsById(userId);
+        const groups = await getGroupsById(id);
         res.json({
             data: groups
         });
@@ -63,9 +65,9 @@ groupsRouter.get('/getGroupsById', async function (req, res) {
         console.log(error)
     }
 });
-groupsRouter.get('/getPinGroups', async function (req, res) {
+groupsRouter.post('/getPinGroups', async function (req, res) {
     try {
-        const userId = req.headers['x-user-id'];
+        const userId = req.body.userId;
         const groups = await getPinGroups(userId);
         res.json(groups);
     } catch (error) {
@@ -75,8 +77,8 @@ groupsRouter.get('/getPinGroups', async function (req, res) {
 
 groupsRouter.post('/addPinGroup', async function (req, res) {
     try {
-        const { user_id, group_id, type } = req.body;
-        const status = await addPinGroup(user_id, group_id, type);
+        const { userId, group_id, type } = req.body;
+       const status = await addPinGroup(userId, group_id, type);
         res.json(status);
     } catch (error) {
         console.log(error)

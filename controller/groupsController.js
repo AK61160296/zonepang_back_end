@@ -18,7 +18,6 @@ async function getGroupsAll() {
 async function getGroupsByUserId(keywords, userId) {
     try {
         if (keywords) {
-            console.log("aaa")
             var groupsData = await zpUserGroupsModel.findAll({
                 where: {
                     user_id: userId,
@@ -46,7 +45,6 @@ async function getGroupsByUserId(keywords, userId) {
                 ],
             });
         } else {
-            console.log("bbbb")
             var groupsData = await zpUserGroupsModel.findAll({
                 where: {
                     user_id: userId,
@@ -206,11 +204,14 @@ async function addPinGroup(userId, group_id, type) {
     try {
         if (type === "pin") {
             let sortLast = await zpPinsModel.findAll({
-                user_id: userId,
                 attributes: [[Sequelize.fn('max', Sequelize.col('sort')), 'maxSort']],
                 raw: true,
-            })
-            console.log(sortLast[0]['maxSort'])
+            }, {
+                where: {
+                    user_id: userId,
+                }
+            }
+            )
             const pin = await zpPinsModel.create({
                 user_id: userId,
                 group_id: group_id,
@@ -229,7 +230,6 @@ async function addPinGroup(userId, group_id, type) {
                 },
                 order: [['sort', 'ASC']],
             });
-            console.log(JSON.stringify(pins));
             // อัพเดทลำดับ sort ใหม่โดยใช้คำสั่ง sort และ loop
             let sort = 1;
             for (const pin of pins) {

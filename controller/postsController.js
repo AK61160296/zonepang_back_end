@@ -389,6 +389,7 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, f
             var get_type = null
         }
         if (reply_id) {
+            console.log("reply")
             comment = await zpCommentsModel.create({
                 text,
                 user_id,

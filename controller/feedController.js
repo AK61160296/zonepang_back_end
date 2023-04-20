@@ -51,7 +51,6 @@ async function addSeachHistory(userId, name, userSearchId, groupSearchId, fileNa
                     },
                     order: [['create_at', 'ASC']]
                 });
-                console.log(searchResult)
                 if (searchResult) {
                     await searchResult.destroy();
                 }

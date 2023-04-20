@@ -83,7 +83,6 @@ async function addPinBookmark(userId, bookmarkId, type) {
                 },
                 raw: true,
             })
-            console.log(sortLast[0]['maxSort'])
             const bookmark = await zpBookmarksModel.update(
                 {
                     sort: sortLast[0]['maxSort'] + 1,
@@ -117,7 +116,6 @@ async function addPinBookmark(userId, bookmarkId, type) {
                 },
                 order: [['sort', 'ASC']],
             });
-            console.log(JSON.stringify(bookmarks));
             // อัพเดทลำดับ sort ใหม่โดยใช้คำสั่ง sort และ loop
             let sort = 1;
             for (const bookmark of bookmarks) {

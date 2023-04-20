@@ -88,6 +88,48 @@ async function getGroupsByUserId(keywords, userId) {
         return { status: 'error', error: error };
     }
 }
+
+async function getGroupsUser(userId) {
+    try {
+        var groupsData = await zpUserGroupsModel.findAll({
+            where: {
+                user_id: userId,
+
+            },
+            include: [{
+                model: zpGroupsModel,
+                foreignKey: 'group_id'
+            }],
+        });
+
+        const promises = groupsData.map(async (group) => {
+            const { group_id } = group.group;
+            const totalPost = await zpPostsModel.count({
+                where: {
+                    group_id,
+                },
+            });
+            const totalUserGroups = await zpUserGroupsModel.count({
+                where: {
+                    group_id,
+                },
+            });
+            return {
+                ...group.toJSON(),
+                totalPost,
+                totalUserGroups,
+            };
+        });
+        const groups = await Promise.all(promises);
+
+
+        return { status: 'success', groups };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
 async function getGroupssuggest(userId) {
     try {
         const groups = await zpGroupsModel.findAll({
@@ -300,5 +342,6 @@ export {
     getGroupssuggest,
     getGroupsByUserId,
     getPathGroups,
-    getGroupsById
+    getGroupsById,
+    getGroupsUser
 }

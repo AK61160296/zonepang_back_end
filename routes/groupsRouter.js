@@ -88,7 +88,6 @@ groupsRouter.post('/addPinGroup', async function (req, res) {
 groupsRouter.put('/sortPinGroup/:id', async function (req, res) {
     try {
 
-        const { id } = req.params;
         const { newItems } = req.body;
         const status = await sortPinGroup(newItems);
         res.json(newItems);

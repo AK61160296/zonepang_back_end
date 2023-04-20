@@ -5,7 +5,6 @@ import express from 'express';
 import multer from "multer";
 import AWS from 'aws-sdk'
 import multerS3 from 'multer-s3'
-
 const app = express();
 const s3 = new AWS.S3({
     accessKeyId: 'DO00LZHLWGBLZWNB23AB',

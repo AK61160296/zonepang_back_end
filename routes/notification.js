@@ -7,7 +7,6 @@ import multer from "multer";
 import AWS from 'aws-sdk'
 import multerS3 from 'multer-s3'
 
-
 notificationRouter.get('/getNotificationByUserId', async function (req, res) {
     try {
         const page = req.query.page

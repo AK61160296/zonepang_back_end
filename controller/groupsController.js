@@ -272,7 +272,7 @@ async function addPinGroup(userId, group_id, type) {
                 },
                 order: [['sort', 'ASC']],
             });
-            // อัพเดทลำดับ sort ใหม่โดยใช้คำสั่ง sort และ loop
+
             let sort = 1;
             for (const pin of pins) {
                 await pin.update({ sort });
@@ -324,7 +324,31 @@ async function joinGroup(userId, groupId, type) {
                     group_id: groupId,
                 }
             });
+            const checkPinGroup = await zpPinsModel.findOne({
+                where: {
+                    user_id: userId,
+                    group_id: groupId,
+                },
+            });
+            if (checkPinGroup) {
+                checkPinGroup.destroy()
+            }
         }
+
+        const pins = await zpPinsModel.findAll({
+            where: {
+                user_id: userId,
+            },
+            order: [['sort', 'ASC']],
+        });
+        if (pins) {
+            let sort = 1;
+            for (const pin of pins) {
+                await pin.update({ sort });
+                sort++;
+            }
+        }
+
 
         return { status: 'success' };
     } catch (error) {

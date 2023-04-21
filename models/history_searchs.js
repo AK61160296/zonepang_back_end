@@ -31,6 +31,10 @@ const zpHistorySearchsModel = connectDb.define("history_searchs", {
         type: DataTypes.STRING(100),
         allowNull: true,
     },
+    code_user: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+    },
     create_at: {
         type: DataTypes.DATE,
         allowNull: true,

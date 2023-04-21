@@ -5,7 +5,7 @@ import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
 
-async function addSeachHistory(userId, name, userSearchId, groupSearchId, fileName, type) {
+async function addSeachHistory(userId, name, userSearchId, groupSearchId, fileName, type, code_user) {
     try {
         let checkDuplicate = false;
         let checkGroup = null;
@@ -40,6 +40,7 @@ async function addSeachHistory(userId, name, userSearchId, groupSearchId, fileNa
                 group_search_id: groupSearchId,
                 file_name: fileName,
                 type: type,
+                code_user: code_user,
                 create_at: Date.now(),
                 update_at: Date.now()
             });
@@ -94,13 +95,31 @@ async function deleteSeachHistory(id) {
 async function seachHistory(userId) {
     try {
         try {
-            const history = await zpHistorySearchsModel.findAll({
+            let historyData = await zpHistorySearchsModel.findAll({
                 where: {
                     user_id: userId
                 },
                 order: [['create_at', 'desc']]
-
             });
+            const promises = historyData.map(async (history) => {
+                const { user_search_id } = history
+                let userData = {}
+                if (user_search_id) {
+                    userData = await zpUsersModel.findOne({
+                        where: {
+                            id: user_search_id,
+                        },
+                        attributes: ["code_user", "avatar", "provider"],
+                    });
+
+                }
+
+                return {
+                    ...history.toJSON(),
+                    userData,
+                };
+            });
+            const history = await Promise.all(promises);
 
             return { status: 'success', history };
         } catch (error) {

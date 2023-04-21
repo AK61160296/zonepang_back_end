@@ -28,8 +28,8 @@ feedRouter.post('/deleteSeachHistory', async function (req, res) {
 });
 feedRouter.post('/addSeachHistory', async function (req, res) {
     try {
-        const { user_id, user_search_id, group_search_id, file_name, type, name } = req.body;
-        const historyData = await addSeachHistory(user_id, name, user_search_id, group_search_id, file_name, type);
+        const { user_id, user_search_id, group_search_id, file_name, type, name,code_user } = req.body;
+        const historyData = await addSeachHistory(user_id, name, user_search_id, group_search_id, file_name, type,code_user);
         res.json(historyData);
     } catch (error) {
         console.log(error)

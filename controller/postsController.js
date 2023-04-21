@@ -426,7 +426,7 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, f
             where: {
                 id: user_id
             },
-            attributes: ['id', 'name', 'avatar','code_user']
+            attributes: ['id', 'name', 'avatar', 'code_user']
         });
 
         // เพิ่มข้อมูลผู้ใช้งานใน object comment
@@ -469,7 +469,7 @@ async function seachUserAndGroup(keywords, isGroup, userId) {
                         { fullname: { [Op.like]: `%${keywords}%` } },
                     ],
                 },
-                attributes: ["id", "name", "avatar"],
+                attributes: ["id", "name", "avatar", "provider"],
             }).then(users => users.map(user => ({ ...user.toJSON(), type: 'user' })));
 
             const groups = await zpGroupsModel.findAll({

@@ -319,8 +319,10 @@ async function joinGroup(userId, groupId, type) {
             });
         } else {
             const userGroup = await zpUserGroupsModel.destroy({
-                user_id: userId,
-                group_id: groupId,
+                where: {
+                    user_id: userId,
+                    group_id: groupId,
+                }
             });
         }
 

@@ -3,17 +3,14 @@ import { seachUserAndGroup, getInfinitePosts, createPostGroups, getPostComments,
 import { bookmarkPost } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
-import multer from "multer";
-import AWS from 'aws-sdk'
-import multerS3 from 'multer-s3'
 const app = express();
 
-postsRouter.get('/getInfinitePosts', async function (req, res) {
+postsRouter.post('/getInfinitePosts', async function (req, res) {
     try {
-        const groupId = req.query.groupId
-        const userIdProfile = req.query.userIdProfile
-        const page = req.query.page
-        const user_id = req.query.user_id
+        const groupId = req.body.groupId
+        const userIdProfile = req.body.userIdProfile
+        const page = req.body.page
+        const user_id = req.body.user_id
         const feedPost = await getInfinitePosts(groupId,userIdProfile,page, user_id);
         res.json({
             data: feedPost

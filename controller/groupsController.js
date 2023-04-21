@@ -332,6 +332,26 @@ async function joinGroup(userId, groupId, type) {
         return { status: 'error', error: error };
     }
 }
+async function checkJoinGroup(userId, groupId) {
+    try {
+        let isJoin = false
+        const status = await zpUserGroupsModel.count({
+            where: {
+                user_id: userId,
+                group_id: groupId
+            }
+        });
+        if (status > 0) {
+            isJoin = true
+        }
+        console.log(isJoin)
+
+        return { status: 'success', isJoin };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 
 
 export {
@@ -345,5 +365,6 @@ export {
     getGroupsByUserId,
     getPathGroups,
     getGroupsById,
-    getGroupsUser
+    getGroupsUser,
+    checkJoinGroup
 }

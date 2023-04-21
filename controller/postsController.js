@@ -176,7 +176,7 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
             include: [
                 {
                     model: zpUsersModel,
-                    attributes: ['id', 'name', 'avatar'],
+                    attributes: ['id', 'name', 'avatar', 'code_user'],
                     required: true
                 },
                 {
@@ -194,7 +194,7 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
                     include: [{
                         model: zpUsersModel,
                         required: false,
-                        attributes: ['id', 'name', 'avatar']
+                        attributes: ['id', 'name', 'avatar', 'code_user']
                     }]
                 },
                 {
@@ -426,7 +426,7 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, f
             where: {
                 id: user_id
             },
-            attributes: ['id', 'name', 'avatar'] // ระบุฟิลด์ที่ต้องการ
+            attributes: ['id', 'name', 'avatar','code_user']
         });
 
         // เพิ่มข้อมูลผู้ใช้งานใน object comment

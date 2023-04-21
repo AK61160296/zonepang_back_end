@@ -1,6 +1,6 @@
 import express from 'express';
 const groupsRouter = express.Router();
-import { joinGroup, sortPinGroup, getGroupsAll, getGroupsByUserId, getGroupsmore, getPathGroups, getGroupsById, getGroupssuggest, getPinGroups, addPinGroup, getGroupsUser } from '../controller/groupsController.js';
+import { joinGroup, sortPinGroup, getGroupsAll, getGroupsByUserId, getGroupsmore, getPathGroups, getGroupsById, getGroupssuggest, getPinGroups, addPinGroup, getGroupsUser, checkJoinGroup } from '../controller/groupsController.js';
 import multer from 'multer';
 groupsRouter.use(multer().any());
 
@@ -95,6 +95,17 @@ groupsRouter.post('/addPinGroup', async function (req, res) {
         console.log(error)
     }
 });
+
+groupsRouter.post('/checkJoinGroup', async function (req, res) {
+    try {
+        const { userId, groupId } = req.body;
+        const isJoin = await checkJoinGroup(userId, groupId);
+        res.json(isJoin);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
 
 groupsRouter.put('/sortPinGroup/:id', async function (req, res) {
     try {

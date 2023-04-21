@@ -7,11 +7,13 @@ const app = express();
 
 postsRouter.post('/getInfinitePosts', async function (req, res) {
     try {
+        const filter = req.body.filter
+        console.log(filter)
         const groupId = req.body.groupId
         const userIdProfile = req.body.userIdProfile
         const page = req.body.page
         const user_id = req.body.user_id
-        const feedPost = await getInfinitePosts(groupId,userIdProfile,page, user_id);
+        const feedPost = await getInfinitePosts(groupId, userIdProfile, page, user_id, filter);
         res.json({
             data: feedPost
         });
@@ -21,8 +23,8 @@ postsRouter.post('/getInfinitePosts', async function (req, res) {
 });
 postsRouter.post('/likePost', async function (req, res) {
     try {
-        const { user_id, post_id, type,comment_id } = req.body;
-        const status = await likePost(user_id, post_id, type,comment_id);
+        const { user_id, post_id, type, comment_id } = req.body;
+        const status = await likePost(user_id, post_id, type, comment_id);
         res.json({ status });
     } catch (error) {
         console.log(error)

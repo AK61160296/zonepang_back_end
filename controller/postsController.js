@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel, zpBookmarksModel,zpUserGroupsModel } from '../models/index.js';
+import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel, zpBookmarksModel, zpUserGroupsModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
@@ -145,27 +145,34 @@ async function createPostGroups(content, user_id, groupIds, files) {
 }
 
 
-async function getInfinitePosts(groupId, userIdProfile, page, user_id) {
+async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
     try {
         const limit = 3;
         const offset = (page - 1) * limit;
         let whereClause = {};
+        let orderClause = [['create_at', 'desc']];
 
         if (userIdProfile) {
             whereClause = {
                 user_id: userIdProfile
             };
+            orderClause = [['create_at', 'desc']];
         } else if (groupId) {
             whereClause = {
                 group_id: groupId
             };
+            if (filter === "newPost") {
+                orderClause = [['create_at', 'desc']];
+            } else if (filter === "popularPost") {
+                orderClause = [[Sequelize.literal('(SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.post_id)'), 'DESC']];
+            }
         }
 
         let posts = await zpPostsModel.findAll({
             where: whereClause,
             limit: limit,
             offset: offset,
-            order: [['create_at', 'desc']],
+            order: orderClause,
             include: [
                 {
                     model: zpUsersModel,
@@ -389,7 +396,6 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, f
             var get_type = null
         }
         if (reply_id) {
-            console.log("reply")
             comment = await zpCommentsModel.create({
                 text,
                 user_id,
@@ -434,7 +440,7 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, f
     }
 }
 
-async function seachUserAndGroup(keywords, isGroup,userId) {
+async function seachUserAndGroup(keywords, isGroup, userId) {
     try {
         if (isGroup) {
             const groups = await zpGroupsModel.findAll({

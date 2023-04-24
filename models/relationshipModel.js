@@ -7,6 +7,7 @@ import { zpLikesModel } from "./likes.js";
 import { zpUserGroupsModel } from "./user_groups.js";
 import { zpAttchmentsPostsModel } from "./attachments_posts.js";
 import { zpBookmarksModel } from "./bookmarks.js";
+import { zpFollowsModel } from "./follows.js";
 
 zpGroupsModel.hasMany(zpUserGroupsModel, { foreignKey: 'group_id' });
 zpUserGroupsModel.belongsTo(zpGroupsModel, { foreignKey: 'group_id' });
@@ -35,3 +36,5 @@ zpCommentsModel.belongsTo(zpUsersModel, { foreignKey: 'user_id_reply', as: 'user
 
 //bookmark
 zpBookmarksModel.belongsTo(zpPostsModel, { foreignKey: 'post_id' });
+
+zpFollowsModel.belongsTo(zpUsersModel, { foreignKey: 'user_follow_id' });

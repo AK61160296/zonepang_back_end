@@ -147,10 +147,42 @@ async function getUserPath() {
 
 }
 
+async function getUserFollow(userId) {
+
+    try {
+        const userFollow = await zpFollowsModel.findAll({
+            where: {
+                user_id: userId
+            },
+            include: [
+                {
+                    model: zpUsersModel,
+                    required: true,
+                    attributes: ['id', 'name', 'avatar', 'code_user', [
+                    Sequelize.literal(`(
+                      SELECT COUNT(*) 
+                      FROM follows 
+                      WHERE follows.user_follow_id = id
+                    )`),
+                        'follow_count'
+                    ]],
+
+                },
+            ]
+        })
+        return { status: 'success', userFollow };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+
+}
+
 
 
 export {
     followUser,
+    getUserFollow,
     settingNotification,
     getSettingNotification,
     getUserProfile,

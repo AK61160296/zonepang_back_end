@@ -1,13 +1,13 @@
 import { mongoose } from "../config/database.js";
 const zpNotificationsSchema = mongoose.Schema({
-    create_at: Date,
     user_id: Number,
-    group_id_target: Number,
     noti_type: String,
-    post_id_target: Number,
     read: Boolean,
+    noti_text: String,
+    group_id_target: Number,
+    post_id_target: Number,
     user_id_target: Number,
-    noti_text: String
+    create_at: Date,
 });
 
 const zpNotificationsModel = mongoose.models.notification || mongoose.model('notification', zpNotificationsSchema);

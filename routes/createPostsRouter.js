@@ -42,9 +42,19 @@ createPostsRouter.post('/createPostGroups', upload.any('file'), async function (
     try {
 
         const files = req.files;
-        const { content, user_id, group_id, location } = req.body;
+        const { content, user_id, group_id, location_name, lat, lng } = req.body;
+        var location = ''
+        if (location_name) {
+            location = {
+                name: location_name,
+                lat: lat,
+                lng: lng,
+            };
+
+        }
+        const locationPrepare = JSON.stringify(location);
         const groupIds = group_id.split(',').map(id => parseInt(id.trim())); // แปลง string ให้เป็น array ของ integer
-        const createPostGroupsRes = await createPostGroups(content, user_id, groupIds, location, files);
+        const createPostGroupsRes = await createPostGroups(content, user_id, groupIds, locationPrepare, files);
         if (createPostGroupsRes.status === 'success') {
             res.json({
                 data: createPostGroupsRes

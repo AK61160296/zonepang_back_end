@@ -31,7 +31,7 @@ const zpPostsModel = connectDb.define("posts", {
         allowNull: true,
     },
     location: {
-        type: DataTypes.STRING(199),
+        type: DataTypes.TEXT,
         allowNull: true,
     },
     reject: {

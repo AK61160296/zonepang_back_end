@@ -43,7 +43,7 @@ createPostsRouter.post('/createPostGroups', upload.any('file'), async function (
 
         const files = req.files;
         const { content, user_id, group_id, location_name, lat, lng } = req.body;
-        var location = ''
+        var location = null
         if (location_name) {
             location = {
                 name: location_name,

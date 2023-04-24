@@ -13,26 +13,19 @@ const connectDb = new Sequelize({
 
 connectDb.showAllSchemas()
   .then((schemas) => {
-    console.log(schemas);
   })
   .catch((err) => {
     console.error('Unable to show schemas:', err);
   });
 
-
-const mongoDb = async () => {
-  try {
-    await mongoose.connect('mongodb+srv://akaview2542:2feet254233@cluster0.94pnfbs.mongodb.net/test', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true // เพิ่มตรงนี้
-    });
-    console.log('MongoDB Connected');
-  } catch (err) {
-    console.error(err.message);
-    process.exit(1);
-  }
-}
+mongoose.connect('mongodb+srv://akaview2542:2feet254233@cluster0.94pnfbs.mongodb.net/test', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(async () => {
+  console.log('MongoDB Connected');
+  console.log('Database Name:', mongoose.connection.name);
+  // console.log(collections);
+}).catch((err) => console.error('Unable to connect to the database:', err));
 
 
 
@@ -41,5 +34,4 @@ connectDb
   .then(() => console.log('Connection has been established successfully.'))
   .catch(err => console.error('Unable to connect to the database:', err));
 
-
-export { connectDb, mongoDb };
+export { connectDb, mongoose };

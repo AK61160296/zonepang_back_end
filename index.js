@@ -1,7 +1,7 @@
 //Import Section List
 import express from "express";
 import http from "http";
-import { connectDb } from "./config/database.js";
+import { connectDb, mongoose } from "./config/database.js";
 import bodyParser from "body-parser";
 import cors from "cors";
 import {
@@ -15,11 +15,9 @@ import {
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
-
 //Declaration Variables Section
 const app = express();
 const server = http.createServer(app);
-
 //Dot ENV Configuration
 dotenv.config();
 

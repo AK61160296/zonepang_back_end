@@ -158,7 +158,7 @@ async function getUserFollow(userId) {
                 {
                     model: zpUsersModel,
                     required: true,
-                    attributes: ['id', 'name', 'avatar', 'code_user', [
+                    attributes: ['id', 'name', 'avatar', 'code_user','provider', [
                     Sequelize.literal(`(
                       SELECT COUNT(*) 
                       FROM follows 

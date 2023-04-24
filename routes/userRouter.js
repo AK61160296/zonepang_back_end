@@ -127,8 +127,8 @@ userRouter.post('/addPinBookmark', async function (req, res) {
 userRouter.post('/getUserFollow', async function (req, res) {
     try {
         const { user_id } = req.body;
-        const status = await getUserFollow(user_id);
-        res.json(status);
+        const userFollower = await getUserFollow(user_id);
+        res.json(userFollower);
     } catch (error) {
         console.log(error)
     }

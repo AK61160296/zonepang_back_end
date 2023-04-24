@@ -42,9 +42,9 @@ createPostsRouter.post('/createPostGroups', upload.any('file'), async function (
     try {
 
         const files = req.files;
-        const { content, user_id, group_id } = req.body;
+        const { content, user_id, group_id, location } = req.body;
         const groupIds = group_id.split(',').map(id => parseInt(id.trim())); // แปลง string ให้เป็น array ของ integer
-        const createPostGroupsRes = await createPostGroups(content, user_id, groupIds, files);
+        const createPostGroupsRes = await createPostGroups(content, user_id, groupIds, location, files);
         if (createPostGroupsRes.status === 'success') {
             res.json({
                 data: createPostGroupsRes

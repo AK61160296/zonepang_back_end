@@ -5,7 +5,7 @@ import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
 import Fuse from 'fuse.js';
-async function createPostGroups(content, user_id, groupIds, files) {
+async function createPostGroups(content, user_id, groupIds, location, files) {
     try {
         const postIds = [];
         const atmIds = [];
@@ -17,6 +17,7 @@ async function createPostGroups(content, user_id, groupIds, files) {
                 content,
                 user_id,
                 group_id: groupId,
+                location: location,
                 create_at: Date.now(),
                 update_at: Date.now()
             });

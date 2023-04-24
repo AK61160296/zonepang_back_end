@@ -18,13 +18,12 @@ connectDb.showAllSchemas()
     console.error('Unable to show schemas:', err);
   });
 
-mongoose.connect('mongodb+srv://akaview2542:2feet254233@cluster0.94pnfbs.mongodb.net/test', {
+mongoose.connect('mongodb+srv://akaview2542:2feet254233@cluster0.94pnfbs.mongodb.net/db_zonepage', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(async () => {
   console.log('MongoDB Connected');
   console.log('Database Name:', mongoose.connection.name);
-  // console.log(collections);
 }).catch((err) => console.error('Unable to connect to the database:', err));
 
 

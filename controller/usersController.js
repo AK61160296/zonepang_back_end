@@ -53,15 +53,16 @@ async function getSettingNotification(userId) {
 }
 
 
-async function settingNotification(userId, all, comment, follow, tag, group) {
+async function settingNotification(userId, all, comment, follow, tag, group, like) {
     try {
         if (all) {
             var settingData = {
                 all: true,
-                comment: false,
-                follow: false,
-                tag: false,
-                group: false,
+                comment: true,
+                follow: true,
+                tag: true,
+                group: true,
+                like: true,
             };
         } else {
             var settingData = {
@@ -70,6 +71,7 @@ async function settingNotification(userId, all, comment, follow, tag, group) {
                 follow: follow,
                 tag: tag,
                 group: group,
+                like: like,
             };
 
 

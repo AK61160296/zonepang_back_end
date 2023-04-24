@@ -96,8 +96,8 @@ userRouter.get('/getUserProfile', async function (req, res) {
 });
 userRouter.post('/settingNotification', async function (req, res) {
     try {
-        const { user_id, all, comment, follow, tag, group } = req.body;
-        const status = await settingNotification(user_id, all, comment, follow, tag, group);
+        const { user_id, all, comment, follow, tag, group,like } = req.body;
+        const status = await settingNotification(user_id, all, comment, follow, tag, group,like);
         res.json(status);
     } catch (error) {
         console.log(error)

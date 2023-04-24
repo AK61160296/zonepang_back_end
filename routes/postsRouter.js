@@ -1,5 +1,5 @@
 const postsRouter = express.Router();
-import { seachUserAndGroup, getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost } from '../controller/postsController.js';
+import { seachUserAndGroup, getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost, getLikesPost } from '../controller/postsController.js';
 import { bookmarkPost } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
@@ -8,7 +8,6 @@ const app = express();
 postsRouter.post('/getInfinitePosts', async function (req, res) {
     try {
         const filter = req.body.filter
-        console.log(filter)
         const groupId = req.body.groupId
         const userIdProfile = req.body.userIdProfile
         const page = req.body.page
@@ -35,6 +34,15 @@ postsRouter.post('/bookmarkPost', async function (req, res) {
         const { user_id, post_id, type } = req.body;
         const status = await bookmarkPost(user_id, post_id, type);
         res.json({ status });
+    } catch (error) {
+        console.log(error)
+    }
+});
+postsRouter.post('/getLikesPost', async function (req, res) {
+    try {
+        const { postId } = req.body;
+        const likes = await getLikesPost(postId);
+        res.json({ likes });
     } catch (error) {
         console.log(error)
     }

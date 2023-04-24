@@ -46,6 +46,10 @@ const zpCommentsModel = connectDb.define("comments", {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
+    sub_to_reply: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
     create_at: {
         type: DataTypes.DATE,
         allowNull: true,

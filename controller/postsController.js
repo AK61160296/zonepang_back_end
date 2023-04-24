@@ -183,20 +183,20 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
                     model: zpGroupsModel,
                     required: true,
                 },
-                {
-                    model: zpLikesModel,
-                    required: false,
-                    where: {
-                        comment_id: {
-                            [Op.is]: null,
-                        }
-                    },
-                    include: [{
-                        model: zpUsersModel,
-                        required: false,
-                        attributes: ['id', 'name', 'avatar', 'code_user']
-                    }]
-                },
+                // {
+                //     model: zpLikesModel,
+                //     required: false,
+                //     where: {
+                //         comment_id: {
+                //             [Op.is]: null,
+                //         }
+                //     },
+                //     include: [{
+                //         model: zpUsersModel,
+                //         required: false,
+                //         attributes: ['id', 'name', 'avatar', 'code_user']
+                //     }]
+                // },
                 {
                     model: zpMatchAttachmentsModel,
                     attributes: ['atm_post_id'],
@@ -207,7 +207,7 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
 
         const getModifiedPost = async (post) => {
             const atmPostIds = post.match_attachments ? post.match_attachments[0].atm_post_id.split(',') : [];
-
+            const groupId = post.group_id;
             // Query the zpAttchmentsPostsModel for the required information
             const attachments = await zpAttchmentsPostsModel.findAll({
                 where: {
@@ -226,7 +226,20 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
 
             let userLike = null;
             let userBookmark = null;
+            let isJoinGroup = false
             if (user_id) {
+
+                const statusIsJoin = await zpUserGroupsModel.count({
+                    where: {
+                        user_id: user_id,
+                        group_id: groupId
+                    }
+                });
+                if (statusIsJoin > 0) {
+                    isJoinGroup = true
+                }
+
+
                 userLike = await zpLikesModel.findOne({
                     where: {
                         post_id: post.post_id,
@@ -242,15 +255,19 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
                 });
             }
 
-            const totalLike = post.likes.length;
-
+            const totalLike = await zpLikesModel.count({
+                where: {
+                    post_id: post.post_id,
+                },
+            });
             return {
                 ...post.get({ plain: true }),
                 totalLike,
                 userLike,
                 attachments,
                 totalComment,
-                userBookmark
+                userBookmark,
+                isJoinGroup
             };
         };
 
@@ -262,9 +279,6 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
         return { status: 'error', error: error };
     }
 }
-
-
-
 
 async function getPostComments(postId, limit, offset) {
     try {
@@ -308,6 +322,30 @@ async function getPostComments(postId, limit, offset) {
         return { status: 'error', error: error };
     }
 }
+
+async function getLikesPost(postId) {
+    try {
+        let likes = await zpLikesModel.findAll({
+            where: {
+                comment_id: {
+                    [Op.is]: null,
+                }
+            },
+            include: [{
+                model: zpUsersModel,
+                required: false,
+                attributes: ['id', 'name', 'avatar', 'code_user']
+            }]
+
+        });
+        return { status: 'success', likes };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
+
 async function getPostReplyComments(comment_id) {
     try {
         let replyComments = await zpCommentsModel.findAll({
@@ -383,7 +421,7 @@ async function likePost(user_id, post_id, type, comment_id) {
     }
 }
 
-async function createComments(post_id, user_id, text, reply_id, user_id_reply, files) {
+async function createComments(post_id, user_id, text, reply_id, user_id_reply, sub_to_reply, files) {
     try {
         let comment = []
         if (files && files.length > 0) {
@@ -394,6 +432,10 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, f
             var file_name = null
             var file_type = null
             var get_type = null
+        }
+        let subToReply = null;
+        if (sub_to_reply) {
+            subToReply = sub_to_reply
         }
         if (reply_id) {
             comment = await zpCommentsModel.create({
@@ -406,6 +448,7 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, f
                 reply: 1,
                 reply_to_reply: reply_id,
                 user_id_reply: user_id_reply,
+                sub_to_reply: subToReply,
                 create_at: Date.now(),
                 update_at: Date.now()
             });
@@ -505,4 +548,5 @@ export {
     getPostReplyComments,
     likePost,
     seachUserAndGroup,
+    getLikesPost
 }

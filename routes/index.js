@@ -3,7 +3,7 @@ import { postsRouter } from "./postsRouter.js";
 import { userRouter } from "./userRouter.js";
 import { createCommentsRouter } from "./createCommentsRouter.js";
 import { feedRouter } from "./feedRouter.js";
-import { notificationRouter } from "./notification.js";
+import { notificationRouter } from "./notificationRouter.js";
 import { createPostsRouter } from "./createPostsRouter.js";
 export {
     groupsRouter,

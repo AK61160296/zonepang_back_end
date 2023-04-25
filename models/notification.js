@@ -6,7 +6,8 @@ const zpNotificationsSchema = mongoose.Schema({
     noti_text: String,
     group_id_target: Number,
     post_id_target: Number,
-    user_id_target: Number,
+    // user_id_target: Number,
+    user_id_actor: Number,
     create_at: Date,
 });
 

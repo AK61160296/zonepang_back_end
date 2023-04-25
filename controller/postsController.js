@@ -1,6 +1,7 @@
 import { Sequelize, Op } from 'sequelize';
+import { zpNotificationsModel } from '../models/notification.js';
 import { connectDb } from '../config/database.js'
-import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel, zpBookmarksModel, zpUserGroupsModel } from '../models/index.js';
+import { zpPostsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel, zpBookmarksModel, zpUserGroupsModel, zpUserSettingsModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
@@ -385,15 +386,24 @@ async function likePost(user_id, post_id, type, comment_id) {
         if (type === "like") {
             if (comment_id) {
                 const like = await zpLikesModel.create({
-                    user_id,
-                    post_id,
-                    comment_id
+                    user_id: user_id,
+                    comment_id: comment_id,
+                    create_at: new Date(),
+                    update_at: new Date(),
                 });
+                if (like) {
+                    await createLikeNotification(user_id, post_id, type, comment_id)
+                }
             } else {
                 const like = await zpLikesModel.create({
-                    user_id,
-                    post_id
+                    user_id: user_id,
+                    post_id: post_id,
+                    create_at: new Date(),
+                    update_at: new Date(),
                 });
+                if (like) {
+                    await createLikeNotification(user_id, post_id, type, comment_id)
+                }
             }
 
         } else if (type === "dislike") {
@@ -414,12 +424,106 @@ async function likePost(user_id, post_id, type, comment_id) {
                 });
             }
         }
-
         return { status: 'success' };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
     }
+}
+
+async function createLikeNotification(user_id, post_id, type, comment_id) {
+    try {
+        const postData = await zpPostsModel.findOne({
+            attributes: ['user_id', 'content'],
+            where: {
+                post_id: post_id
+            }
+        })
+        if (comment_id) {
+            const commentData = await zpCommentsModel.findOne({
+                attributes: ['user_id'],
+                where: {
+                    comment_id: comment_id
+                }
+            })
+            const checkSettingNoti = await zpUserSettingsModel.findOne({
+                where: {
+                    user_id: commentData.dataValues.user_id
+                }
+            })
+            const checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
+            if (checkSettingNotiObj.like) {
+                if (user_id != commentData.dataValues.user_id) {
+                    const userData = await zpUsersModel.findOne({
+                        attributes: ['id', 'name', 'avatar', 'code_user'],
+                        where: {
+                            id: user_id
+                        }
+                    })
+                    const checkLenght = postData.dataValues.content.length
+                    let subStr = postData.dataValues.content.substring(0, 15);
+                    if (checkLenght > 15) {
+                        subStr = subStr + "..."
+                    }
+
+                    const notification = {
+                        user_id: commentData.dataValues.user_id,
+                        noti_text: userData.dataValues.name + " ได้ถูกใจความคิดเห็นของคุณในโพสต์ " + subStr,
+                        noti_type: "like_comment",
+                        group_id_target: null,
+                        post_id_target: post_id,
+                        user_id_actor: user_id,
+                        read: false,
+                        create_at: new Date(),
+                    };
+                    zpNotificationsModel.create(notification)
+                }
+            }
+
+        } else {
+            const checkSettingNoti = await zpUserSettingsModel.findOne({
+                where: {
+                    user_id: postData.dataValues.user_id
+                }
+            })
+            const checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
+            if (checkSettingNotiObj.like) {
+                if (user_id != postData.dataValues.user_id) {
+                    const userData = await zpUsersModel.findOne({
+                        attributes: ['id', 'name', 'avatar', 'code_user'],
+                        where: {
+                            id: user_id
+                        }
+                    })
+                    const checkLenght = postData.dataValues.content.length
+                    let subStr = postData.dataValues.content.substring(0, 15);
+                    if (checkLenght > 15) {
+                        subStr = subStr + "..."
+                    }
+
+                    const notification = {
+                        user_id: postData.dataValues.user_id,
+                        noti_text: userData.dataValues.name + " ได้ถูกใจโพสต์ " + subStr + " ของคุณ",
+                        noti_type: "like_post",
+                        group_id_target: null,
+                        post_id_target: post_id,
+                        user_id_actor: user_id,
+                        read: false,
+                        create_at: new Date(),
+                    };
+
+                    zpNotificationsModel.create(notification)
+                }
+            }
+        }
+        return { status: 'success' };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+
+
+
 }
 
 async function createComments(post_id, user_id, text, reply_id, user_id_reply, sub_to_reply, files) {

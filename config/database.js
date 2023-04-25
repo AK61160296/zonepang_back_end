@@ -5,7 +5,7 @@ const connectDb = new Sequelize({
   database: 'db_zonepang',
   username: 'zonepang',
   password: '4Ko6my901300!9qa',
-  dialect: 'mysql',
+  dialect: 'mysql', 
   host: '159.65.131.15',
   port: '3306',
   logging: false
@@ -18,7 +18,7 @@ connectDb.showAllSchemas()
     console.error('Unable to show schemas:', err);
   });
 
-mongoose.connect('mongodb+srv://akaview2542:2feet254233@cluster0.94pnfbs.mongodb.net/db_zonepage', {
+mongoose.connect('mongodb://127.0.0.1:27017/db_zonepang', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(async () => {

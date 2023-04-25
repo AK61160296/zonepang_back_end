@@ -1,7 +1,7 @@
 
 const userRouter = express.Router();
 import { editProfile } from '../controller/authController.js';
-import { sortBookmark, getUserPath, getUserProfile, settingNotification, getSettingNotification, getBookmarks, addPinBookmark,getUserFollow } from '../controller/index.js';
+import { sortBookmark, getUserPath, getUserProfile, settingNotification, getSettingNotification, getBookmarks, addPinBookmark, getUserFollow, followUser } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -96,8 +96,8 @@ userRouter.get('/getUserProfile', async function (req, res) {
 });
 userRouter.post('/settingNotification', async function (req, res) {
     try {
-        const { user_id, all, comment, follow, tag, group,like } = req.body;
-        const status = await settingNotification(user_id, all, comment, follow, tag, group,like);
+        const { user_id, all, comment, follow, tag, group, like } = req.body;
+        const status = await settingNotification(user_id, all, comment, follow, tag, group, like);
         res.json(status);
     } catch (error) {
         console.log(error)

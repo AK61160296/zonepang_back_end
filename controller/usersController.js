@@ -1,5 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
+import { zpNotificationsModel } from '../models/notification.js';
 import { zpPostsModel, zpUserSettingsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel, zpBookmarksModel, zpFollowsModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
@@ -15,6 +16,7 @@ async function followUser(userId, userFollowId, type) {
                     create_at: Date.now(),
                     update_at: Date.now()
                 });
+                createNotificationFollow(userId, userFollowId)
             } else {
                 const userGroup = await zpFollowsModel.destroy({
                     user_id: userId,
@@ -32,6 +34,44 @@ async function followUser(userId, userFollowId, type) {
 
     }
 
+}
+
+async function createNotificationFollow(userId, userFollowId) {
+    try {
+
+        const userData = await zpUsersModel.findOne({
+            attributes: ['id', 'name', 'avatar', 'code_user'],
+            where: {
+                id: userId
+            }
+        })
+
+        const checkSettingNoti = await zpUserSettingsModel.findOne({
+            where: {
+                user_id: userFollowId
+            }
+        })
+        const checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
+        if (checkSettingNotiObj.follow) {
+            const notification = {
+                user_id: userFollowId,
+                noti_text: userData.dataValues.name + " เริ่มติดตามคุณ",
+                noti_type: "follow",
+                group_id_target: null,
+                post_id_target: null,
+                user_id_actor: userId,
+                comment_id_target: null,
+                read: false,
+                create_at: new Date(),
+            };
+            zpNotificationsModel.create(notification)
+        }
+
+        return { status: 'success' };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
 }
 
 async function getSettingNotification(userId) {
@@ -158,8 +198,8 @@ async function getUserFollow(userId) {
                 {
                     model: zpUsersModel,
                     required: true,
-                    attributes: ['id', 'name', 'avatar', 'code_user','provider', [
-                    Sequelize.literal(`(
+                    attributes: ['id', 'name', 'avatar', 'code_user', 'provider', [
+                        Sequelize.literal(`(
                       SELECT COUNT(*) 
                       FROM follows 
                       WHERE follows.user_follow_id = id

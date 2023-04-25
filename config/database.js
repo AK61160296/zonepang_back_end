@@ -18,7 +18,7 @@ connectDb.showAllSchemas()
     console.error('Unable to show schemas:', err);
   });
 
-mongoose.connect('mongodb://127.0.0.1:27017/db_zonepang', {
+mongoose.connect('mongodb+srv://doadmin:2Y409c68Zn13ihOG@db-mongodb-sgp1-38842-0c63c86f.mongo.ondigitalocean.com/db_zonepang?tls=true&authSource=admin&replicaSet=db-mongodb-sgp1-38842', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(async () => {

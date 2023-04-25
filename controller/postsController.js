@@ -8,9 +8,10 @@ import axios from 'axios';
 import Fuse from 'fuse.js';
 async function createPostGroups(content, user_id, groupIds, locationPrepare, files) {
     try {
+
         const postIds = [];
         const atmIds = [];
-
+        const groupData = new Map();
 
         for (const groupId of groupIds) {
             // สร้างโพสต์
@@ -23,8 +24,8 @@ async function createPostGroups(content, user_id, groupIds, locationPrepare, fil
                 update_at: Date.now()
             });
 
-            // บันทึก post_id ไว้ใน array
             postIds.push(post.post_id);
+            groupData.set(groupId, post.post_id);
         }
         if (files && files.length > 0) {
             for (const file of files) {
@@ -137,15 +138,76 @@ async function createPostGroups(content, user_id, groupIds, locationPrepare, fil
         };
 
         posts = await Promise.all(posts.map(post => getModifiedPost(post)));
+        createNotificationPostGroup(user_id, groupData)
 
         return { status: 'success', posts };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
 
+}
+
+async function createNotificationPostGroup(userId, groupData) {
+    try {
+        let userIdActor = userId
+        const userData = await zpUsersModel.findOne({
+            attributes: ['id', 'name', 'avatar', 'code_user'],
+            where: {
+                id: userIdActor
+            }
+        })
+        for (const [groupId, postId] of groupData.entries()) {
+            // สร้างโพสต์
+            const userDataId = await zpUserGroupsModel.findAll({
+                attributes: ['user_id'],
+                where: {
+                    group_id: groupId
+                }
+            });
+
+            const groupData = await zpGroupsModel.findOne({
+                attributes: ['name'],
+                where: {
+                    group_id: groupId
+                }
+            })
+            const checkLenght = groupData.dataValues.name.length
+            let subStr = groupData.dataValues.name.substring(0, 15);
+            if (checkLenght > 15) {
+                subStr = subStr + "..."
+            }
+
+            for (const userId of userDataId) {
+                const checkSettingNoti = await zpUserSettingsModel.findOne({
+                    where: {
+                        user_id: userId.user_id
+                    }
+                })
+                const checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
+                if (checkSettingNotiObj.group) {
+                    const notification = {
+                        user_id: userId.user_id,
+                        noti_text: userData.dataValues.name + " โพสต์ในกลุ่ม " + subStr,
+                        noti_type: "post_group",
+                        group_id_target: groupId,
+                        post_id_target: postId,
+                        user_id_actor: userIdActor,
+                        comment_id_target: null,
+                        read: false,
+                        create_at: new Date(),
+                    };
+                    zpNotificationsModel.create(notification)
+                }
+            }
+        }
+
+        return { status: 'success' };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
     }
 }
-
 
 async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
     try {
@@ -392,7 +454,7 @@ async function likePost(user_id, post_id, type, comment_id) {
                     update_at: new Date(),
                 });
                 if (like) {
-                    await createLikeNotification(user_id, post_id, type, comment_id)
+                    createNotificationLike(user_id, post_id, type, comment_id)
                 }
             } else {
                 const like = await zpLikesModel.create({
@@ -402,7 +464,7 @@ async function likePost(user_id, post_id, type, comment_id) {
                     update_at: new Date(),
                 });
                 if (like) {
-                    await createLikeNotification(user_id, post_id, type, comment_id)
+                    createNotificationLike(user_id, post_id, type, comment_id)
                 }
             }
 
@@ -431,7 +493,7 @@ async function likePost(user_id, post_id, type, comment_id) {
     }
 }
 
-async function createLikeNotification(user_id, post_id, type, comment_id) {
+async function createNotificationLike(user_id, post_id, type, comment_id) {
     try {
         const postData = await zpPostsModel.findOne({
             attributes: ['user_id', 'content'],
@@ -452,33 +514,45 @@ async function createLikeNotification(user_id, post_id, type, comment_id) {
                 }
             })
             const checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
-            if (checkSettingNotiObj.like) {
-                if (user_id != commentData.dataValues.user_id) {
-                    const userData = await zpUsersModel.findOne({
-                        attributes: ['id', 'name', 'avatar', 'code_user'],
-                        where: {
-                            id: user_id
-                        }
-                    })
-                    const checkLenght = postData.dataValues.content.length
-                    let subStr = postData.dataValues.content.substring(0, 15);
-                    if (checkLenght > 15) {
-                        subStr = subStr + "..."
-                    }
 
-                    const notification = {
-                        user_id: commentData.dataValues.user_id,
-                        noti_text: userData.dataValues.name + " ได้ถูกใจความคิดเห็นของคุณในโพสต์ " + subStr,
-                        noti_type: "like_comment",
-                        group_id_target: null,
-                        post_id_target: post_id,
-                        user_id_actor: user_id,
-                        read: false,
-                        create_at: new Date(),
-                    };
-                    zpNotificationsModel.create(notification)
+            const checkNotification = await zpNotificationsModel.findOne({
+                user_id: commentData.dataValues.user_id,
+                noti_type: "like_comment",
+                user_id_actor: user_id,
+                comment_id_target: comment_id,
+            });
+            if (checkNotification === null) {
+                if (checkSettingNotiObj.like) {
+                    if (user_id != commentData.dataValues.user_id) {
+                        const userData = await zpUsersModel.findOne({
+                            attributes: ['id', 'name', 'avatar', 'code_user'],
+                            where: {
+                                id: user_id
+                            }
+                        })
+                        const checkLenght = postData.dataValues.content.length
+                        let subStr = postData.dataValues.content.substring(0, 15);
+                        if (checkLenght > 15) {
+                            subStr = subStr + "..."
+                        }
+
+                        const notification = {
+                            user_id: commentData.dataValues.user_id,
+                            noti_text: userData.dataValues.name + " ได้ถูกใจความคิดเห็นของคุณในโพสต์ " + subStr,
+                            noti_type: "like_comment",
+                            group_id_target: null,
+                            post_id_target: post_id,
+                            comment_id_target: comment_id,
+                            user_id_actor: user_id,
+                            read: false,
+                            create_at: new Date(),
+                        };
+                        zpNotificationsModel.create(notification)
+                    }
                 }
             }
+
+
 
         } else {
             const checkSettingNoti = await zpUserSettingsModel.findOne({
@@ -486,44 +560,51 @@ async function createLikeNotification(user_id, post_id, type, comment_id) {
                     user_id: postData.dataValues.user_id
                 }
             })
+            const checkNotification = await zpNotificationsModel.findOne({
+                user_id: postData.dataValues.user_id,
+                noti_type: "like_post",
+                user_id_actor: user_id,
+                post_id_target: post_id,
+            });
             const checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
-            if (checkSettingNotiObj.like) {
-                if (user_id != postData.dataValues.user_id) {
-                    const userData = await zpUsersModel.findOne({
-                        attributes: ['id', 'name', 'avatar', 'code_user'],
-                        where: {
-                            id: user_id
+            if (checkNotification === null) {
+                if (checkSettingNotiObj.like) {
+                    if (user_id != postData.dataValues.user_id) {
+                        const userData = await zpUsersModel.findOne({
+                            attributes: ['id', 'name', 'avatar', 'code_user'],
+                            where: {
+                                id: user_id
+                            }
+                        })
+                        const checkLenght = postData.dataValues.content.length
+                        let subStr = postData.dataValues.content.substring(0, 15);
+                        if (checkLenght > 15) {
+                            subStr = subStr + "..."
                         }
-                    })
-                    const checkLenght = postData.dataValues.content.length
-                    let subStr = postData.dataValues.content.substring(0, 15);
-                    if (checkLenght > 15) {
-                        subStr = subStr + "..."
+
+                        const notification = {
+                            user_id: postData.dataValues.user_id,
+                            noti_text: userData.dataValues.name + " ได้ถูกใจโพสต์ " + subStr + " ของคุณ",
+                            noti_type: "like_post",
+                            group_id_target: null,
+                            post_id_target: post_id,
+                            user_id_actor: user_id,
+                            comment_id_target: null,
+                            read: false,
+                            create_at: new Date(),
+                        };
+
+                        zpNotificationsModel.create(notification)
                     }
-
-                    const notification = {
-                        user_id: postData.dataValues.user_id,
-                        noti_text: userData.dataValues.name + " ได้ถูกใจโพสต์ " + subStr + " ของคุณ",
-                        noti_type: "like_post",
-                        group_id_target: null,
-                        post_id_target: post_id,
-                        user_id_actor: user_id,
-                        read: false,
-                        create_at: new Date(),
-                    };
-
-                    zpNotificationsModel.create(notification)
                 }
             }
+
         }
         return { status: 'success' };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
     }
-
-
-
 }
 
 async function createComments(post_id, user_id, text, reply_id, user_id_reply, sub_to_reply, files) {
@@ -557,6 +638,8 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, s
                 create_at: Date.now(),
                 update_at: Date.now()
             });
+            const type = "reply_comment"
+            createNotificationComment(user_id, post_id, reply_id, user_id_reply, type)
         } else {
             comment = await zpCommentsModel.create({
                 text,
@@ -568,6 +651,8 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, s
                 create_at: Date.now(),
                 update_at: Date.now()
             });
+            const type = "comment"
+            createNotificationComment(user_id, post_id, reply_id, user_id_reply, type)
         }
         // เชื่อมโยงกับตารางผู้ใช้งาน (zpUsersModel) โดยใช้ user_id เป็น key
         const user = await zpUsersModel.findOne({
@@ -582,6 +667,95 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, s
 
         return { status: 'success', comment };
 
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+async function createNotificationComment(user_id, post_id, comment_id, user_id_reply, type) {
+    try {
+        let postData = await zpPostsModel.findOne({
+            attributes: ['user_id', 'content'],
+            where: {
+                post_id: post_id
+            }
+        })
+
+        let userData = await zpUsersModel.findOne({
+            attributes: ['id', 'name', 'avatar', 'code_user'],
+            where: {
+                id: user_id
+            }
+        })
+
+        let checkSettingNoti = await zpUserSettingsModel.findOne({
+            where: {
+                user_id: postData.dataValues.user_id
+            }
+        })
+
+        let checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
+
+        if (type === "comment") {
+            if (checkSettingNotiObj.comment) {
+                if (user_id != postData.dataValues.user_id) {
+                    const checkLenght = postData.dataValues.content.length
+                    let subStr = postData.dataValues.content.substring(0, 15);
+                    if (checkLenght > 15) {
+                        subStr = subStr + "..."
+                    }
+
+                    const notification = {
+                        user_id: postData.dataValues.user_id,
+                        noti_text: userData.dataValues.name + " เเสดงความคิดเห็นของคุณในโพสต์ " + subStr,
+                        noti_type: "comment_post",
+                        group_id_target: null,
+                        post_id_target: post_id,
+                        user_id_actor: user_id,
+                        comment_id_target: null,
+                        read: false,
+                        create_at: new Date(),
+                    };
+                    zpNotificationsModel.create(notification)
+
+                }
+
+            }
+        } else if (type === "reply_comment") {
+            if (checkSettingNotiObj.tag) {
+
+                let commentData = await zpCommentsModel.findOne({
+                    attributes: ['user_id'],
+                    where: {
+                        comment_id: comment_id
+                    }
+                })
+                if (user_id != commentData.dataValues.user_id) {
+                    const checkLenght = postData.dataValues.content.length
+                    let subStr = postData.dataValues.content.substring(0, 15);
+                    if (checkLenght > 15) {
+                        subStr = subStr + "..."
+                    }
+
+                    const notification = {
+                        user_id: postData.dataValues.user_id,
+                        noti_text: userData.dataValues.name + " กล่าวถึงคุณในในความคิดเห็นใน " + subStr,
+                        noti_type: "tag",
+                        group_id_target: null,
+                        post_id_target: post_id,
+                        user_id_actor: user_id,
+                        comment_id_target: null,
+                        read: false,
+                        create_at: new Date(),
+                    };
+                    zpNotificationsModel.create(notification)
+
+                }
+
+            }
+        }
+
+        return { status: 'success' };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };

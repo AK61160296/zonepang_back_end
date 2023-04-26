@@ -380,6 +380,7 @@ async function getPostComments(postId, limit, offset) {
                     user_id: 1,
                 },
             });
+            let newReplyComments = []
             let statusLike = false
             if (userLike) {
                 statusLike = true
@@ -389,7 +390,8 @@ async function getPostComments(postId, limit, offset) {
                 ...comment.get({ plain: true }),
                 totalReplyComment,
                 totalLike,
-                statusLike
+                statusLike,
+                newReplyComments
             };
         };
 

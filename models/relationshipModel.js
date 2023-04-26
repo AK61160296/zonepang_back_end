@@ -38,3 +38,6 @@ zpCommentsModel.belongsTo(zpUsersModel, { foreignKey: 'user_id_reply', as: 'user
 zpBookmarksModel.belongsTo(zpPostsModel, { foreignKey: 'post_id' });
 
 zpFollowsModel.belongsTo(zpUsersModel, { foreignKey: 'user_follow_id' });
+
+zpCommentsModel.hasMany(zpLikesModel, { foreignKey: 'comment_id' });
+zpLikesModel.belongsTo(zpCommentsModel, { foreignKey: 'comment_id' });

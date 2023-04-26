@@ -369,10 +369,27 @@ async function getPostComments(postId, limit, offset) {
                     reply_to_reply: comment.comment_id,
                 },
             });
+            const totalLike = await zpLikesModel.count({
+                where: {
+                    comment_id: comment.comment_id,
+                },
+            });
+            const userLike = await zpLikesModel.findOne({
+                where: {
+                    comment_id: comment.comment_id,
+                    user_id: 1,
+                },
+            });
+            let statusLike = false
+            if (userLike) {
+                statusLike = true
+            }
 
             return {
                 ...comment.get({ plain: true }),
                 totalReplyComment,
+                totalLike,
+                statusLike
             };
         };
 
@@ -433,9 +450,36 @@ async function getPostReplyComments(comment_id) {
                     }
                 },
             ]
-            // order: [['created_at', 'DESC']],
         });
 
+        const getModifiedComment = async (comment) => {
+
+            const totalLike = await zpLikesModel.count({
+                where: {
+                    comment_id: comment.comment_id,
+                },
+            });
+            const userLike = await zpLikesModel.findOne({
+                where: {
+                    comment_id: comment.comment_id,
+                    user_id: 1,
+                },
+            });
+            let statusLike = false
+            if (userLike) {
+                statusLike = true
+            }
+
+            return {
+                ...comment.get({ plain: true }),
+                totalLike,
+                statusLike
+            };
+        };
+
+
+        // Use the asynchronous mapping function
+        replyComments = await Promise.all(replyComments.map(comment => getModifiedComment(comment)));
 
         return { status: 'success', replyComments };
     } catch (error) {
@@ -473,7 +517,6 @@ async function likePost(user_id, post_id, type, comment_id) {
                 const like = await zpLikesModel.destroy({
                     where: {
                         user_id,
-                        post_id,
                         comment_id
                     }
                 });

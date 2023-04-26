@@ -4,7 +4,7 @@ import { zpUsersModel } from '../models/users.js';
 
 async function getNotificationByUserId(userId, page) {
     try {
-        const limit = 3;
+        const limit = 5;
         const offset = (page - 1) * limit;
 
         let notifications = await zpNotificationsModel.find({
@@ -12,7 +12,7 @@ async function getNotificationByUserId(userId, page) {
         }).sort({ create_at: -1 }).skip(offset).limit(limit);;
 
         const promises = notifications.map(async (notis) => {
-            const userDAta = await zpUsersModel.findOne({
+            const userData = await zpUsersModel.findOne({
                 attributes: ['id', 'name', 'avatar', 'code_user', 'provider'],
                 where: {
                     id: notis.user_id_actor
@@ -20,7 +20,7 @@ async function getNotificationByUserId(userId, page) {
             })
             return {
                 ...notis.toJSON(),
-                userDAta
+                userData
             };
         });
         const results = await Promise.all(promises);

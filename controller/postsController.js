@@ -705,8 +705,9 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, s
             attributes: ['id', 'name', 'avatar', 'code_user']
         });
 
-        // เพิ่มข้อมูลผู้ใช้งานใน object comment
         comment.dataValues.user = user;
+        comment.dataValues.totalLike = 0;
+        comment.dataValues.statusLike = false;
 
         return { status: 'success', comment };
 
@@ -834,7 +835,7 @@ async function seachUserAndGroup(keywords, isGroup, userId) {
                         { fullname: { [Op.like]: `%${keywords}%` } },
                     ],
                 },
-                attributes: ["id", "name", "avatar", "provider"],
+                attributes: ["id", "name", "avatar", "provider", "code_user"],
             }).then(users => users.map(user => ({ ...user.toJSON(), type: 'user' })));
 
             const groups = await zpGroupsModel.findAll({

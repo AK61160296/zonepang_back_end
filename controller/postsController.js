@@ -693,6 +693,10 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, s
                 file_name: file_name,
                 file_type: file_type,
                 get_type: get_type,
+                reply: 0,
+                reply_to_reply: 0,
+                user_id_reply: null,
+                sub_to_reply: null,
                 create_at: Date.now(),
                 update_at: Date.now()
             });
@@ -707,6 +711,7 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, s
             attributes: ['id', 'name', 'avatar', 'code_user']
         });
 
+        comment.dataValues.newReplyComments = [];
         comment.dataValues.user = user;
         comment.dataValues.totalLike = 0;
         comment.dataValues.statusLike = false;

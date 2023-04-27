@@ -14,6 +14,15 @@ notificationRouter.get('/getNotification', async function (req, res) {
         console.log(error)
     }
 });
+notificationRouter.post('/readNotification', async function (req, res) {
+    try {
+        const noti_id = req.body.noti_id
+        const notifications = await readNotification(noti_id);
+        res.json(notifications);
+    } catch (error) {
+        console.log(error)
+    }
+});
 
 
 

@@ -31,8 +31,12 @@ async function getNotificationByUserId(userId, page) {
         return { status: 'error', error: error };
     }
 }
-async function readNotification() {
+async function readNotification(notiId) {
     try {
+        const result = await zpNotificationsModel.updateOne(
+            { _id: notiId },
+            { $set: { read: true } }
+        );
         return { status: "success" };
     } catch (error) {
         console.error(error);
@@ -42,4 +46,5 @@ async function readNotification() {
 
 export {
     getNotificationByUserId,
+    readNotification,
 }

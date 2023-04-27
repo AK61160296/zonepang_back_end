@@ -343,6 +343,102 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
         return { status: 'error', error: error };
     }
 }
+async function getPostsById(postId,user_id) {
+    try {
+
+        const post = await zpPostsModel.findOne({
+            where: {
+                post_id: postId
+            },
+            include: [
+                {
+                    model: zpUsersModel,
+                    attributes: ['id', 'name', 'avatar', 'code_user'],
+                    required: true
+                },
+                {
+                    model: zpGroupsModel,
+                    required: true,
+                },
+                {
+                    model: zpMatchAttachmentsModel,
+                    attributes: ['atm_post_id'],
+                    required: false,
+                }
+            ]
+        });
+
+        const getModifiedPost = async (post) => {
+            const atmPostIds = post.match_attachments ? post.match_attachments[0].atm_post_id.split(',') : [];
+            const groupId = post.group_id;
+            const attachments = await zpAttchmentsPostsModel.findAll({
+                where: {
+                    atm_post_id: {
+                        [Op.in]: atmPostIds
+                    }
+                }
+            });
+
+            const totalComment = await zpCommentsModel.count({
+                where: {
+                    post_id: post.post_id,
+                    reply: 0,
+                },
+            });
+
+            let userLike = null;
+            let userBookmark = null;
+            let isJoinGroup = false;
+            if (user_id) {
+                const statusIsJoin = await zpUserGroupsModel.count({
+                    where: {
+                        user_id: user_id,
+                        group_id: groupId
+                    }
+                });
+                if (statusIsJoin > 0) {
+                    isJoinGroup = true;
+                }
+                userLike = await zpLikesModel.findOne({
+                    where: {
+                        post_id: post.post_id,
+                        user_id: user_id,
+                    },
+                });
+                userBookmark = await zpBookmarksModel.findOne({
+                    where: {
+                        post_id: post.post_id,
+                        user_id: user_id,
+                    },
+                });
+            }
+
+            const totalLike = await zpLikesModel.count({
+                where: {
+                    post_id: post.post_id,
+                },
+            });
+
+            return {
+                ...post.get({ plain: true }),
+                totalLike,
+                userLike,
+                attachments,
+                totalComment,
+                userBookmark,
+                isJoinGroup
+            };
+        };
+
+        const posts = await getModifiedPost(post);
+
+
+        return posts;
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 
 async function getPostComments(postId, limit, offset) {
     try {
@@ -727,7 +823,7 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, s
             },
             attributes: ['id', 'name', 'avatar', 'code_user']
         });
-        if(user_id_reply){
+        if (user_id_reply) {
             var user_reply = await zpUsersModel.findOne({
                 where: {
                     id: user_id_reply
@@ -904,5 +1000,6 @@ export {
     getPostReplyComments,
     likePost,
     seachUserAndGroup,
-    getLikesPost
+    getLikesPost,
+    getPostsById
 }

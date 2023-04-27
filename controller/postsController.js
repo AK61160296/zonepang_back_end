@@ -406,6 +406,23 @@ async function getPostComments(postId, limit, offset) {
     }
 }
 
+async function getTotalComment(postId) {
+    try {
+        let toTalComment = await zpCommentsModel.count({
+            where: {
+                post_id: postId,
+                reply: 0
+            },
+        });
+
+
+        return { status: 'success', toTalComment };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
 async function getLikesPost(postId) {
     try {
         let likes = await zpLikesModel.findAll({
@@ -710,9 +727,17 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, s
             },
             attributes: ['id', 'name', 'avatar', 'code_user']
         });
-
+        if(user_id_reply){
+            var user_reply = await zpUsersModel.findOne({
+                where: {
+                    id: user_id_reply
+                },
+                attributes: ['id', 'name', 'avatar', 'code_user']
+            });
+        }
         comment.dataValues.newReplyComments = [];
         comment.dataValues.user = user;
+        comment.dataValues.user_reply = user_reply;
         comment.dataValues.totalLike = 0;
         comment.dataValues.statusLike = false;
 
@@ -871,6 +896,7 @@ async function seachUserAndGroup(keywords, isGroup, userId) {
 }
 
 export {
+    getTotalComment,
     createComments,
     getInfinitePosts,
     createPostGroups,

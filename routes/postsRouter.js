@@ -1,5 +1,5 @@
 const postsRouter = express.Router();
-import { seachUserAndGroup, getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost, getLikesPost } from '../controller/postsController.js';
+import { seachUserAndGroup, getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost, getLikesPost, getTotalComment } from '../controller/postsController.js';
 import { bookmarkPost } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
@@ -108,6 +108,16 @@ postsRouter.get('/seachUserAndGroup', async function (req, res) {
         const keywords = req.query.keywords;
         const userAndGroups = await seachUserAndGroup(keywords);
         res.json(userAndGroups);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+postsRouter.get('/getTotalComment', async function (req, res) {
+    try {
+        const postId = req.query.postId;
+        const totalComment = await getTotalComment(postId);
+        res.json(totalComment);
     } catch (error) {
         console.log(error)
     }

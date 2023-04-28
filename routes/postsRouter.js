@@ -32,8 +32,8 @@ postsRouter.get('/getPathPostId', async function (req, res) {
 
 postsRouter.get('/getPostsById', async function (req, res) {
     try {
-        const postId = req.body.postId
-        const user_id = req.body.user_id
+        const postId = req.query.postId
+        const user_id = req.query.user_id
         const post = await getPostsById(postId, user_id);
         res.json(post);
     } catch (error) {

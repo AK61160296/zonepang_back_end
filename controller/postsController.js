@@ -270,16 +270,21 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
         });
 
         const getModifiedPost = async (post) => {
-            const atmPostIds = post.match_attachments ? post.match_attachments[0].atm_post_id.split(',') : [];
-            const groupId = post.group_id;
-            // Query the zpAttchmentsPostsModel for the required information
-            const attachments = await zpAttchmentsPostsModel.findAll({
-                where: {
-                    atm_post_id: {
-                        [Op.in]: atmPostIds
+            let attachments = [];
+            let atm_post_ids = [];
+            if (post.match_attachments && post.match_attachments.length > 0) {
+                atm_post_ids = post.match_attachments[0].atm_post_id.split(',');
+
+                // Query the zpAttchmentsPostsModel for the required information
+                attachments = await zpAttchmentsPostsModel.findAll({
+                    where: {
+                        atm_post_id: {
+                            [Op.in]: atm_post_ids
+                        }
                     }
-                }
-            });
+                });
+            }
+            const groupId = post.group_id;
 
             const totalComment = await zpCommentsModel.count({
                 where: {
@@ -343,7 +348,7 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
         return { status: 'error', error: error };
     }
 }
-async function getPostsById(postId,user_id) {
+async function getPostsById(postId, user_id) {
     try {
 
         const post = await zpPostsModel.findOne({
@@ -369,16 +374,21 @@ async function getPostsById(postId,user_id) {
         });
 
         const getModifiedPost = async (post) => {
-            const atmPostIds = post.match_attachments ? post.match_attachments[0].atm_post_id.split(',') : [];
             const groupId = post.group_id;
-            const attachments = await zpAttchmentsPostsModel.findAll({
-                where: {
-                    atm_post_id: {
-                        [Op.in]: atmPostIds
-                    }
-                }
-            });
+            let attachments = [];
+            let atm_post_ids = [];
+            if (post.match_attachments && post.match_attachments.length > 0) {
+                atm_post_ids = post.match_attachments[0].atm_post_id.split(',');
 
+                // Query the zpAttchmentsPostsModel for the required information
+                attachments = await zpAttchmentsPostsModel.findAll({
+                    where: {
+                        atm_post_id: {
+                            [Op.in]: atm_post_ids
+                        }
+                    }
+                });
+            }
             const totalComment = await zpCommentsModel.count({
                 where: {
                     post_id: post.post_id,

@@ -30,7 +30,7 @@ postsRouter.get('/getPathPostId', async function (req, res) {
     }
 });
 
-postsRouter.post('/getPostsById', async function (req, res) {
+postsRouter.get('/getPostsById', async function (req, res) {
     try {
         const postId = req.body.postId
         const user_id = req.body.user_id

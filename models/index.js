@@ -16,6 +16,9 @@ import { zpFollowsModel } from "./follows.js";
 import { zpHistorySearchsModel } from "./history_searchs.js";
 import { zpUserSettingsModel } from "./user_settings.js";
 
+import { zpConversationsModel } from "./conversations.js";
+import { zpMessagesModel } from "./messages.js";
+
 
 export {
     zpPinsModel,
@@ -31,4 +34,6 @@ export {
     zpFollowsModel,
     zpHistorySearchsModel,
     zpUserSettingsModel,
+    zpMessagesModel,
+    zpConversationsModel
 }

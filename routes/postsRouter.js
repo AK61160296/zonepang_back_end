@@ -1,5 +1,5 @@
 const postsRouter = express.Router();
-import { seachUserAndGroup, getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost, getLikesPost, getTotalComment,getPostsById} from '../controller/postsController.js';
+import { seachUserAndGroup, getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost, getLikesPost, getTotalComment, getPostsById, getPathPostId } from '../controller/postsController.js';
 import { bookmarkPost } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
@@ -20,11 +20,21 @@ postsRouter.post('/getInfinitePosts', async function (req, res) {
         console.log(error)
     }
 });
+
+postsRouter.get('/getPathPostId', async function (req, res) {
+    try {
+        const postId = await getPathPostId()
+        res.json(postId);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
 postsRouter.post('/getPostsById', async function (req, res) {
     try {
         const postId = req.body.postId
         const user_id = req.body.user_id
-        const post = await getPostsById(postId,user_id);
+        const post = await getPostsById(postId, user_id);
         res.json(post);
     } catch (error) {
         console.log(error)

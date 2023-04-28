@@ -147,7 +147,6 @@ async function createPostGroups(content, user_id, groupIds, locationPrepare, fil
     }
 
 }
-
 async function createNotificationPostGroup(userId, groupData) {
     try {
         let userIdActor = userId
@@ -449,6 +448,19 @@ async function getPostsById(postId, user_id) {
         return { status: 'error', error: error };
     }
 }
+
+async function getPathPostId() {
+    try {
+        let postId = await zpPostsModel.findAll({
+            attributes: ['post_id']
+        });
+        return { postId };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
 
 async function getPostComments(postId, limit, offset) {
     try {
@@ -1011,5 +1023,6 @@ export {
     likePost,
     seachUserAndGroup,
     getLikesPost,
-    getPostsById
+    getPostsById,
+    getPathPostId
 }

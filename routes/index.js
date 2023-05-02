@@ -7,7 +7,7 @@ import { notificationRouter } from "./notificationRouter.js";
 import { createPostsRouter } from "./createPostsRouter.js";
 import { createChatsRouter } from "./createChatsRouter.js";
 import { chatsRouter } from "./chatsRouter.js";
-
+import { reportsRouter } from "./reportsRouter.js";
 export {
     chatsRouter,
     createChatsRouter,
@@ -17,5 +17,6 @@ export {
     createCommentsRouter,
     feedRouter,
     notificationRouter,
-    createPostsRouter
+    createPostsRouter,
+    reportsRouter
 }

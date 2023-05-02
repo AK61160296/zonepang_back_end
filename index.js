@@ -13,7 +13,8 @@ import {
   notificationRouter,
   createPostsRouter,
   createChatsRouter,
-  chatsRouter
+  chatsRouter,
+  reportsRouter
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
@@ -51,7 +52,7 @@ app.use("/api", apiKeyMiddleware, userRouter);
 app.use("/api", apiKeyMiddleware, feedRouter);
 app.use("/api", apiKeyMiddleware, notificationRouter);
 app.use("/api", apiKeyMiddleware, chatsRouter);
-
+app.use("/api", apiKeyMiddleware, reportsRouter);
 
 io.on('connection', (socket) => {
   console.log('socket connected');

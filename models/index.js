@@ -19,6 +19,9 @@ import { zpUserSettingsModel } from "./user_settings.js";
 import { zpConversationsModel } from "./conversations.js";
 import { zpMessagesModel } from "./messages.js";
 
+import { zpReportsModel } from "./report.js";
+import { zpReportTypeModel } from "./report_type.js";
+import { zpReportListModel } from "./report_list.js";
 
 export {
     zpPinsModel,
@@ -35,5 +38,8 @@ export {
     zpHistorySearchsModel,
     zpUserSettingsModel,
     zpMessagesModel,
-    zpConversationsModel
+    zpConversationsModel,
+    zpReportsModel,
+    zpReportTypeModel,
+    zpReportListModel
 }

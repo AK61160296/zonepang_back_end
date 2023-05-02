@@ -1,6 +1,5 @@
 import { mongoose } from "../config/database.js";
 const zpMessagesSchema = mongoose.Schema({
-    user_id: Number,
     conversation_id: mongoose.Schema.Types.ObjectId,
     sender_id: Number,
     receiver_id: Number,

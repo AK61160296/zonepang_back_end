@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import { connectDb, mongoose } from "./config/database.js";
-import { addMessages, getMessages } from './controller/chatsController.js';
+import { addMessages } from './controller/chatsController.js';
 import bodyParser from "body-parser";
 import cors from "cors";
 import {
@@ -54,16 +54,21 @@ app.use("/api", apiKeyMiddleware, notificationRouter);
 app.use("/api", apiKeyMiddleware, chatsRouter);
 app.use("/api", apiKeyMiddleware, reportsRouter);
 
-io.on('connection', (socket) => {
-  console.log('socket connected');
+const onlineUsers = new Map();
 
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
+io.on('connection', (socket) => {
+  socket.on("add-user", (userId) => {
+    onlineUsers.set(userId, socket.id);
   });
 
-  socket.on("chat-conversation", async (userId) => {
-    const conversation = await zpConversationsModel.find({ $or: [{ sender_id: userId }, { receiver_id: userId }] });
-    socket.emit("chat-conversation", conversation);
+  socket.on("send-msg", (data) => {
+    const sendUserSocket = onlineUsers.get(data.to);
+    console.log("sendUserSocket",sendUserSocket)
+    console.log("onlineUsers",onlineUsers)
+    if (sendUserSocket) {
+ 
+      socket.to(sendUserSocket).emit("msg-recieve", data.msg);
+    }
   });
 });
 

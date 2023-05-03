@@ -1,18 +1,15 @@
 
 const createChatsRouter = express.Router();
-import { addMessages, getMessages } from '../controller/chatsController.js';
+import { addMessages } from '../controller/chatsController.js';
 import path from 'path'
 import express from 'express';
 
 createChatsRouter.post('/addMessages', async function (req, res) {
     try {
-        const userId = req.body.userId
-        const senderId = req.body.senderId
-        const receiverId = req.body.receiverId
-        const messageText = req.body.messageText
+        const { from, to, message } = req.body;
 
-        const message = await addMessages(userId,senderId, receiverId, messageText);
-        res.json(message);
+        const resData = await addMessages(from, to, message);
+        res.json(resData);
     } catch (error) {
         console.log(error)
     }

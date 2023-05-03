@@ -1,6 +1,7 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
 import { zpNotificationsModel } from '../models/notification.js';
+import { zpConversationsModel } from '../models/index.js';
 import { zpPostsModel, zpUserSettingsModel, zpUsersModel, zpAttchmentsPostsModel, zpCommentsModel, zpLikesModel, zpGroupsModel, zpMatchAttachmentsModel, zpBookmarksModel, zpFollowsModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
@@ -10,18 +11,72 @@ async function followUser(userId, userFollowId, type) {
     try {
         try {
             if (type == 'follow') {
-                const userGroup = await zpFollowsModel.create({
+                const userFollow = await zpFollowsModel.create({
                     user_id: userId,
                     user_follow_id: userFollowId,
                     create_at: Date.now(),
                     update_at: Date.now()
                 });
                 createNotificationFollow(userId, userFollowId)
+                const conversation = await zpConversationsModel.findOne({ $and: [{ user_id: userId }, { sender_id: userFollowId }] });
+                if (!conversation) {
+                    const newConversationMe = await zpConversationsModel.create({
+                        user_id: userId,
+                        sender_id: userFollowId,
+                        lastMessage: null,
+                        createdAt: Date.now(),
+                        isFollow: true
+                    });
+                    const newConversationSender = await zpConversationsModel.create({
+                        user_id: userFollowId,
+                        sender_id: userId,
+                        lastMessage: null,
+                        createdAt: Date.now(),
+                        isFollow: true
+                    });
+                } else {
+                    const updateConversationMe = await zpConversationsModel.updateOne(
+                        {
+                            user_id: userId,
+                            sender_id: userFollowId,
+                        },
+                        {
+
+                            isFollow: true
+                        });
+                    const updateConversationSender = await zpConversationsModel.updateOne(
+                        {
+                            user_id: userFollowId,
+                            sender_id: userId,
+                        },
+                        {
+                            isFollow: true
+                        });
+                }
             } else {
-                const userGroup = await zpFollowsModel.destroy({
-                    user_id: userId,
-                    user_follow_id: userFollowId,
+                const userFollow = await zpFollowsModel.destroy({
+                    where: {
+                        user_id: userId,
+                        user_follow_id: userFollowId,
+                    }
                 });
+                const updateConversationMe = await zpConversationsModel.updateOne(
+                    {
+                        user_id: userId,
+                        sender_id: userFollowId,
+                    },
+                    {
+
+                        isFollow: false
+                    });
+                const updateConversationSender = await zpConversationsModel.updateOne(
+                    {
+                        user_id: userFollowId,
+                        sender_id: userId,
+                    },
+                    {
+                        isFollow: false
+                    });
             }
 
             return { status: 'success' };

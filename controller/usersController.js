@@ -150,27 +150,14 @@ async function getSettingNotification(userId) {
 
 async function settingNotification(userId, all, comment, follow, tag, group, like) {
     try {
-        if (all) {
-            var settingData = {
-                all: true,
-                comment: true,
-                follow: true,
-                tag: true,
-                group: true,
-                like: true,
-            };
-        } else {
-            var settingData = {
-                all: all,
-                comment: comment,
-                follow: follow,
-                tag: tag,
-                group: group,
-                like: like,
-            };
-
-
-        }
+        var settingData = {
+            all: all,
+            comment: comment,
+            follow: follow,
+            tag: tag,
+            group: group,
+            like: like,
+        };
 
         const stringifiedSettingData = JSON.stringify(settingData);
 

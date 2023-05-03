@@ -1,6 +1,6 @@
 
 const notificationRouter = express.Router();
-import { getNotificationByUserId } from '../controller/notificationController.js';
+import { getNotificationByUserId, readNotification } from '../controller/notificationController.js';
 import path from 'path'
 import express from 'express';
 

@@ -5,7 +5,8 @@ const zpConversationsSchema = mongoose.Schema({
     lastMessage: {
         text: String,
         createdAt: Date,
-        sender: Number
+        sender: Number,
+        read: Boolean
     },
     createdAt: Date,
     isFollow: Boolean

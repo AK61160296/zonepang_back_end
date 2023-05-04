@@ -55,6 +55,7 @@ app.use("/api", apiKeyMiddleware, chatsRouter);
 app.use("/api", apiKeyMiddleware, reportsRouter);
 
 const onlineUsers = new Map();
+global.onlineUsersInChat = new Map();
 
 io.on('connection', (socket) => {
   socket.on("add-user", (userId) => {
@@ -62,12 +63,21 @@ io.on('connection', (socket) => {
     onlineUsers.set(userId, socket.id);
   });
 
-  socket.on("send-msg", (data) => {
-    const sendUserSocket = onlineUsers.get(data.to);
-    console.log("sendUserSocket",sendUserSocket)
-    console.log("onlineUsers",onlineUsers)
-    if (sendUserSocket) {
+  socket.on("add-user-chat", (userId) => {
+    console.log("add-user-chat", userId)
+    onlineUsersInChat.set(userId, socket.id);
+  });
 
+  socket.on("delete-user-chat", (userId) => {
+    onlineUsersInChat.delete(userId);
+  });
+
+  socket.on("send-msg", async (data) => {
+    const sendUserSocket = onlineUsers.get(data.to);
+    // console.log("sendUserSocket", sendUserSocket)
+    // console.log("onlineUsers", onlineUsers)
+    // console.log("onlineUsersInChat", onlineUsersInChat)
+    if (sendUserSocket) {
       socket.to(sendUserSocket).emit("msg-recieve", data);
     }
   });

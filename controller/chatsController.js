@@ -1,19 +1,16 @@
 import { zpConversationsModel, zpMessagesModel, zpUsersModel } from '../models/index.js';
 import mongoose from 'mongoose';
-
-
-
 async function addMessages(from, to, message) {
     try {
         const lastMessage = {
             text: message,
             createdAt: new Date(),
             sender: from,
+            read: false,
         };
 
         const conversation = await zpConversationsModel.findOne({ $and: [{ user_id: from }, { sender_id: to }] });
-        console.log("conversation",conversation)
-        if (!conversation) {         
+        if (!conversation) {
             const newConversationMe = await zpConversationsModel.create({
                 user_id: from,
                 sender_id: to,
@@ -34,7 +31,35 @@ async function addMessages(from, to, message) {
             { user_id: { $in: [from, to] }, sender_id: { $in: [from, to] } },
             { $set: { lastMessage } }
         );
+        console.log("onlineUsersInChat.has(to)", onlineUsersInChat.has(to))
 
+
+        if (onlineUsersInChat.has(to)) {
+            await zpConversationsModel.updateOne(
+                {
+                    user_id: to,
+                    sender_id: from,
+                },
+                {
+                    $set: {
+                        "lastMessage.read": true
+                    },
+                }
+            );
+        } 
+        if (onlineUsersInChat.has(from)) {
+            await zpConversationsModel.updateOne(
+                {
+                    user_id: from,
+                    sender_id: to,
+                },
+                {
+                    $set: {
+                        "lastMessage.read": true
+                    },
+                }
+            );
+        }
 
         const data = await zpMessagesModel.create({
             message: { text: message },
@@ -54,7 +79,7 @@ async function addMessages(from, to, message) {
 
 async function getConversations(userId, page) {
     try {
-        let conversation = await zpConversationsModel.find({ user_id: userId });
+        let conversation = await zpConversationsModel.find({ user_id: userId }).sort({'lastMessage.createdAt': -1});;
         const promises = conversation.map(async (data) => {
             let userMe = await zpUsersModel.findOne({
                 attributes: ['id', 'name', 'avatar', 'code_user'],
@@ -87,6 +112,18 @@ async function getConversations(userId, page) {
 
 async function getMessages(from, to) {
     try {
+        const Update = await zpConversationsModel.updateOne(
+            {
+                user_id: from,
+                sender_id: to,
+            },
+            {
+                $set: {
+                    "lastMessage.read": true
+                },
+            }
+        );
+        console.log("UpdateUpdate", Update)
 
         const messages = await zpMessagesModel.find({
             users: {

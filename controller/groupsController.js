@@ -194,6 +194,18 @@ async function getGroupsById(id) {
     try {
 
         const groups = await zpGroupsModel.findAll({
+            attributes: {
+                include: [
+                    [
+                        Sequelize.literal(`(
+                      SELECT COUNT(*) 
+                      FROM user_groups 
+                      WHERE user_groups.group_id = groups.group_id
+                    )`),
+                        'member_count'
+                    ]
+                ]
+            },
             where: {
                 group_id: id,
             }

@@ -1,7 +1,7 @@
 
 const userRouter = express.Router();
 import { editProfile } from '../controller/authController.js';
-import { sortBookmark, getUserPath, getUserProfile, settingNotification, getSettingNotification, getBookmarks, addPinBookmark, getUserFollow, followUser } from '../controller/index.js';
+import { sortBookmark, getUserPath, getUserProfile, settingNotification, getSettingNotification, getBookmarks, addPinBookmark, getUserFollow, followUser, checkFollow } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -133,6 +133,17 @@ userRouter.post('/getUserFollow', async function (req, res) {
         console.log(error)
     }
 });
+
+userRouter.post('/checkFollow', async function (req, res) {
+    try {
+        const { user_id, user_follow_id } = req.body;
+        const follow = await checkFollow(user_id, user_follow_id);
+        res.json(follow);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
 
 
 export { userRouter };

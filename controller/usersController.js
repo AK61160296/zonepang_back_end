@@ -18,7 +18,7 @@ async function followUser(userId, userFollowId, type) {
                     update_at: Date.now()
                 });
                 createNotificationFollow(userId, userFollowId)
-     
+
             } else {
                 const userFollow = await zpFollowsModel.destroy({
                     where: {
@@ -225,10 +225,30 @@ async function getUserFollow(userId) {
     }
 
 }
+async function checkFollow(userId, userFollowId) {
+    try {
+        let isFollow = false
+        const status = await zpFollowsModel.count({
+            where: {
+                user_id: userId,
+                user_follow_id: userFollowId
+            }
+        });
+        if (status > 0) {
+            isFollow = true
+        }
 
+
+        return { isFollow };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 
 
 export {
+    checkFollow,
     followUser,
     getUserFollow,
     settingNotification,

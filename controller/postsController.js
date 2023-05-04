@@ -184,7 +184,7 @@ async function createNotificationPostGroup(userId, groupData) {
                     }
                 })
                 const checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
-                if (checkSettingNotiObj.group) {
+                if (checkSettingNotiObj.group && userIdActor != userId.user_id) {
                     const notification = {
                         user_id: userId.user_id,
                         noti_text: userData.dataValues.name + " โพสต์ในกลุ่ม " + subStr,

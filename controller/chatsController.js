@@ -5,62 +5,46 @@ import mongoose from 'mongoose';
 
 async function addMessages(from, to, message) {
     try {
+        const lastMessage = {
+            text: message,
+            createdAt: new Date(),
+            sender: from,
+        };
+
+        const conversation = await zpConversationsModel.findOne({ $and: [{ user_id: from }, { sender_id: to }] });
+        console.log("conversation",conversation)
+        if (!conversation) {         
+            const newConversationMe = await zpConversationsModel.create({
+                user_id: from,
+                sender_id: to,
+                lastMessage: null,
+                createdAt: Date.now(),
+                isFollow: true
+            });
+            const newConversationSender = await zpConversationsModel.create({
+                user_id: to,
+                sender_id: from,
+                lastMessage: null,
+                createdAt: Date.now(),
+                isFollow: true
+            });
+        }
+
+        await zpConversationsModel.updateMany(
+            { user_id: { $in: [from, to] }, sender_id: { $in: [from, to] } },
+            { $set: { lastMessage } }
+        );
+
+
         const data = await zpMessagesModel.create({
             message: { text: message },
             users: [from, to],
             sender: from,
         });
 
+
         if (data) return { msg: "Message added successfully." };
         else return { msg: "Failed to add message to the database" };
-        // const conversation = await zpConversationsModel.findOne({ $or: [{ sender_id: userId }, { receiver_id: userId }] });
-        // console.log("conversation", conversation)
-        // let conversationId;
-        // // 2. ถ้ายังไม่มี document ให้สร้าง document ใหม่
-        // if (!conversation) {
-        //     const newConversation = await zpConversationsModel.create({
-        //         user_id: userId,
-        //         sender_id: senderId,
-        //         receiver_id: receiverId,
-        //         lastMessage: {
-        //             text: messageText,
-        //             createdAt: new Date(),
-        //             lastUserId: userId
-        //         },
-        //     });
-        //     conversationId = newConversation._id;
-        // }
-        // else {
-        //     conversationId = conversation._id;
-        //     await zpConversationsModel.updateOne(
-        //         {
-        //             _id: conversationId,
-        //         },
-
-        //         {
-        //             sender_id: senderId,
-        //             receiver_id: receiverId,
-        //             $set: {
-        //                 lastMessage: {
-        //                     text: messageText,
-        //                     createdAt: new Date(),
-        //                     lastUserId: userId
-        //                 },
-        //             },
-        //         }
-        //     );
-        // }
-
-        // const newMessage = {
-        //     conversation_id: conversationId,
-        //     sender_id: senderId,
-        //     receiver_id: receiverId,
-        //     message: messageText,
-        //     created_at: new Date(),
-        // };
-        // const result = await zpMessagesModel.create(newMessage);
-
-        // return { status: "success" };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
@@ -88,7 +72,8 @@ async function getConversations(userId, page) {
             return {
                 ...data.toJSON(),
                 userMe,
-                userSender
+                userSender,
+                fromSelf: data.lastMessage.sender == userId,
             };
         });
         conversation = await Promise.all(promises);

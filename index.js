@@ -58,6 +58,7 @@ const onlineUsers = new Map();
 
 io.on('connection', (socket) => {
   socket.on("add-user", (userId) => {
+    console.log("userId", userId)
     onlineUsers.set(userId, socket.id);
   });
 
@@ -66,8 +67,8 @@ io.on('connection', (socket) => {
     console.log("sendUserSocket",sendUserSocket)
     console.log("onlineUsers",onlineUsers)
     if (sendUserSocket) {
- 
-      socket.to(sendUserSocket).emit("msg-recieve", data.msg);
+
+      socket.to(sendUserSocket).emit("msg-recieve", data);
     }
   });
 });

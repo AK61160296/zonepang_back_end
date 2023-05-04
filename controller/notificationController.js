@@ -43,8 +43,23 @@ async function readNotification(notiId) {
         return { status: 'error', error: error };
     }
 }
+async function getCountNoti(userId) {
+    try {
+        const countNoti = await zpNotificationsModel.count(
+            {
+                user_id: userId,
+                read: false
+            }
+        );
+        return { countNoti };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 
 export {
+    getCountNoti,
     getNotificationByUserId,
     readNotification,
 }

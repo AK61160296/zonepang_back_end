@@ -18,41 +18,7 @@ async function followUser(userId, userFollowId, type) {
                     update_at: Date.now()
                 });
                 createNotificationFollow(userId, userFollowId)
-                const conversation = await zpConversationsModel.findOne({ $and: [{ user_id: userId }, { sender_id: userFollowId }] });
-                if (!conversation) {
-                    const newConversationMe = await zpConversationsModel.create({
-                        user_id: userId,
-                        sender_id: userFollowId,
-                        lastMessage: null,
-                        createdAt: Date.now(),
-                        isFollow: true
-                    });
-                    const newConversationSender = await zpConversationsModel.create({
-                        user_id: userFollowId,
-                        sender_id: userId,
-                        lastMessage: null,
-                        createdAt: Date.now(),
-                        isFollow: true
-                    });
-                } else {
-                    const updateConversationMe = await zpConversationsModel.updateOne(
-                        {
-                            user_id: userId,
-                            sender_id: userFollowId,
-                        },
-                        {
-
-                            isFollow: true
-                        });
-                    const updateConversationSender = await zpConversationsModel.updateOne(
-                        {
-                            user_id: userFollowId,
-                            sender_id: userId,
-                        },
-                        {
-                            isFollow: true
-                        });
-                }
+     
             } else {
                 const userFollow = await zpFollowsModel.destroy({
                     where: {

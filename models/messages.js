@@ -2,7 +2,7 @@ import { mongoose } from "../config/database.js";
 const zpMessagesSchema = mongoose.Schema(
     {
         message: {
-            text: { type: String, required: true },
+            text: { type: String, required: false },
         },
         users: Array,
         sender: {
@@ -10,17 +10,11 @@ const zpMessagesSchema = mongoose.Schema(
             ref: "User",
             required: true,
         },
+        images: [String]
     },
     {
         timestamps: true,
     }
-    // {
-    // conversation_id: mongoose.Schema.Types.ObjectId,
-    // sender_id: Number,
-    // receiver_id: Number,
-    // message: String,
-    // created_at: Date,
-    // }
 );
 
 const zpMessagesModel = mongoose.models.messages || mongoose.model('messages', zpMessagesSchema);

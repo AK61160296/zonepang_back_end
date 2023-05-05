@@ -73,10 +73,9 @@ io.on('connection', (socket) => {
   });
 
   socket.on("send-msg", async (data) => {
+    console.log("data",data)
     const sendUserSocket = onlineUsers.get(data.to);
-    // console.log("sendUserSocket", sendUserSocket)
-    // console.log("onlineUsers", onlineUsers)
-    // console.log("onlineUsersInChat", onlineUsersInChat)
+    console.log("onlineUsersInChat", onlineUsersInChat)
     if (sendUserSocket) {
       socket.to(sendUserSocket).emit("msg-recieve", data);
     }

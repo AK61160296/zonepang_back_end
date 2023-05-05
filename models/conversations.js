@@ -6,7 +6,8 @@ const zpConversationsSchema = mongoose.Schema({
         text: String,
         createdAt: Date,
         sender: Number,
-        read: Boolean
+        read: Boolean,
+        haveFile: Boolean,
     },
     createdAt: Date,
     isFollow: Boolean

@@ -119,8 +119,12 @@ async function getConversations(userId, page) {
     }
 }
 
-async function getMessages(from, to) {
+async function getMessages(from, to, page) {
     try {
+        const limit = 15;
+        const offset = (page - 1) * limit;
+
+
         const Update = await zpConversationsModel.updateOne(
             {
                 user_id: from,
@@ -137,7 +141,10 @@ async function getMessages(from, to) {
             users: {
                 $all: [from, to],
             },
-        }).sort({ updatedAt: 1 });
+        }).sort({ updatedAt: -1 })
+            .skip(offset)
+            .limit(limit);
+
 
         const projectedMessages = messages.map((msg) => {
             let images = []
@@ -157,9 +164,19 @@ async function getMessages(from, to) {
     }
 };
 
+async function getMessageUnread(userId) {
+    try {
+        let result = await zpConversationsModel.count({ user_id: userId, 'lastMessage.read': false })
 
+        return { result };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 
 export {
+    getMessageUnread,
     addMessages,
     getConversations,
     getMessages

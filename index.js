@@ -14,7 +14,8 @@ import {
   createPostsRouter,
   createChatsRouter,
   chatsRouter,
-  reportsRouter
+  reportsRouter,
+  authRouter
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
@@ -53,6 +54,7 @@ app.use("/api", apiKeyMiddleware, feedRouter);
 app.use("/api", apiKeyMiddleware, notificationRouter);
 app.use("/api", apiKeyMiddleware, chatsRouter);
 app.use("/api", apiKeyMiddleware, reportsRouter);
+app.use("/api", apiKeyMiddleware, authRouter);
 
 const onlineUsers = new Map();
 global.onlineUsersInChat = new Map();
@@ -73,7 +75,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on("send-msg", async (data) => {
-    console.log("data",data)
+    console.log("data", data)
     const sendUserSocket = onlineUsers.get(data.to);
     console.log("onlineUsersInChat", onlineUsersInChat)
     if (sendUserSocket) {

@@ -4,6 +4,8 @@ import { zpGroupsModel, zpUserGroupsModel, zpUsersModel } from '../models/index.
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 async function editProfile(user_id, userName, userBio, files) {
     try {
@@ -27,7 +29,61 @@ async function editProfile(user_id, userName, userBio, files) {
     }
 }
 
+async function login(email, password) {
+    try {
+        const user = await zpUsersModel.findOne({ where: { email: email } });
+        if (!user) {
+            return { status: 'error', message: 'User not found' };
+        }
+
+        const passwordMatches = await bcrypt.compare(password, user.password);
+        if (passwordMatches) {
+            const token = generateToken(user);
+            return { status: 'success', user, token };
+        } else {
+            return { status: 'error', message: 'Invalid password' };
+        }
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
+async function register(name, email, password) {
+    try {
+        // ตรวจสอบว่ามีอีเมลนี้ในระบบหรือยัง
+        const existingUser = await zpUsersModel.findOne({ where: { email: email } });
+        if (existingUser) {
+            return { status: 'error', message: 'Email already exists' };
+        }
+
+        // ถ้ายังไม่มีให้สร้างผู้ใช้ใหม่
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await zpUsersModel.create({ name, email, password: hashedPassword });
+
+        // สร้าง JWT token ให้ผู้ใช้ใหม่
+        const token = generateToken(newUser);
+
+        return { status: 'success', user: newUser, token };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
+
+function generateToken(user) {
+    const payload = {
+        userId: user.id,
+        email: user.email,
+        isAdmin: user.is_admin,
+    };
+    const token = jwt.sign(payload, process.env.JWT_SECRET_TOKEN, { expiresIn: '10 days' });
+    return token;
+}
 
 export {
     editProfile,
+    login,
+    register
 }

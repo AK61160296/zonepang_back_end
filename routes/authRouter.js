@@ -1,0 +1,33 @@
+
+const authRouter = express.Router();
+import { login, register } from '../controller/authController.js';
+import path from 'path'
+import express from 'express';
+import multer from "multer";
+import AWS from 'aws-sdk'
+import multerS3 from 'multer-s3'
+
+
+authRouter.post('/authentication', async function (req, res) {
+    try {
+        const { email, password } = req.body
+        const auth = await login(email, password);
+        res.json(auth);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+authRouter.post('/register', async function (req, res) {
+    try {
+        const { name, email, password } = req.body
+        const auth = await register(name, email, password);
+        res.json(auth);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+
+
+export { authRouter };

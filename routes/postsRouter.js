@@ -4,6 +4,7 @@ import { bookmarkPost } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
 const app = express();
+import { verify } from 'jsonwebtoken';
 
 postsRouter.post('/getInfinitePosts', async function (req, res) {
     try {
@@ -32,8 +33,10 @@ postsRouter.get('/getPathPostId', async function (req, res) {
 
 postsRouter.get('/getPostsById', async function (req, res) {
     try {
+        const token = req.headers.authorization?.split(' ')[1];
+        const decoded = verify(token, process.env.JWT_SECRET_TOKEN);
+        const user_id = decoded.userId;
         const postId = req.query.postId
-        const user_id = req.query.user_id
         const post = await getPostsById(postId, user_id);
         res.json(post);
     } catch (error) {

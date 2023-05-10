@@ -130,7 +130,7 @@ async function getGroupsUser(userId) {
     }
 }
 
-async function getGroupssuggest(userId) {
+async function getGroupssuggest() {
     try {
         const groups = await zpGroupsModel.findAll({
             attributes: {
@@ -146,13 +146,14 @@ async function getGroupssuggest(userId) {
                 ]
             },
             order: [[Sequelize.literal('member_count'), 'DESC']],
-            where: {
-                group_id: {
-                    [Op.notIn]: Sequelize.literal(
-                        `(SELECT DISTINCT group_id FROM user_groups WHERE user_id = ${userId})`
-                    ),
-                },
-            },
+            limit: 20
+            // where: {
+            //     group_id: {
+            //         [Op.notIn]: Sequelize.literal(
+            //             `(SELECT DISTINCT group_id FROM user_groups WHERE user_id = ${userId})`
+            //         ),
+            //     },
+            // },
         });
         return { status: 'success', groups };
     } catch (error) {

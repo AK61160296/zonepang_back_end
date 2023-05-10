@@ -20,8 +20,8 @@ authRouter.post('/authentication', async function (req, res) {
 
 authRouter.post('/register', async function (req, res) {
     try {
-        const { name, email, password } = req.body
-        const auth = await register(name, email, password);
+        const { name, tel, email, password } = req.body
+        const auth = await register(name, tel, email, password);
         res.json(auth);
     } catch (error) {
         console.log(error)

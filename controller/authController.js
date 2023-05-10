@@ -49,7 +49,7 @@ async function login(email, password) {
     }
 }
 
-async function register(name, email, password) {
+async function register(name, tel, email, password) {
     try {
         // ตรวจสอบว่ามีอีเมลนี้ในระบบหรือยัง
         const existingUser = await zpUsersModel.findOne({ where: { email: email } });
@@ -59,7 +59,21 @@ async function register(name, email, password) {
 
         // ถ้ายังไม่มีให้สร้างผู้ใช้ใหม่
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await zpUsersModel.create({ name, email, password: hashedPassword });
+        const newUser = await zpUsersModel.create({
+            name: name,
+            email: email,
+            phone: tel,
+            full_name: name,
+            provider: 'email',
+            avatar: null,
+            password: hashedPassword
+        });
+        const randomSixDigitInt = 'UD' + newUser.id + (Math.random() * 100000000).toFixed(0);
+        newUser.update({
+            code_user: randomSixDigitInt
+        });
+
+
 
         // สร้าง JWT token ให้ผู้ใช้ใหม่
         const token = generateToken(newUser);

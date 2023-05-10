@@ -26,7 +26,7 @@ appFreeRouter.post('/pinAppFree', async function (req, res) {
         console.log(error)
     }
 });
-groupsRouter.put('/sortPinAppFree/:id', async function (req, res) {
+appFreeRouter.put('/sortPinAppFree/:id', async function (req, res) {
     try {
 
         const { newItems } = req.body;

@@ -22,6 +22,8 @@ import { zpMessagesModel } from "./messages.js";
 import { zpReportsModel } from "./report.js";
 import { zpReportTypeModel } from "./report_type.js";
 import { zpReportListModel } from "./report_list.js";
+import { zpAppFreeModel } from "./app_free.js";
+import { zpPinAppFreeModel } from "./pin_app_free.js";
 
 export {
     zpPinsModel,
@@ -41,5 +43,7 @@ export {
     zpConversationsModel,
     zpReportsModel,
     zpReportTypeModel,
-    zpReportListModel
+    zpReportListModel,
+    zpAppFreeModel,
+    zpPinAppFreeModel
 }

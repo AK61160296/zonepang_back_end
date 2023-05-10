@@ -15,7 +15,8 @@ import {
   createChatsRouter,
   chatsRouter,
   reportsRouter,
-  authRouter
+  authRouter,
+  appFreeRouter
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
@@ -55,6 +56,7 @@ app.use("/api", apiKeyMiddleware, notificationRouter);
 app.use("/api", apiKeyMiddleware, chatsRouter);
 app.use("/api", apiKeyMiddleware, reportsRouter);
 app.use("/api", apiKeyMiddleware, authRouter);
+app.use("/api", apiKeyMiddleware, appFreeRouter);
 
 const onlineUsers = new Map();
 global.onlineUsersInChat = new Map();

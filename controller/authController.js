@@ -18,10 +18,13 @@ async function editProfile(user_id, userName, userBio, files) {
         // หา user ด้วย user_id จากฐานข้อมูล
         const user = await zpUsersModel.findOne({ where: { id: user_id } });
         // // อัพเดทข้อมูล
-        const fileName = files[0].key;
-        const cleanFileName = fileName.replace(/^avatar\//i, "");
+        if (files.length > 0) {
+            console.log(files)
+            var fileName = files[0].key;
+            var cleanFileName = fileName.replace(/^avatar\//i, "");
+            user.avatar = cleanFileName;
+        }
 
-        user.avatar = cleanFileName;
         user.name = userName;
         user.bio = userBio;
 
@@ -146,7 +149,7 @@ async function sendOTP(countryCode, phoneNumber) {
     try {
         const existingPhoneNumber = await zpUsersModel.findOne({ where: { phone: phoneNumber } });
         if (!existingPhoneNumber) {
-            return { status: 'error', message: 'ไม่พบเบอร์โทรศัพท์' };
+            return { status: 'not_found', message: 'ไม่พบเบอร์โทรศัพท์' };
         }
         if (existingPhoneNumber.is_verify == 0) {
             const otpResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
@@ -167,7 +170,7 @@ async function sendOTP(countryCode, phoneNumber) {
 
             if (timeDiffInMinutes < 3) {
                 const remainingTime = 3 - timeDiffInMinutes;
-                return { status: 'error', message: `กรุณารอเวลาการส่ง OTP ${remainingTime} นาที` };
+                return { status: 'wait', message: `กรุณารอเวลาการส่ง OTP ${remainingTime} นาที` };
 
             } else {
                 const otpResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)

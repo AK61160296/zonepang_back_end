@@ -1,11 +1,12 @@
-import { Sequelize, Op } from 'sequelize';
+import { Sequelize, Op, DATE } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpGroupsModel, zpUserGroupsModel, zpUsersModel } from '../models/index.js';
+import { zpGroupsModel, zpUserGroupsModel, zpUsersModel, zpUserSettingsModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import fetch from 'node-fetch';
 
 async function editProfile(user_id, userName, userBio, files) {
     try {
@@ -57,6 +58,12 @@ async function register(name, tel, email, password) {
             return { status: 'error', message: 'Email already exists' };
         }
 
+        const existingPhoneNumber = await zpUsersModel.findOne({ where: { phone: tel } });
+        if (existingPhoneNumber) {
+            return { status: 'error', message: 'Phone number already exists' };
+        }
+
+
         // ถ้ายังไม่มีให้สร้างผู้ใช้ใหม่
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await zpUsersModel.create({
@@ -66,13 +73,47 @@ async function register(name, tel, email, password) {
             full_name: name,
             provider: 'email',
             avatar: null,
-            password: hashedPassword
+            password: hashedPassword,
+            created_at: Date.now(),
+            updated_at: Date.now(),
         });
-        const randomSixDigitInt = 'UD' + newUser.id + (Math.random() * 100000000).toFixed(0);
+        let randomSixDigitInt;
+        let checkCodeUser;
+        do {
+            randomSixDigitInt = 'UD' + newUser.id + (Math.random() * 100000000).toFixed(0);
+            checkCodeUser = await zpUsersModel.findOne({
+                where: {
+                    code_user: randomSixDigitInt
+                }
+            });
+        } while (checkCodeUser !== null);
+
+
         newUser.update({
             code_user: randomSixDigitInt
         });
+        if (newUser) {
+            var settingData = {
+                all: true,
+                comment: true,
+                follow: true,
+                tag: true,
+                group: true,
+                like: true,
+            };
 
+            const stringifiedSettingData = JSON.stringify(settingData);
+
+            await zpUserSettingsModel.create(
+                {
+                    user_id: newUser.id,
+                    setting: stringifiedSettingData,
+                    create_at: Date.now(),
+                    update_at: Date.now(),
+                },
+
+            );
+        }
 
 
         // สร้าง JWT token ให้ผู้ใช้ใหม่
@@ -96,8 +137,41 @@ function generateToken(user) {
     return token;
 }
 
+async function verifyUser(tel) {
+    try {
+        const phone = tel;
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        const nexmo_url = 'https://rest.nexmo.com/sms/json';
+
+        const data = {
+            api_key: process.env.OTP_API_KEY,
+            api_secret: process.env.OTP_API_SECRET,
+            to: phone,
+            from: 'BebFans',
+            text: `BebFans OTP for Withdrawal is ${otp}`,
+        };
+
+        fetch(nexmo_url, {
+            method: 'POST',
+            body: new URLSearchParams(data),
+        })
+            .then((res) => res.json())
+            .then((json) => {
+                return { status: 'error', json };
+            })
+            .catch((err) => {
+                return { status: 'error', error: err };
+            });
+
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
 export {
     editProfile,
     login,
-    register
+    register,
+    verifyUser
 }

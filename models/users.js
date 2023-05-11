@@ -118,14 +118,14 @@ const zpUsersModel = connectDb.define("users", {
         type: DataTypes.DATE,
         allowNull: true,
     },
-    // created_at: {
-    //     type: DataTypes.DATE,
-    //     allowNull: true,
-    // },
-    // updated_at: {
-    //     type: DataTypes.DATE,
-    //     allowNull: true,
-    // },
+    created_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
+    updated_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
 }, {
     timestamps: false,
     freezeTableName: true

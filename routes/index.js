@@ -10,6 +10,8 @@ import { chatsRouter } from "./chatsRouter.js";
 import { reportsRouter } from "./reportsRouter.js";
 import { authRouter } from "./authRouter.js";
 import { appFreeRouter } from "./appFreeRouter.js";
+import { userEditProfileRouter } from "./userEditProfileRouter.js";
+
 export {
     chatsRouter,
     createChatsRouter,
@@ -22,5 +24,6 @@ export {
     createPostsRouter,
     reportsRouter,
     authRouter,
-    appFreeRouter
+    appFreeRouter,
+    userEditProfileRouter
 }

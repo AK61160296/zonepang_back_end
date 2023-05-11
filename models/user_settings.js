@@ -14,6 +14,14 @@ const zpUserSettingsModel = connectDb.define("user_settings", {
         type: DataTypes.TEXT,
         allowNull: true,
     },
+    create_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
+    update_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
 }, {
     timestamps: false,
     freezeTableName: true

@@ -1,6 +1,6 @@
 
 const authRouter = express.Router();
-import { login, register } from '../controller/authController.js';
+import { login, register, verifyUser } from '../controller/authController.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -22,6 +22,15 @@ authRouter.post('/register', async function (req, res) {
     try {
         const { name, tel, email, password } = req.body
         const auth = await register(name, tel, email, password);
+        res.json(auth);
+    } catch (error) {
+        console.log(error)
+    }
+});
+authRouter.post('/verifyUser', async function (req, res) {
+    try {
+        const { tel } = req.body
+        const auth = await verifyUser(tel);
         res.json(auth);
     } catch (error) {
         console.log(error)

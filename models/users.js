@@ -126,6 +126,18 @@ const zpUsersModel = connectDb.define("users", {
         type: DataTypes.DATE,
         allowNull: true,
     },
+    time_otp: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
+    status_otp: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+    },
+    is_verify: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
 }, {
     timestamps: false,
     freezeTableName: true

@@ -1,6 +1,6 @@
 
 const authRouter = express.Router();
-import { login, register, verifyUser } from '../controller/authController.js';
+import { login, register, sendOTP, verifyOTP } from '../controller/authController.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -27,16 +27,24 @@ authRouter.post('/register', async function (req, res) {
         console.log(error)
     }
 });
-authRouter.post('/verifyUser', async function (req, res) {
+authRouter.post('/sendOTP', async function (req, res) {
     try {
-        const { tel } = req.body
-        const auth = await verifyUser(tel);
-        res.json(auth);
+        const { countryCode, phoneNumber } = req.body
+        const otp = await sendOTP(countryCode, phoneNumber);
+        res.json(otp);
     } catch (error) {
         console.log(error)
     }
 });
-
+authRouter.post('/verifyOTP', async function (req, res) {
+    try {
+        const { countryCode, phoneNumber, otp } = req.body
+        const verifiedOTP = await verifyOTP(countryCode, phoneNumber, otp);
+        res.json(verifiedOTP);
+    } catch (error) {
+        console.log(error)
+    }
+});
 
 
 export { authRouter };

@@ -7,6 +7,11 @@ import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
+import https from 'https';
+import twilio from 'twilio';
+
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
 
 async function editProfile(user_id, userName, userBio, files) {
     try {
@@ -55,12 +60,12 @@ async function register(name, tel, email, password) {
         // ตรวจสอบว่ามีอีเมลนี้ในระบบหรือยัง
         const existingUser = await zpUsersModel.findOne({ where: { email: email } });
         if (existingUser) {
-            return { status: 'error', message: 'Email already exists' };
+            return { status: 'duplicate_email', message: 'Email already exists' };
         }
 
         const existingPhoneNumber = await zpUsersModel.findOne({ where: { phone: tel } });
         if (existingPhoneNumber) {
-            return { status: 'error', message: 'Phone number already exists' };
+            return { status: 'duplicate_phone', message: 'Phone number already exists' };
         }
 
 
@@ -137,32 +142,61 @@ function generateToken(user) {
     return token;
 }
 
-async function verifyUser(tel) {
+async function sendOTP(countryCode, phoneNumber) {
     try {
-        const phone = tel;
-        const otp = Math.floor(100000 + Math.random() * 900000);
-        const nexmo_url = 'https://rest.nexmo.com/sms/json';
-
-        const data = {
-            api_key: process.env.OTP_API_KEY,
-            api_secret: process.env.OTP_API_SECRET,
-            to: phone,
-            from: 'BebFans',
-            text: `BebFans OTP for Withdrawal is ${otp}`,
-        };
-
-        fetch(nexmo_url, {
-            method: 'POST',
-            body: new URLSearchParams(data),
-        })
-            .then((res) => res.json())
-            .then((json) => {
-                return { status: 'error', json };
+        const existingPhoneNumber = await zpUsersModel.findOne({ where: { phone: phoneNumber } });
+        if (!existingPhoneNumber) {
+            return { status: 'error', message: 'ไม่พบเบอร์โทรศัพท์' };
+        }
+        if (existingPhoneNumber.is_verify == 0) {
+            const otpResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
+                .verifications.create({
+                    to: `+${countryCode}${phoneNumber}`,
+                    channel: "sms"
+                })
+            await existingPhoneNumber.update({
+                is_verify: 1,
+                status_otp: 'pending',
+                time_otp: Date.now()
             })
-            .catch((err) => {
-                return { status: 'error', error: err };
-            });
+            return { status: 'success', message: JSON.stringify(otpResponse) };
+        } else {
+            const currentTime = Date.now();
+            const timeDiff = currentTime - existingPhoneNumber.time_otp;
+            const timeDiffInMinutes = Math.floor(timeDiff / (1000 * 60));
 
+            if (timeDiffInMinutes < 3) {
+                const remainingTime = 3 - timeDiffInMinutes;
+                return { status: 'error', message: `กรุณารอเวลาการส่ง OTP ${remainingTime} นาที` };
+
+            } else {
+                const otpResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
+                    .verifications.create({
+                        to: `+${countryCode}${phoneNumber}`,
+                        channel: "sms"
+                    })
+                await existingPhoneNumber.update({
+                    is_verify: 1,
+                    status_otp: 'pending',
+                    time_otp: Data.now()
+                })
+                return { status: 'success', message: JSON.stringify(otpResponse) };
+            }
+        }
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+async function verifyOTP(countryCode, phoneNumber, otp) {
+    try {
+        const verifiedResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
+            .verificationChecks.create({
+                to: `+${countryCode}${phoneNumber}`,
+                code: otp
+            })
+
+        return { status: 'success', message: JSON.stringify(verifiedResponse) };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
@@ -173,5 +207,6 @@ export {
     editProfile,
     login,
     register,
-    verifyUser
+    sendOTP,
+    verifyOTP
 }

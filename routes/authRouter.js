@@ -1,6 +1,6 @@
 
 const authRouter = express.Router();
-import { login, register, sendOTP, verifyOTP, changPassword } from '../controller/authController.js';
+import { login, register, sendOTP, verifyOTP, changePassword, verifyPassword } from '../controller/authController.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -45,10 +45,19 @@ authRouter.post('/verifyOTP', async function (req, res) {
         console.log(error)
     }
 });
-authRouter.post('/changPassword', async function (req, res) {
+authRouter.post('/verifyPassword', async function (req, res) {
     try {
         const { phoneNumber, new_password } = req.body
-        const verifiedOTP = await changPassword(phoneNumber, new_password);
+        const verifiedOTP = await verifyPassword(phoneNumber, new_password);
+        res.json(verifiedOTP);
+    } catch (error) {
+        console.log(error)
+    }
+});
+authRouter.post('/changePassword', async function (req, res) {
+    try {
+        const { user_id, old_password, new_password } = req.body
+        const verifiedOTP = await changePassword(user_id, old_password, new_password);
         res.json(verifiedOTP);
     } catch (error) {
         console.log(error)

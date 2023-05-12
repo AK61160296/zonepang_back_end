@@ -221,7 +221,7 @@ async function verifyOTP(countryCode, phoneNumber, otp) {
         return { status: 'error', error: error };
     }
 }
-async function changPassword(phoneNumber, newPassword) {
+async function verifyPassword(phoneNumber, newPassword) {
     try {
         const userData = await zpUsersModel.findOne({ where: { phone: phoneNumber } });
         if (!userData) {
@@ -247,11 +247,38 @@ async function changPassword(phoneNumber, newPassword) {
     }
 }
 
+async function changePassword(userId, oldPassword, newPassword) {
+    try {
+        const userData = await zpUsersModel.findOne({ where: { id: userId } });
+        if (!userData) {
+            return { status: 'not_found', message: 'User not found' };
+        }
+
+        const passwordMatches = await bcrypt.compare(oldPassword, userData.password);
+        if (!passwordMatches) {
+            return { status: 'error_old_pass', message: 'กรอกรหัสเก่าไม่ถูกต้อง' };
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await userData.update({
+            password: hashedPassword,
+        });
+
+        // // const hashedPassword = await bcrypt.hash(password, 10);
+        return { status: 'success', message: 'เปลี่ยนรหัสผ่านสำเร็จ' };
+
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
 export {
     editProfile,
     login,
     register,
     sendOTP,
     verifyOTP,
-    changPassword
+    changePassword,
+    verifyPassword
 }

@@ -147,29 +147,29 @@ function generateToken(user) {
 
 async function sendOTP(countryCode, phoneNumber) {
     try {
-        const existingPhoneNumber = await zpUsersModel.findOne({ where: { phone: phoneNumber } });
-        if (!existingPhoneNumber) {
+        const userData = await zpUsersModel.findOne({ where: { phone: phoneNumber } });
+        if (!userData) {
             return { status: 'not_found', message: 'ไม่พบเบอร์โทรศัพท์' };
         }
-        if (existingPhoneNumber.is_verify == 0) {
+        if (userData.is_verify == 0) {
             const otpResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
                 .verifications.create({
                     to: `+${countryCode}${phoneNumber}`,
                     channel: "sms"
                 })
-            await existingPhoneNumber.update({
+            await userData.update({
                 is_verify: 1,
                 status_otp: 'pending',
                 time_otp: Date.now()
             })
-            return { status: 'success', message: JSON.stringify(otpResponse) };
+            return { status: 'success', message: `ส่งหมายเลข OTP Tel.${phoneNumber} สำเร็จ`, data: JSON.stringify(otpResponse) };
         } else {
             const currentTime = Date.now();
-            const timeDiff = currentTime - existingPhoneNumber.time_otp;
+            const timeDiff = currentTime - userData.time_otp;
             const timeDiffInMinutes = Math.floor(timeDiff / (1000 * 60));
 
-            if (timeDiffInMinutes < 3) {
-                const remainingTime = 3 - timeDiffInMinutes;
+            if (timeDiffInMinutes < 5) {
+                const remainingTime = 5 - timeDiffInMinutes;
                 return { status: 'wait', message: `กรุณารอเวลาการส่ง OTP ${remainingTime} นาที` };
 
             } else {
@@ -178,12 +178,12 @@ async function sendOTP(countryCode, phoneNumber) {
                         to: `+${countryCode}${phoneNumber}`,
                         channel: "sms"
                     })
-                await existingPhoneNumber.update({
+                await userData.update({
                     is_verify: 1,
                     status_otp: 'pending',
-                    time_otp: Data.now()
+                    time_otp: Date.now()
                 })
-                return { status: 'success', message: JSON.stringify(otpResponse) };
+                return { status: 'success', message: `ส่งหมายเลข OTP Tel.${phoneNumber} สำเร็จ`, data: JSON.stringify(otpResponse) };
             }
         }
     } catch (error) {
@@ -193,13 +193,54 @@ async function sendOTP(countryCode, phoneNumber) {
 }
 async function verifyOTP(countryCode, phoneNumber, otp) {
     try {
+        const userData = await zpUsersModel.findOne({ where: { phone: phoneNumber } });
+        if (userData.is_verify == 0) {
+            return { status: 'error', message: 'กรุณาส่งหมายเลข OTP ก่อนตรวจสอบ' };
+        }
+
         const verifiedResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
             .verificationChecks.create({
                 to: `+${countryCode}${phoneNumber}`,
                 code: otp
             })
 
-        return { status: 'success', message: JSON.stringify(verifiedResponse) };
+        if (verifiedResponse.status === "approved") {
+            await userData.update({
+                is_verify: 0,
+                status_otp: 'approved',
+                time_otp: Date.now()
+            })
+            return { status: 'success', message: 'หมายเลข OTP ถูกต้อง', data: JSON.stringify(verifiedResponse) };
+        } else {
+            return { status: 'error', message: 'หมายเลข OTP ไม่ถูกต้อง', data: JSON.stringify(verifiedResponse) };
+        }
+
+
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+async function changPassword(phoneNumber, newPassword) {
+    try {
+        const userData = await zpUsersModel.findOne({ where: { phone: phoneNumber } });
+        if (!userData) {
+            return { status: 'not_found', message: 'User not found' };
+        }
+
+        const passwordMatches = await bcrypt.compare(newPassword, userData.password);
+        if (passwordMatches) {
+            return { status: 'duplicate_password', message: 'กรุณากรอกรหัสใหม่ ให้ไม่ตรงกับรหัสเก่า' };
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await userData.update({
+            password: hashedPassword,
+        });
+
+        // const hashedPassword = await bcrypt.hash(password, 10);
+        return { status: 'success', message: 'เปลี่ยนรหัสผ่านสำเร็จ' };
+
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
@@ -211,5 +252,6 @@ export {
     login,
     register,
     sendOTP,
-    verifyOTP
+    verifyOTP,
+    changPassword
 }

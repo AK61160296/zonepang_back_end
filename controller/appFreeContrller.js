@@ -1,12 +1,12 @@
 import { Sequelize, Op } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpUsersModel, zpPinAppFreeModel, zpAppFreeModel } from '../models/index.js';
+import { zpUsersModel, zpPinAppFreeModel, zpAppFreeModel, zpShortUrlModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-
+import shortid from 'shortid';
 
 async function getAppFree(userId) {
     try {
@@ -103,10 +103,28 @@ async function sortPinAppFree(newItems) {
         return { status: 'error', error: error };
     }
 }
+async function shortUrl(originalUrl) {
+    try {
+        const existingUrl = await zpShortUrlModel.findOne({ originalUrl });
+        if (existingUrl) {
+            return { shortUrl: `http://localhost:4000/shortUrl/${existingUrl.shortUrl}` };
+        }
+
+        const shortUrl = shortid.generate();
+        const url = new zpShortUrlModel({ originalUrl, shortUrl });
+        await url.save();
+
+        return { shortUrl: `http://localhost:4000/shortUrl/${shortUrl}` };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 
 
 export {
     getAppFree,
     pinAppFree,
-    sortPinAppFree
+    sortPinAppFree,
+    shortUrl
 }

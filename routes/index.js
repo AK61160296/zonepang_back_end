@@ -11,6 +11,7 @@ import { reportsRouter } from "./reportsRouter.js";
 import { authRouter } from "./authRouter.js";
 import { appFreeRouter } from "./appFreeRouter.js";
 import { userEditProfileRouter } from "./userEditProfileRouter.js";
+import { shortRouter } from "./shortRouter.js";
 
 export {
     chatsRouter,
@@ -25,5 +26,6 @@ export {
     reportsRouter,
     authRouter,
     appFreeRouter,
-    userEditProfileRouter
+    userEditProfileRouter,
+    shortRouter
 }

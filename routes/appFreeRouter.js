@@ -1,6 +1,6 @@
 
 const appFreeRouter = express.Router();
-import { getAppFree, pinAppFree, sortPinAppFree } from '../controller/appFreeContrller.js';
+import { getAppFree, pinAppFree, sortPinAppFree, shortUrl } from '../controller/appFreeContrller.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -32,6 +32,16 @@ appFreeRouter.put('/sortPinAppFree/:id', async function (req, res) {
         const { newItems } = req.body;
         const status = await sortPinAppFree(newItems);
         res.json(newItems);
+    } catch (error) {
+        console.log(error)
+    }
+});
+appFreeRouter.post('/shortUrl', async function (req, res) {
+    try {
+
+        const { original_url } = req.body;
+        const newUrl = await shortUrl(original_url);
+        res.json(newUrl);
     } catch (error) {
         console.log(error)
     }

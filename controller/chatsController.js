@@ -141,9 +141,9 @@ async function getMessages(from, to, page) {
             users: {
                 $all: [from, to],
             },
-        }).sort({ updatedAt: 1 })
-            // .skip(offset)
-            // .limit(limit);
+        }).sort({ updatedAt: -1 })
+            .skip(offset)
+            .limit(limit);
 
 
         const projectedMessages = messages.map((msg) => {

@@ -183,21 +183,24 @@ async function createNotificationPostGroup(userId, groupData) {
                         user_id: userId.user_id
                     }
                 })
-                const checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
-                if (checkSettingNotiObj.group && userIdActor != userId.user_id) {
-                    const notification = {
-                        user_id: userId.user_id,
-                        noti_text: userData.dataValues.name + " โพสต์ในกลุ่ม " + subStr,
-                        noti_type: "post_group",
-                        group_id_target: groupId,
-                        post_id_target: postId,
-                        user_id_actor: userIdActor,
-                        comment_id_target: null,
-                        read: false,
-                        create_at: new Date(),
-                    };
-                    zpNotificationsModel.create(notification)
+                if (checkSettingNoti) {
+                    const checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
+                    if (checkSettingNotiObj.group && userIdActor != userId.user_id) {
+                        const notification = {
+                            user_id: userId.user_id,
+                            noti_text: userData.dataValues.name + " โพสต์ในกลุ่ม " + subStr,
+                            noti_type: "post_group",
+                            group_id_target: groupId,
+                            post_id_target: postId,
+                            user_id_actor: userIdActor,
+                            comment_id_target: null,
+                            read: false,
+                            create_at: new Date(),
+                        };
+                        zpNotificationsModel.create(notification)
+                    }
                 }
+
             }
         }
 

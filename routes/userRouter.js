@@ -1,7 +1,7 @@
 
 const userRouter = express.Router();
 import { editProfile } from '../controller/authController.js';
-import { sortBookmark, getUserPath, getUserProfile, settingNotification, getSettingNotification, getBookmarks, addPinBookmark, getUserFollow, followUser, checkFollow } from '../controller/index.js';
+import { sortBookmark, createAddress, addPartner, getUserPartner, getUserAffiliate, getUserPath, getUserProfile, settingNotification, getSettingNotification, getBookmarks, addPinBookmark, getUserFollow, followUser, checkFollow, getUserInfo } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -93,7 +93,7 @@ userRouter.post('/addPinBookmark', async function (req, res) {
 });
 userRouter.post('/getUserFollow', async function (req, res) {
     try {
-    
+
         const { user_id } = req.body;
         const userFollower = await getUserFollow(user_id);
         res.json(userFollower);
@@ -111,6 +111,66 @@ userRouter.post('/checkFollow', async function (req, res) {
         console.log(error)
     }
 });
+
+userRouter.post('/getUserInfo', async function (req, res) {
+    try {
+        const { user_id } = req.body;
+        const response = await getUserInfo(user_id);
+        res.json(response);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+userRouter.get('/getUserAffiliate', async function (req, res) {
+    try {
+        const response = await getUserAffiliate();
+        res.json(response);
+    } catch (error) {
+        console.log(error)
+    }
+});
+userRouter.get('/getUserPartner', async function (req, res) {
+    try {
+        const response = await getUserPartner();
+        res.json(response);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+userRouter.post('/addPartner', async function (req, res) {
+    try {
+        const { name, phone, line_id, email, about } = req.body;
+        const response = await addPartner(name, phone, line_id, email, about);
+        res.json(response);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+userRouter.post('/createAddress', async function (req, res) {
+    try {
+        const { user_id, full_name, phone, sub_district_and_area, district_and_area, country, address_default, postal_code, address_detail } = req.body;
+        console.log("req", req.body)
+        const response = await createAddress(user_id, full_name, phone, sub_district_and_area, district_and_area, country, address_default, postal_code, address_detail);
+        res.json(response);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+userRouter.post('/editAddress', async function (req, res) {
+    try {
+        const { address_id, full_name, phone, sub_district_and_area, district_and_area, country, address_default, postal_code, address_detail } = req.body;
+        const response = await createAddress(address_id, full_name, phone, sub_district_and_area, district_and_area, country, address_default, postal_code, address_detail);
+        res.json(response);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+
 
 
 

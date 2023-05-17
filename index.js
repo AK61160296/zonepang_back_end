@@ -18,7 +18,8 @@ import {
   authRouter,
   appFreeRouter,
   userEditProfileRouter,
-  shortRouter
+  shortRouter,
+  productRouter
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
@@ -60,7 +61,9 @@ app.use("/api", apiKeyMiddleware, chatsRouter);
 app.use("/api", apiKeyMiddleware, reportsRouter);
 app.use("/api", apiKeyMiddleware, authRouter);
 app.use("/api", apiKeyMiddleware, appFreeRouter);
+app.use("/api", apiKeyMiddleware, productRouter);
 app.use(shortRouter);
+
 
 
 const onlineUsers = new Map();
@@ -74,7 +77,7 @@ io.on('connection', (socket) => {
 
   socket.on("add-user-chat", (userId) => {
     onlineUsersInChat.set(userId, socket.id);
-    
+
   });
 
   socket.on("add-user-online", (userId) => {

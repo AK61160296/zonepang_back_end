@@ -12,7 +12,7 @@ import { authRouter } from "./authRouter.js";
 import { appFreeRouter } from "./appFreeRouter.js";
 import { userEditProfileRouter } from "./userEditProfileRouter.js";
 import { shortRouter } from "./shortRouter.js";
-
+import { productRouter } from "./productRouter.js";
 export {
     chatsRouter,
     createChatsRouter,
@@ -27,5 +27,6 @@ export {
     authRouter,
     appFreeRouter,
     userEditProfileRouter,
-    shortRouter
+    shortRouter,
+    productRouter
 }

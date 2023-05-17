@@ -260,6 +260,241 @@ async function checkFollow(userId, userFollowId) {
         return { status: 'error', error: error };
     }
 }
+async function getUserInfo(userId) {
+    try {
+        const userDetail = await connectDb.query(`
+        SELECT id,name,bio,provider,code_user,email,phone,real_email,line_id,avatar
+        FROM users
+        WHERE users.id = :userId
+        LIMIT 1;
+      `, {
+            nest: true,
+            type: Sequelize.QueryTypes.SELECT,
+            replacements: {
+                userId: userId
+            }
+        });
+
+        const defaultAddress = await connectDb.query(`
+        SELECT *
+        FROM addresses
+        WHERE addresses.user_id = :userId AND addresses.address_default = 1
+        LIMIT 1;
+      `, {
+            nest: true,
+            type: Sequelize.QueryTypes.SELECT,
+            replacements: {
+                userId: userId
+            }
+        });
+
+        const address = await connectDb.query(`
+        SELECT *
+        FROM addresses
+        WHERE addresses.user_id = :userId AND addresses.address_default = 0;
+      `, {
+            nest: true,
+            type: Sequelize.QueryTypes.SELECT,
+            replacements: {
+                userId: userId
+            }
+        });
+        return { userDetail, defaultAddress, address };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+async function getUserAffiliate() {
+    try {
+        const userAff = await connectDb.query(`
+        SELECT users.id AS _id,name,bio,provider,code_user,email,phone,real_email,line_id,avatar
+        FROM users
+        JOIN role_user ON role_user.user_id = users.id
+        WHERE role_user.role_id = 3;
+      `, {
+            nest: true,
+            type: Sequelize.QueryTypes.SELECT,
+        });
+
+        return { userAff };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
+async function getUserPartner() {
+    try {
+        const userPartner = await connectDb.query(`
+        SELECT users.id AS _id,name,bio,provider,code_user,email,phone,real_email,line_id,avatar
+        FROM users
+        JOIN role_user ON role_user.user_id = users.id
+        WHERE role_user.role_id = 2;
+      `, {
+            nest: true,
+            type: Sequelize.QueryTypes.SELECT,
+        });
+
+        return { userPartner };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
+async function lineNotify(data) {
+    const Token = "0veGQ4Qj4VdTR5ZB4yHx2fjut6hQbV1sD2VG7E4bepf";
+    let str = "\nชื่อลูกค้า : " + data.name + "\n";
+    str += "เบอร์โทรศัพท์ : " + data.phone + "\n";
+    str += "อีเมล : " + data.email + "\n";
+    str += "ไอดี LINE : " + data.line_id + "\n";
+    str += "เรื่องที่ติดต่อ : " + data.about + "\n";
+
+    try {
+        const response = await axios.post(
+            "https://notify-api.line.me/api/notify",
+            `message=${str}`,
+            {
+                headers: {
+                    "Authorization": `Bearer ${Token}`,
+                    "Cache-Control": "no-cache",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+
+async function addPartner(name, phone, line_id, about, email) {
+
+    try {
+        const prepareAbout = {
+            name: name,
+            phone: phone,
+            line_id: line_id,
+            email: email,
+            about: about
+        };
+
+        await connectDb.query(`
+        INSERT INTO abouts (name, phone, line_id, email, about)
+        VALUES (:name, :phone, :line_id, :email, :about)
+      `, {
+            replacements: {
+                name: name,
+                phone: phone,
+                line_id: line_id,
+                email: email,
+                about: about
+            }
+        })
+        await lineNotify(prepareAbout)
+
+        return {
+            success: 'Add partner successfully!'
+        };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+
+}
+async function createAddress(user_id, full_name, phone, sub_district_and_area, district_and_area, country, address_default, postal_code, address_detail) {
+
+    try {
+        const addressData = await connectDb.query(`
+        INSERT INTO addresses (user_id, fullname, phone, sub_district_and_area, district_and_area, country, address_default, postal_code, address_detail)
+        VALUES (:user_id, :full_name, :phone, :sub_district_and_area, :district_and_area, :country, :address_default ,:postal_code, :address_detail)
+      `, {
+            replacements: {
+                user_id: user_id,
+                full_name: full_name,
+                phone: phone,
+                sub_district_and_area: sub_district_and_area,
+                district_and_area: district_and_area,
+                country: country,
+                address_default: address_default,
+                postal_code: postal_code,
+                address_detail: address_detail
+            }
+        })
+
+        const insertedAddressId = addressData[0];
+
+        const insertedAddress = await connectDb.query(`
+        SELECT * FROM addresses WHERE id = :insertedAddressId
+        `, {
+            replacements: {
+                insertedAddressId: insertedAddressId
+            },
+            type: Sequelize.QueryTypes.SELECT
+        });
+
+        return {
+            success: 'create Address successfully!',
+            addressData: insertedAddress[0]
+        };
+
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+
+}
+
+async function editAddress(addressId, fullname, phone, sub_district_and_area, district_and_area, country, postal_code, address_detail) {
+    try {
+        const addressData = await connectDb.query(`
+        UPDATE addresses
+        SET fullname = :fullname,
+            phone = :phone,
+            sub_district_and_area = :sub_district_and_area,
+            district_and_area = :district_and_area,
+            country = :country,
+            postal_code = :postal_code,
+            address_detail = :address_detail
+        WHERE id = :addressId
+      `, {
+            replacements: {
+                addressId: addressId,
+                fullname: fullname,
+                phone: phone,
+                sub_district_and_area: sub_district_and_area,
+                district_and_area: district_and_area,
+                country: country,
+                postal_code: postal_code,
+                address_detail: address_detail
+            }
+        });
+
+        const UpdateAddressId = addressData[0];
+
+        const UpdateAddress = await connectDb.query(`
+        SELECT * FROM addresses WHERE id = :UpdateAddressId
+        `, {
+            replacements: {
+                UpdateAddressId: UpdateAddressId
+            },
+            type: Sequelize.QueryTypes.SELECT
+        });
+
+        return {
+            success: 'create Address successfully!',
+            addressData: UpdateAddress[0]
+        };
+
+    } catch (error) {
+        console.error(error);
+        return { success: 'error', error: error };
+    }
+}
+
 
 
 export {
@@ -269,5 +504,11 @@ export {
     settingNotification,
     getSettingNotification,
     getUserProfile,
-    getUserPath
+    getUserPath,
+    getUserInfo,
+    getUserAffiliate,
+    getUserPartner,
+    addPartner,
+    createAddress,
+    editAddress
 }

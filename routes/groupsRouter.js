@@ -49,7 +49,6 @@ groupsRouter.get('/getPathGroups', async function (req, res) {
 groupsRouter.post('/getGroupssuggest', async function (req, res) {
     try {
         const userId = req.body.userId;
-        console.log("userId",userId)
         const groups = await getGroupssuggest(userId);
         res.json(groups);
     } catch (error) {

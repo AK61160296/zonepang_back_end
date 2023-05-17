@@ -93,6 +93,7 @@ userRouter.post('/addPinBookmark', async function (req, res) {
 });
 userRouter.post('/getUserFollow', async function (req, res) {
     try {
+    
         const { user_id } = req.body;
         const userFollower = await getUserFollow(user_id);
         res.json(userFollower);

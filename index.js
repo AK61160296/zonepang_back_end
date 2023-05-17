@@ -65,26 +65,35 @@ app.use(shortRouter);
 
 const onlineUsers = new Map();
 global.onlineUsersInChat = new Map();
+global.onlineUsersSystem = new Map();
 
 io.on('connection', (socket) => {
   socket.on("add-user", (userId) => {
-    console.log("userId", userId)
     onlineUsers.set(userId, socket.id);
   });
 
   socket.on("add-user-chat", (userId) => {
-    console.log("add-user-chat", userId)
     onlineUsersInChat.set(userId, socket.id);
+    
+  });
+
+  socket.on("add-user-online", (userId) => {
+    console.log("userId-online", userId)
+    onlineUsersSystem.set(userId, socket.id);
+    console.log("onlineUsersSystem", onlineUsersSystem)
   });
 
   socket.on("delete-user-chat", (userId) => {
     onlineUsersInChat.delete(userId);
   });
+  socket.on("delete-user-online", (userId) => {
+    onlineUsersSystem.delete(userId);
+    console.log("onlineUsersSystem", onlineUsersSystem)
+  });
+
 
   socket.on("send-msg", async (data) => {
-    console.log("data", data)
     const sendUserSocket = onlineUsers.get(data.to);
-    console.log("onlineUsersInChat", onlineUsersInChat)
     if (sendUserSocket) {
       socket.to(sendUserSocket).emit("msg-recieve", data);
     }

@@ -198,7 +198,7 @@ async function getUserPath() {
 async function getUserFollow(userId) {
 
     try {
-        const userFollow = await zpFollowsModel.findAll({
+        const userData = await zpFollowsModel.findAll({
             where: {
                 user_id: userId
             },
@@ -218,6 +218,21 @@ async function getUserFollow(userId) {
                 },
             ]
         })
+        const promises = userData.map(async (user) => {
+            let isOnline = false
+
+            if (onlineUsersSystem.has(user.user.id)) {
+                isOnline = true
+            }
+            return {
+                ...user.toJSON(),
+                isOnline
+            }
+        })
+
+        const userFollow = await Promise.all(promises)
+
+
         return { status: 'success', userFollow };
     } catch (error) {
         console.error(error);

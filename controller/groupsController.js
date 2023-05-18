@@ -130,9 +130,9 @@ async function getGroupsUser(userId) {
     }
 }
 
-async function getGroupssuggest() {
+async function getGroupssuggest(userId) {
     try {
-        const groups = await zpGroupsModel.findAll({
+        let groupsData = await zpGroupsModel.findAll({
             attributes: {
                 include: [
                     [
@@ -155,6 +155,27 @@ async function getGroupssuggest() {
             //     },
             // },
         });
+        const promises = groupsData.map(async (group) => {
+
+            let isJoin = false
+            const status = await zpUserGroupsModel.count({
+                where: {
+                    user_id: userId,
+                    group_id: group.group_id
+                }
+            });
+            if (status > 0) {
+                isJoin = true
+            }
+
+            return {
+                ...group.toJSON(),
+                isJoin
+            };
+        });
+        const groups = await Promise.all(promises);
+
+
         return { status: 'success', groups };
     } catch (error) {
         console.error(error);

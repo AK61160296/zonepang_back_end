@@ -25,8 +25,9 @@ import { zpReportListModel } from "./report_list.js";
 import { zpAppFreeModel } from "./app_free.js";
 import { zpPinAppFreeModel } from "./pin_app_free.js";
 import { zpShortUrlModel } from "./short_url.js";
-
-
+import { zpOrdersModel } from "./orders.js";
+import { zpPackageDetailsModel } from "./package_details.js";
+import { zpProductsModel } from "./products.js";
 export {
     zpPinsModel,
     zpGroupsModel,
@@ -48,5 +49,8 @@ export {
     zpReportListModel,
     zpAppFreeModel,
     zpPinAppFreeModel,
-    zpShortUrlModel
+    zpShortUrlModel,
+    zpOrdersModel,
+    zpPackageDetailsModel,
+    zpProductsModel
 }

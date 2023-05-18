@@ -408,6 +408,20 @@ async function addPartner(name, phone, line_id, about, email) {
 async function createAddress(user_id, full_name, phone, sub_district_and_area, district_and_area, country, address_default, postal_code, address_detail) {
 
     try {
+        const checkDefault = await connectDb.query(`
+        SELECT COUNT(*) FROM addresses WHERE user_id = :userId
+        `, {
+            replacements: {
+                userId: user_id
+            },
+            type: Sequelize.QueryTypes.SELECT
+        });
+
+        let defaultAddress = 0;
+        if (checkDefault[0]['COUNT(*)'] === 0) {
+            defaultAddress = 1;
+        }
+
         const addressData = await connectDb.query(`
         INSERT INTO addresses (user_id, fullname, phone, sub_district_and_area, district_and_area, country, address_default, postal_code, address_detail)
         VALUES (:user_id, :full_name, :phone, :sub_district_and_area, :district_and_area, :country, :address_default ,:postal_code, :address_detail)
@@ -419,10 +433,11 @@ async function createAddress(user_id, full_name, phone, sub_district_and_area, d
                 sub_district_and_area: sub_district_and_area,
                 district_and_area: district_and_area,
                 country: country,
-                address_default: address_default,
+                address_default: defaultAddress,
                 postal_code: postal_code,
                 address_detail: address_detail
-            }
+            },
+            type: Sequelize.INSERT,
         })
 
         const insertedAddressId = addressData[0];
@@ -438,7 +453,8 @@ async function createAddress(user_id, full_name, phone, sub_district_and_area, d
 
         return {
             success: 'create Address successfully!',
-            addressData: insertedAddress[0]
+            addressData: insertedAddress[0],
+            checkDefault: checkDefault
         };
 
     } catch (error) {
@@ -459,7 +475,7 @@ async function editAddress(addressId, fullname, phone, sub_district_and_area, di
             country = :country,
             postal_code = :postal_code,
             address_detail = :address_detail
-        WHERE id = :addressId
+        WHERE id = :addressId;
       `, {
             replacements: {
                 addressId: addressId,
@@ -472,26 +488,66 @@ async function editAddress(addressId, fullname, phone, sub_district_and_area, di
                 address_detail: address_detail
             }
         });
-
-        const UpdateAddressId = addressData[0];
-
-        const UpdateAddress = await connectDb.query(`
-        SELECT * FROM addresses WHERE id = :UpdateAddressId
-        `, {
-            replacements: {
-                UpdateAddressId: UpdateAddressId
-            },
-            type: Sequelize.QueryTypes.SELECT
-        });
-
         return {
-            success: 'create Address successfully!',
-            addressData: UpdateAddress[0]
+            success: 'Edit Address successfully!',
         };
 
     } catch (error) {
         console.error(error);
         return { success: 'error', error: error };
+    }
+}
+async function defaultAddress(userId, addressId) {
+    try {
+        await connectDb.query(`
+        UPDATE addresses
+        SET address_default = 0
+        WHERE user_id = :userId AND address_default = 1;
+      `, {
+            replacements: {
+                userId: userId
+            }
+        });
+
+        await connectDb.query(`
+        UPDATE addresses
+        SET address_default = 1
+        WHERE id = :addressId
+      `, {
+            replacements: {
+                addressId: addressId
+            }
+        });
+        return {
+            success: 'Update Address successfully!',
+        };
+
+    } catch (error) {
+        console.error(error);
+        return { success: 'error', error: error };
+    }
+}
+
+async function deleteAddress(addressId) {
+    try {
+        await connectDb.query(`
+        DELETE FROM addresses
+        WHERE id = :addressId
+      `, {
+            replacements: {
+                addressId: addressId
+            }
+        });
+
+        return {
+            success: 'Delete Address successfully!',
+        };
+    } catch (error) {
+        console.error(error);
+        return {
+            success: false,
+            error: error
+        };
     }
 }
 
@@ -510,5 +566,7 @@ export {
     getUserPartner,
     addPartner,
     createAddress,
-    editAddress
+    editAddress,
+    defaultAddress,
+    deleteAddress
 }

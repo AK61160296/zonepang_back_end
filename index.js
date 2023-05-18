@@ -19,7 +19,8 @@ import {
   appFreeRouter,
   userEditProfileRouter,
   shortRouter,
-  productRouter
+  productRouter,
+  paymentRouter
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
@@ -62,6 +63,7 @@ app.use("/api", apiKeyMiddleware, reportsRouter);
 app.use("/api", apiKeyMiddleware, authRouter);
 app.use("/api", apiKeyMiddleware, appFreeRouter);
 app.use("/api", apiKeyMiddleware, productRouter);
+app.use("/api", apiKeyMiddleware, paymentRouter)
 app.use(shortRouter);
 
 

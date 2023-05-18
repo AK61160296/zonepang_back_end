@@ -1,7 +1,7 @@
 
 const userRouter = express.Router();
 import { editProfile } from '../controller/authController.js';
-import { sortBookmark, createAddress, addPartner, getUserPartner, getUserAffiliate, getUserPath, getUserProfile, settingNotification, getSettingNotification, getBookmarks, addPinBookmark, getUserFollow, followUser, checkFollow, getUserInfo } from '../controller/index.js';
+import { sortBookmark, deleteAddress, defaultAddress, editAddress, createAddress, addPartner, getUserPartner, getUserAffiliate, getUserPath, getUserProfile, settingNotification, getSettingNotification, getBookmarks, addPinBookmark, getUserFollow, followUser, checkFollow, getUserInfo } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -74,7 +74,6 @@ userRouter.post('/settingNotification', async function (req, res) {
 userRouter.get('/getSettingNotification', async function (req, res) {
     try {
         const userId = req.query.user_id;
-
         const setting = await getSettingNotification(userId);
         res.json(setting);
     } catch (error) {
@@ -152,7 +151,6 @@ userRouter.post('/addPartner', async function (req, res) {
 userRouter.post('/createAddress', async function (req, res) {
     try {
         const { user_id, full_name, phone, sub_district_and_area, district_and_area, country, address_default, postal_code, address_detail } = req.body;
-        console.log("req", req.body)
         const response = await createAddress(user_id, full_name, phone, sub_district_and_area, district_and_area, country, address_default, postal_code, address_detail);
         res.json(response);
     } catch (error) {
@@ -162,14 +160,34 @@ userRouter.post('/createAddress', async function (req, res) {
 
 userRouter.post('/editAddress', async function (req, res) {
     try {
-        const { address_id, full_name, phone, sub_district_and_area, district_and_area, country, address_default, postal_code, address_detail } = req.body;
-        const response = await createAddress(address_id, full_name, phone, sub_district_and_area, district_and_area, country, address_default, postal_code, address_detail);
+        const { address_id, full_name, phone, sub_district_and_area, district_and_area, country, postal_code, address_detail } = req.body;
+        const response = await editAddress(address_id, full_name, phone, sub_district_and_area, district_and_area, country, postal_code, address_detail);
         res.json(response);
     } catch (error) {
         console.log(error)
     }
 });
 
+
+userRouter.post('/defaultAddress', async function (req, res) {
+    try {
+        const { user_id, address_id } = req.body;
+        const response = await defaultAddress(user_id, address_id);
+        res.json(response);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+userRouter.post('/deleteAddress', async function (req, res) {
+    try {
+        const { address_id } = req.body;
+        const response = await deleteAddress(address_id);
+        res.json(response);
+    } catch (error) {
+        console.log(error)
+    }
+});
 
 
 

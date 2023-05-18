@@ -13,6 +13,8 @@ import { appFreeRouter } from "./appFreeRouter.js";
 import { userEditProfileRouter } from "./userEditProfileRouter.js";
 import { shortRouter } from "./shortRouter.js";
 import { productRouter } from "./productRouter.js";
+import { paymentRouter } from "./paymentRouter.js";
+
 export {
     chatsRouter,
     createChatsRouter,
@@ -28,5 +30,6 @@ export {
     appFreeRouter,
     userEditProfileRouter,
     shortRouter,
-    productRouter
+    productRouter,
+    paymentRouter
 }

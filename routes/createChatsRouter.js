@@ -40,7 +40,7 @@ async function deleteS3File(fileKey) {
 
 createChatsRouter.post('/addMessages', upload.any('file'), async function (req, res) {
     try {
-        const files = req.files;
+        var files = req.files;
         const { from, to, message } = req.body;
         const formUser = Number(from);
         const toUser = Number(to);

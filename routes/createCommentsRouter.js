@@ -31,7 +31,7 @@ const upload = multer({
 createCommentsRouter.post('/createComments', upload.any('file'), async function (req, res) {
     try {
 
-        const files = req.files;
+        var files = req.files;
         const { post_id, user_id, text, reply_id, user_id_reply, sub_to_reply } = req.body;
         const createCommentsRes = await createComments(post_id, user_id, text, reply_id, user_id_reply, sub_to_reply, files);
         if (createCommentsRes.status === 'success') {

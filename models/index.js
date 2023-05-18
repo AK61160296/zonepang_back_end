@@ -15,10 +15,8 @@ import { zpBookmarksModel } from "./bookmarks.js";
 import { zpFollowsModel } from "./follows.js";
 import { zpHistorySearchsModel } from "./history_searchs.js";
 import { zpUserSettingsModel } from "./user_settings.js";
-
 import { zpConversationsModel } from "./conversations.js";
 import { zpMessagesModel } from "./messages.js";
-
 import { zpReportsModel } from "./report.js";
 import { zpReportTypeModel } from "./report_type.js";
 import { zpReportListModel } from "./report_list.js";
@@ -28,6 +26,8 @@ import { zpShortUrlModel } from "./short_url.js";
 import { zpOrdersModel } from "./orders.js";
 import { zpPackageDetailsModel } from "./package_details.js";
 import { zpProductsModel } from "./products.js";
+import { zpSlipPaymentsModel } from "./slip_payments.js";
+
 export {
     zpPinsModel,
     zpGroupsModel,
@@ -52,5 +52,6 @@ export {
     zpShortUrlModel,
     zpOrdersModel,
     zpPackageDetailsModel,
-    zpProductsModel
+    zpProductsModel,
+    zpSlipPaymentsModel
 }

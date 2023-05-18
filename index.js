@@ -20,7 +20,8 @@ import {
   userEditProfileRouter,
   shortRouter,
   productRouter,
-  paymentRouter
+  paymentRouter,
+  createSlipRouter
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
@@ -52,6 +53,7 @@ app.get("/", (req, res) => {
 app.use("/api", apiKeyMiddleware, createCommentsRouter);
 app.use("/api", apiKeyMiddleware, createPostsRouter);
 app.use("/api", apiKeyMiddleware, createChatsRouter);
+app.use("/api", apiKeyMiddleware, createSlipRouter);
 app.use("/api", apiKeyMiddleware, userEditProfileRouter);
 app.use("/api", apiKeyMiddleware, groupsRouter);
 app.use("/api", apiKeyMiddleware, postsRouter);

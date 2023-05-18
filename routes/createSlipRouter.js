@@ -1,6 +1,6 @@
-const createPostsRouter = express.Router();
-import { seachUserAndGroup, getInfinitePosts, createPostGroups, getPostComments, getPostReplyComments, likePost } from '../controller/postsController.js';
-import { bookmarkPost } from '../controller/index.js';
+
+const createSlipRouter = express.Router();
+import { postAddOrderGB, depositGB, checkQrPayment, createSlip } from '../controller/paymentController.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -24,11 +24,10 @@ const upload = multer({
         contentType: multerS3.AUTO_CONTENT_TYPE,
         key: function (req, file, cb) {
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-            cb(null, 'post-img/' + uniqueSuffix + '-' + file.originalname);
+            cb(null, 'img-slip-payment/' + uniqueSuffix + '-' + file.originalname);
         }
     })
 });
-
 async function deleteS3File(fileKey) {
     try {
         await s3.deleteObject({ Bucket: 'zonepang', Key: fileKey }).promise();
@@ -38,27 +37,14 @@ async function deleteS3File(fileKey) {
     }
 }
 
-createPostsRouter.post('/createPostGroups', upload.any('file'), async function (req, res) {
+createSlipRouter.post('/createSlip', upload.any('file'), async function (req, res) {
     try {
-
         var files = req.files;
-        const { content, user_id, group_id, location_name, lat, lng } = req.body;
-        var location = null
-        if (location_name) {
-            location = {
-                name: location_name,
-                lat: lat,
-                lng: lng,
-            };
-
-        }
-        const locationPrepare = JSON.stringify(location);
-        const groupIds = group_id.split(',').map(id => parseInt(id.trim())); // แปลง string ให้เป็น array ของ integer
-        const createPostGroupsRes = await createPostGroups(content, user_id, groupIds, locationPrepare, files);
-        if (createPostGroupsRes.status === 'success') {
-            res.json({
-                data: createPostGroupsRes
-            });
+        console.log("files", files)
+        const { user_id, fname, dateTimepayment, order_id, codeOrder, email, phone, price } = req.body;
+        const response = await createSlip(user_id, files, fname, dateTimepayment, order_id, codeOrder, email, phone, price)
+        if (response.status === 'success') {
+            res.json({ response });
         } else {
             for (const file of files) {
                 await deleteS3File(file.key);
@@ -68,6 +54,7 @@ createPostsRouter.post('/createPostGroups', upload.any('file'), async function (
             });
         }
     } catch (error) {
+        console.log("error", error)
         for (const file of files) {
             await deleteS3File(file.key);
         }
@@ -77,4 +64,5 @@ createPostsRouter.post('/createPostGroups', upload.any('file'), async function (
     }
 });
 
-export { createPostsRouter };
+
+export { createSlipRouter };

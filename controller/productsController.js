@@ -4,14 +4,21 @@ import { zpReportsModel, zpReportTypeModel, zpReportListModel } from '../models/
 import { connectDb } from '../config/database.js'
 async function getAllProduct() {
     try {
-        const result = await connectDb.query(`
+        const catagory = await connectDb.query(`
         SELECT * FROM categories
         WHERE status_category = 1;`, {
             nest: true,
             type: Sequelize.SELECT
         });
 
-        return { result };
+        const type_product = await connectDb.query(`
+        SELECT * FROM type_products
+        WHERE status_product_type = 1;`, {
+            nest: true,
+            type: Sequelize.SELECT
+        });
+
+        return { catagory, type_product };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
@@ -19,55 +26,63 @@ async function getAllProduct() {
 }
 
 async function getProducts(categoryId, type, tag_special) {
-    if (type) {
-        const products = await connectDb.query(`
-        SELECT tag_type_products.*, products.*
-        FROM tag_type_products
-        JOIN categories ON categories.id = tag_type_products.category_id
-        JOIN type_products ON type_products.id = tag_type_products.type_product_id
-        JOIN products ON products.id = tag_type_products.product_id
-        WHERE tag_type_products.category_id = :categoryId
-          AND products.status = 1
-          AND tag_type_products.type_product_id = :type
-        ORDER BY tag_type_products.sort ASC;
-      `, {
-            replacements: { categoryId: categoryId, type: type },
-            type: Sequelize.SELECT
-        });
-
-        return products;
-    } else {
-        if (tag_special) {
+    try {
+        if (type) {
             const products = await connectDb.query(`
-          SELECT tag_special_sorts.*, products.*
-          FROM tag_special_sorts
-          JOIN products ON products.id = tag_special_sorts.product_id
-          WHERE tag_special_sorts.tag_special_id = :tag_special
-            AND products.status = 1
-          ORDER BY tag_special_sorts.sort ASC;
-        `, {
+            SELECT tag_type_products.*, products.*
+            FROM tag_type_products
+            JOIN categories ON categories.id = tag_type_products.category_id
+            JOIN type_products ON type_products.id = tag_type_products.type_product_id
+            JOIN products ON products.id = tag_type_products.product_id
+            WHERE tag_type_products.category_id = :categoryId
+              AND products.status = 1
+              AND tag_type_products.type_product_id = :type
+            ORDER BY tag_type_products.sort ASC;
+          `, {
                 nest: true,
-                replacements: { tag_special: tag_special },
+                replacements: { categoryId: categoryId, type: type },
                 type: Sequelize.SELECT
             });
 
             return products;
         } else {
-            const products = await connectDb.query(`
-          SELECT *
-          FROM products
-          WHERE products.status = 1
-            AND products.category_id = :categoryId
-          ORDER BY products.sort_order ASC;
-        `, {
-                nest: true,
-                replacements: { categoryId: categoryId },
-                type: Sequelize.SELECT
-            });
+            if (tag_special) {
+                const products = await connectDb.query(`
+              SELECT tag_special_sorts.*, products.*
+              FROM tag_special_sorts
+              JOIN products ON products.id = tag_special_sorts.product_id
+              WHERE tag_special_sorts.tag_special_id = :tag_special
+                AND products.status = 1
+              ORDER BY tag_special_sorts.sort ASC;
+            `, {
+                    nest: true,
+                    replacements: { tag_special: tag_special },
+                    type: Sequelize.SELECT
+                });
 
-            return products;
+                return products;
+            } else {
+                const products = await connectDb.query(`
+              SELECT *
+              FROM products
+              WHERE products.status = 1
+                AND products.category_id = :categoryId
+              ORDER BY products.sort_order ASC;
+            `, {
+                    nest: true,
+                    replacements: { categoryId: categoryId },
+                    type: Sequelize.SELECT
+                });
+
+                return products;
+            }
         }
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
     }
+
+
 }
 
 async function salepageDetail(productId) {

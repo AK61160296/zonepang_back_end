@@ -137,35 +137,30 @@ async function getGroupssuggest(userId) {
                 include: [
                     [
                         Sequelize.literal(`(
-                      SELECT COUNT(*) 
-                      FROM user_groups 
-                      WHERE user_groups.group_id = groups.group_id
-                    )`),
+                            SELECT COUNT(*) 
+                            FROM user_groups 
+                            WHERE user_groups.group_id = groups.group_id
+                        )`),
                         'member_count'
                     ]
                 ]
             },
             order: [[Sequelize.literal('member_count'), 'DESC']],
             limit: 20
-            // where: {
-            //     group_id: {
-            //         [Op.notIn]: Sequelize.literal(
-            //             `(SELECT DISTINCT group_id FROM user_groups WHERE user_id = ${userId})`
-            //         ),
-            //     },
-            // },
         });
-        const promises = groupsData.map(async (group) => {
 
-            let isJoin = false
-            const status = await zpUserGroupsModel.count({
-                where: {
-                    user_id: userId,
-                    group_id: group.group_id
+        const promises = groupsData.map(async (group) => {
+            let isJoin = false;
+            if (userId) {
+                const status = await zpUserGroupsModel.count({
+                    where: {
+                        user_id: userId,
+                        group_id: group.group_id
+                    }
+                });
+                if (status > 0) {
+                    isJoin = true;
                 }
-            });
-            if (status > 0) {
-                isJoin = true
             }
 
             return {
@@ -173,10 +168,10 @@ async function getGroupssuggest(userId) {
                 isJoin
             };
         });
+
         const groups = await Promise.all(promises);
-
-
         return { status: 'success', groups };
+
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };

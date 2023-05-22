@@ -579,7 +579,7 @@ async function searchUsers(userId, keywords) {
 
         const searchResults = fuse.search(keywords).slice(0, 50);
         const result = searchResults.map((item) => item.item);
-        return { status: "success", users };
+        return { status: "success", result };
 
     } catch (error) {
         console.error(error);

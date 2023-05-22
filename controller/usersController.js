@@ -6,7 +6,7 @@ import { zpPostsModel, zpUserSettingsModel, zpUsersModel, zpAttchmentsPostsModel
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
-
+import Fuse from 'fuse.js';
 async function followUser(userId, userFollowId, type) {
     try {
         try {
@@ -551,6 +551,42 @@ async function deleteAddress(addressId) {
     }
 }
 
+async function searchUsers(userId, keywords) {
+    try {
+
+        const users = await zpFollowsModel.findAll({
+            where: {
+                user_id: userId
+            },
+            include: [
+                {
+                    model: zpUsersModel,
+                    required: true,
+                    attributes: ['id', 'name', 'avatar', 'code_user', 'provider'],
+                    where: {
+                        [Op.or]: [
+                            { name: { [Op.like]: `%${keywords}%` } },
+                            { fullname: { [Op.like]: `%${keywords}%` } },
+                        ],
+                    },
+                },
+            ]
+        })
+
+        var fuse = new Fuse([...users], {
+            keys: ["name"],
+        });
+
+        const searchResults = fuse.search(keywords).slice(0, 50);
+        const result = searchResults.map((item) => item.item);
+        return { status: "success", users };
+
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+
 
 
 export {
@@ -568,5 +604,6 @@ export {
     createAddress,
     editAddress,
     defaultAddress,
-    deleteAddress
+    deleteAddress,
+    searchUsers
 }

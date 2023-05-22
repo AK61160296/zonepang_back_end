@@ -1,7 +1,7 @@
 
 const userRouter = express.Router();
 import { editProfile } from '../controller/authController.js';
-import { sortBookmark, deleteAddress, defaultAddress, editAddress, createAddress, addPartner, getUserPartner, getUserAffiliate, getUserPath, getUserProfile, settingNotification, getSettingNotification, getBookmarks, addPinBookmark, getUserFollow, followUser, checkFollow, getUserInfo } from '../controller/index.js';
+import { sortBookmark, searchUsers, deleteAddress, defaultAddress, editAddress, createAddress, addPartner, getUserPartner, getUserAffiliate, getUserPath, getUserProfile, settingNotification, getSettingNotification, getBookmarks, addPinBookmark, getUserFollow, followUser, checkFollow, getUserInfo } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -42,9 +42,9 @@ userRouter.get('/getUserPath', async function (req, res) {
         console.log(error)
     }
 });
-userRouter.get('/getBookmarks', async function (req, res) {
+userRouter.post('/getBookmarks', async function (req, res) {
     try {
-        const userId = req.headers['x-user-id'];
+        const { userId } = req.body;
         const bookmark = await getBookmarks(userId);
         res.json(bookmark);
     } catch (error) {
@@ -183,6 +183,16 @@ userRouter.post('/deleteAddress', async function (req, res) {
     try {
         const { address_id } = req.body;
         const response = await deleteAddress(address_id);
+        res.json(response);
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+userRouter.post('/searchUsers', async function (req, res) {
+    try {
+        const { user_id, keywords } = req.body;
+        const response = await searchUsers(user_id, keywords);
         res.json(response);
     } catch (error) {
         console.log(error)

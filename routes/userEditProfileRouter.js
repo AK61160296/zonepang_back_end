@@ -35,8 +35,8 @@ userEditProfileRouter.post('/editProfile', upload.any('file'), async function (r
 
         const files = req.files;
         const { user_id, userName, userBio } = req.body;
-        const userInfo = await editProfile(user_id, userName, userBio, files);
-        res.json({ userInfo });
+        const response = await editProfile(user_id, userName, userBio, files);
+        res.json(response);
     } catch (error) {
         console.log(error)
     }

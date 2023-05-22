@@ -182,16 +182,36 @@ async function createSlip(userId, files, fname, dateTimepayment, order_id, codeO
         let fileName;
         if (files && files.length > 0) {
             fileName = files[0].key
+            const createSlip = await zpSlipPaymentsModel.create({
+                user_id: userId,
+                referenceNo: codeOrder,
+                fname: fname,
+                full_name: fname,
+                email: email,
+                phone: phone,
+                price: price,
+                date_payment: dateTimepayment,
+                img_slip: fileName,
+                created_at: Date.now(),
+                updated_at: Date.now()
+            })
+            await zpOrdersModel.update(
+                {
+                    status: 2,
+                    buyer_name: fname,
+                    buyer_phone: phone,
+                    buyer_email: email,
+                    img_payment: fileName,
+                },
+                {
+                    where: { id: order_id }
+                })
+            return { status: 'success', mgs: 'ส่งหลักฐานการชำระเงินเรียบร้ย' };
+        } else {
+            return { status: 'error', mgs: 'กรุณาส่งหลักฐานการชำระเงินให้ครบถ้วน' };
         }
-        // $datetime = date_create($request->dateTimepayment);
-        // $order_id = $request->order_id;
-        // 'referenceNo' => $request->codeOrder,
-        // 'fname' => $request->fname,
-        // // 'lname' => $request->lname,
-        // 'email' => $request->email,
-        // 'phone' => $request->phone,
-        // 'price' => $request->price,
-        return { status: 'success' };
+
+
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };

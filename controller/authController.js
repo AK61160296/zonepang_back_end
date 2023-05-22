@@ -16,7 +16,10 @@ const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TO
 async function editProfile(user_id, userName, userBio, files) {
     try {
         // หา user ด้วย user_id จากฐานข้อมูล
-        const user = await zpUsersModel.findOne({ where: { id: user_id } });
+        const user = await zpUsersModel.findOne({
+            attributes: ['id', 'name', 'avatar', 'code_user', 'bio', 'provider'],
+            where: { id: user_id }
+        });
         // // อัพเดทข้อมูล
         if (files.length > 0) {
             console.log(files)
@@ -31,7 +34,7 @@ async function editProfile(user_id, userName, userBio, files) {
         // // บันทึกข้อมูลลงฐานข้อมูล
         await user.save();
 
-        return { user };
+        return { status: 'success', user };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };

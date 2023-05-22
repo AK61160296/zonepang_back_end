@@ -569,16 +569,19 @@ async function searchUsers(userId, keywords) {
                             { fullname: { [Op.like]: `%${keywords}%` } },
                         ],
                     },
+                    as: 'user' // เพิ่มส่วนนี้เพื่อระบุการใช้ชื่อที่ต้องการให้เข้าถึง
                 },
             ]
-        })
+        });
 
-        var fuse = new Fuse([...users], {
+        const usersData = users.map((user) => user.user); // เข้าถึงข้อมูลใน users.user
+
+        var fuse = new Fuse([...usersData], {
             keys: ["name"],
         });
 
-        const searchResults = fuse.search(keywords).slice(0, 50);
-        const result = searchResults.map((item) => item.item);
+        let sliceArr = fuse.search(keywords);
+        const result = sliceArr.slice(0, 50);
         return { status: "success", result };
 
     } catch (error) {

@@ -13,7 +13,7 @@ import twilio from 'twilio';
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 
-async function editProfile(user_id, userName, userBio, files) {
+async function editProfile(user_id, userName, userBio, files, fullName, phone, realEmail, lineId, markets) {
     try {
         // หา user ด้วย user_id จากฐานข้อมูล
         const user = await zpUsersModel.findOne({
@@ -22,14 +22,20 @@ async function editProfile(user_id, userName, userBio, files) {
         });
         // // อัพเดทข้อมูล
         if (files.length > 0) {
-            console.log(files)
             var fileName = files[0].key;
             var cleanFileName = fileName.replace(/^avatar\//i, "");
             user.avatar = cleanFileName;
         }
+        if (markets) {
+            user.fullname = fullName;
+            user.phone = phone;
+            user.real_email = realEmail;
+            user.line_id = lineId;
+        } else {
+            user.name = userName;
+            user.bio = userBio;
+        }
 
-        user.name = userName;
-        user.bio = userBio;
 
         // // บันทึกข้อมูลลงฐานข้อมูล
         await user.save();

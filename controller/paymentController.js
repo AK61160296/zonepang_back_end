@@ -116,6 +116,8 @@ async function postAddOrderGB(userId, productPrice, productAmount, productId, pa
                 total_aff_commission: total_aff_commission,
                 amount_com_zone: amount_com_zone,
                 amount_com_aff: amount_com_aff,
+                created_at: Date.now(),
+                updated_at: Date.now()
             })
         }
 

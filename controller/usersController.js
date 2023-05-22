@@ -263,7 +263,7 @@ async function checkFollow(userId, userFollowId) {
 async function getUserInfo(userId) {
     try {
         const userDetail = await connectDb.query(`
-        SELECT id,name,bio,provider,code_user,email,phone,real_email,line_id,avatar
+        SELECT id,name,bio,provider,code_user,email,phone,real_email,line_id,avatar,fullname
         FROM users
         WHERE users.id = :userId
         LIMIT 1;
@@ -299,7 +299,7 @@ async function getUserInfo(userId) {
                 userId: userId
             }
         });
-        return { userDetail, defaultAddress, address };
+        return { userDetail: userDetail[0], defaultAddress: defaultAddress[0], address };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };

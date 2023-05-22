@@ -129,7 +129,7 @@ async function salepageDetail(productId) {
             type: Sequelize.SELECT
         });
 
-        const salePageDetail = await connectDb.query(`
+        const salepage_detail = await connectDb.query(`
         SELECT salepage_details.*, salepage_details.id AS sd_id
         FROM salepage_details
         WHERE salepage_details.salepage_id = :salepage_id;
@@ -156,9 +156,9 @@ async function salepageDetail(productId) {
                 type: Sequelize.SELECT
             });
         }
-        let packageDetailProduct = [];
+        let package_detail = [];
         if (packageProduct && packageProduct.length > 0) {
-            packageDetailProduct = await connectDb.query(`
+            package_detail = await connectDb.query(`
               SELECT package_details.*, package_details.recommend_id AS rcm_id, recommends.name_recommend AS name_re
               FROM package_details
               JOIN recommends ON recommends.id = package_details.recommend_id
@@ -171,7 +171,7 @@ async function salepageDetail(productId) {
                 type: Sequelize.SELECT
             });
         }
-        return { product, salePage, salePageDetail, packageProduct, packageDetailProduct };
+        return { pro: product[0], sale_page: salePage[0], salepage_detail, package: packageProduct[0], package_detail };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
@@ -224,7 +224,7 @@ async function getStock(userId, search, category_search) {
         let stocks = []
         if (search) {
             stocks = await connectDb.query(`
-              SELECT orders.*, products.name_product as name_product, products.detail_product as detail_product, products.img_product as img_product, products.id as pro_id, package_details.*, products.category_id as category_id, products.qr_code_line as qrcode_line, products.link_line, products.line_id
+              SELECT orders.*,orders.created_at as createOrder, products.name_product as name_product, products.detail_product as detail_product, products.img_product as img_product, products.id as pro_id, package_details.*, products.category_id as category_id, products.qr_code_line as qrcode_line, products.link_line, products.line_id
               FROM orders
               JOIN products ON products.id = orders.product_id
               JOIN package_details ON package_details.id = orders.package_detail_id
@@ -239,7 +239,7 @@ async function getStock(userId, search, category_search) {
             });
         } else if (category_search) {
             stocks = await connectDb.query(`
-              SELECT orders.*, products.name_product as name_product, products.detail_product as detail_product, products.img_product as img_product, products.id as pro_id, package_details.*, products.category_id as category_id, products.qr_code_line as qrcode_line, products.link_line, products.line_id
+              SELECT orders.*,orders.created_at as createOrder, products.name_product as name_product, products.detail_product as detail_product, products.img_product as img_product, products.id as pro_id, package_details.*, products.category_id as category_id, products.qr_code_line as qrcode_line, products.link_line, products.line_id
               FROM orders
               JOIN products ON products.id = orders.product_id
               JOIN package_details ON package_details.id = orders.package_detail_id
@@ -254,7 +254,7 @@ async function getStock(userId, search, category_search) {
             });
         } else {
             stocks = await connectDb.query(`
-              SELECT orders.*, products.name_product as name_product, products.detail_product as detail_product, products.img_product as img_product, products.id as pro_id, package_details.*, products.category_id as category_id, products.qr_code_line as qrcode_line, products.link_line, products.line_id
+              SELECT orders.*,orders.created_at as createOrder, products.name_product as name_product, products.detail_product as detail_product, products.img_product as img_product, products.id as pro_id, package_details.*, products.category_id as category_id, products.qr_code_line as qrcode_line, products.link_line, products.line_id
               FROM orders
               JOIN products ON products.id = orders.product_id
               JOIN package_details ON package_details.id = orders.package_detail_id

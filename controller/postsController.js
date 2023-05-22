@@ -273,18 +273,28 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
 
         const getModifiedPost = async (post) => {
             let attachments = [];
+            let videos = [];
             let atm_post_ids = [];
             if (post.match_attachments && post.match_attachments.length > 0) {
                 atm_post_ids = post.match_attachments[0].atm_post_id.split(',');
 
                 // Query the zpAttchmentsPostsModel for the required information
-                attachments = await zpAttchmentsPostsModel.findAll({
+                const attachmentsData = await zpAttchmentsPostsModel.findAll({
                     where: {
                         atm_post_id: {
                             [Op.in]: atm_post_ids
                         }
                     }
                 });
+
+                for (let i = 0; i < attachmentsData.length; i++) {
+                    const attachment = attachmentsData[i];
+                    if (attachment.file_type.includes("image")) {
+                        attachments.push(attachment);
+                    } else if (attachment.file_type.includes("video")) {
+                        videos.push(attachment);
+                    }
+                }
             }
             const groupId = post.group_id;
 
@@ -336,6 +346,7 @@ async function getInfinitePosts(groupId, userIdProfile, page, user_id, filter) {
                 totalLike,
                 userLike,
                 attachments,
+                videos,
                 totalComment,
                 userBookmark,
                 isJoinGroup

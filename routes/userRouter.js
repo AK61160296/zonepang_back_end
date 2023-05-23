@@ -13,12 +13,9 @@ const app = express();
 
 userRouter.put('/sortBookmark/:bookmark_id', async function (req, res) {
     try {
-
-        const { bookmark_id } = req.params;
-
         const { newItems } = req.body;
         const status = await sortBookmark(newItems);
-        res.json(newItems);
+        res.json(status);
     } catch (error) {
         console.log(error)
     }

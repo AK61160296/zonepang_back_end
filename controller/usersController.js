@@ -573,10 +573,23 @@ async function searchUsers(userId, keywords) {
                 },
             ]
         });
+        const usersData = users.map((user) => user.user); 
 
-        const usersData = users.map((user) => user.user); // เข้าถึงข้อมูลใน users.user
+        const promises = usersData.map(async (user) => {
+            let isOnline = false
 
-        var fuse = new Fuse([...usersData], {
+            if (onlineUsersSystem.has(user.id)) {
+                isOnline = true
+            }
+            return {
+                ...user.get({ plain: true }),
+                isOnline
+            }
+        })
+
+        const userFollow = await Promise.all(promises)
+
+        var fuse = new Fuse([...userFollow], {
             keys: ["name"],
         });
 

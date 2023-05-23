@@ -55,7 +55,7 @@ async function createPostGroups(content, user_id, groupIds, locationPrepare, fil
                 {
                     model: zpUsersModel,
                     required: true,
-                    attributes: ['id', 'name', 'avatar']
+                    attributes: ['id', 'name', 'avatar', 'code_user']
                 },
                 {
                     model: zpGroupsModel,
@@ -72,7 +72,7 @@ async function createPostGroups(content, user_id, groupIds, locationPrepare, fil
                     include: [{
                         model: zpUsersModel,
                         required: false,
-                        attributes: ['id', 'name', 'avatar']
+                        attributes: ['id', 'name', 'avatar', 'code_user']
                     }]
                 },
                 {
@@ -85,20 +85,31 @@ async function createPostGroups(content, user_id, groupIds, locationPrepare, fil
 
         const getModifiedPost = async (post) => {
             let attachments = [];
+            let videos = [];
             let atm_post_ids = [];
-
             if (post.match_attachments && post.match_attachments.length > 0) {
                 atm_post_ids = post.match_attachments[0].atm_post_id.split(',');
 
                 // Query the zpAttchmentsPostsModel for the required information
-                attachments = await zpAttchmentsPostsModel.findAll({
+                const attachmentsData = await zpAttchmentsPostsModel.findAll({
                     where: {
                         atm_post_id: {
                             [Op.in]: atm_post_ids
                         }
                     }
                 });
+
+                for (let i = 0; i < attachmentsData.length; i++) {
+                    const attachment = attachmentsData[i];
+                    if (attachment.file_type.includes("image")) {
+                        attachments.push(attachment);
+                    } else if (attachment.file_type.includes("video")) {
+                        videos.push(attachment);
+                    }
+                }
             }
+            const groupId = post.group_id;
+
             const totalComment = await zpCommentsModel.count({
                 where: {
                     post_id: post.post_id,
@@ -108,7 +119,20 @@ async function createPostGroups(content, user_id, groupIds, locationPrepare, fil
 
             let userLike = null;
             let userBookmark = null;
+            let isJoinGroup = false
             if (user_id) {
+
+                const statusIsJoin = await zpUserGroupsModel.count({
+                    where: {
+                        user_id: user_id,
+                        group_id: groupId
+                    }
+                });
+                if (statusIsJoin > 0) {
+                    isJoinGroup = true
+                }
+
+
                 userLike = await zpLikesModel.findOne({
                     where: {
                         post_id: post.post_id,
@@ -124,16 +148,20 @@ async function createPostGroups(content, user_id, groupIds, locationPrepare, fil
                 });
             }
 
-
-            const totalLike = post.likes.length;
-
+            const totalLike = await zpLikesModel.count({
+                where: {
+                    post_id: post.post_id,
+                },
+            });
             return {
                 ...post.get({ plain: true }),
                 totalLike,
                 userLike,
                 attachments,
+                videos,
                 totalComment,
-                userBookmark
+                userBookmark,
+                isJoinGroup
             };
         };
 

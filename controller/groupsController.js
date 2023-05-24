@@ -353,58 +353,61 @@ async function sortPinGroup(newItems) {
 }
 async function joinGroup(userId, groupId, type) {
     try {
-        if (type == 'join') {
-            const checkIsJoinGroup = await zpUserGroupsModel.findOne({
-                where: {
-                    user_id: userId,
-                    group_id: groupId
+        if (groupId) {
+            if (type == 'join') {
+                const checkIsJoinGroup = await zpUserGroupsModel.findOne({
+                    where: {
+                        user_id: userId,
+                        group_id: groupId
+                    }
+                })
+                if (checkIsJoinGroup) {
+                    return { mg: 'คุณได้เข้าร่วมกลุ่มนี้เเล้ว' };
+                } else {
+                    const userGroup = await zpUserGroupsModel.create({
+                        user_id: userId,
+                        group_id: groupId,
+                        create_at: Date.now(),
+                        update_at: Date.now()
+                    });
                 }
-            })
-            if (checkIsJoinGroup) {
-                return { mg: 'คุณได้เข้าร่วมกลุ่มนี้เเล้ว' };
+
             } else {
-                const userGroup = await zpUserGroupsModel.create({
-                    user_id: userId,
-                    group_id: groupId,
-                    create_at: Date.now(),
-                    update_at: Date.now()
+                const userGroup = await zpUserGroupsModel.destroy({
+                    where: {
+                        user_id: userId,
+                        group_id: groupId,
+                    }
                 });
-            }
-
-        } else {
-            const userGroup = await zpUserGroupsModel.destroy({
-                where: {
-                    user_id: userId,
-                    group_id: groupId,
+                const checkPinGroup = await zpPinsModel.findOne({
+                    where: {
+                        user_id: userId,
+                        group_id: groupId,
+                    },
+                });
+                if (checkPinGroup) {
+                    checkPinGroup.destroy()
                 }
-            });
-            const checkPinGroup = await zpPinsModel.findOne({
+            }
+
+            const pins = await zpPinsModel.findAll({
                 where: {
                     user_id: userId,
-                    group_id: groupId,
                 },
+                order: [['sort', 'ASC']],
             });
-            if (checkPinGroup) {
-                checkPinGroup.destroy()
+            if (pins) {
+                let sort = 1;
+                for (const pin of pins) {
+                    await pin.update({ sort });
+                    sort++;
+                }
             }
+            return { status: 'success' };
+        }else{
+            return { status: 'error' };
         }
 
-        const pins = await zpPinsModel.findAll({
-            where: {
-                user_id: userId,
-            },
-            order: [['sort', 'ASC']],
-        });
-        if (pins) {
-            let sort = 1;
-            for (const pin of pins) {
-                await pin.update({ sort });
-                sort++;
-            }
-        }
-
-
-        return { status: 'success' };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };

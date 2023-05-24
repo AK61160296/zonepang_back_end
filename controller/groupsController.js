@@ -94,7 +94,9 @@ async function getGroupsUser(userId) {
         var groupsData = await zpUserGroupsModel.findAll({
             where: {
                 user_id: userId,
-
+                group_id: {
+                    [Op.ne]: null
+                }
             },
             include: [{
                 model: zpGroupsModel,
@@ -352,12 +354,23 @@ async function sortPinGroup(newItems) {
 async function joinGroup(userId, groupId, type) {
     try {
         if (type == 'join') {
-            const userGroup = await zpUserGroupsModel.create({
-                user_id: userId,
-                group_id: groupId,
-                create_at: Date.now(),
-                update_at: Date.now()
-            });
+            const checkIsJoinGroup = await zpUserGroupsModel.findOne({
+                where: {
+                    user_id: userId,
+                    group_id: groupId
+                }
+            })
+            if (checkIsJoinGroup) {
+                return { mg: 'คุณได้เข้าร่วมกลุ่มนี้เเล้ว' };
+            } else {
+                const userGroup = await zpUserGroupsModel.create({
+                    user_id: userId,
+                    group_id: groupId,
+                    create_at: Date.now(),
+                    update_at: Date.now()
+                });
+            }
+
         } else {
             const userGroup = await zpUserGroupsModel.destroy({
                 where: {

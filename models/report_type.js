@@ -3,7 +3,8 @@ import { DataTypes } from "sequelize";
 const zpReportTypeModel = connectDb.define("report_type", {
     report_type_id: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        primaryKey: true,
+        autoIncrement: true,
     },
     name: {
         type: DataTypes.STRING(100),

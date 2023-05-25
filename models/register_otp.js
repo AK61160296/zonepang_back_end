@@ -3,7 +3,8 @@ import { DataTypes } from "sequelize";
 const zpRegisterOtpModel = connectDb.define("register_otp", {
     regis_otp_id: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        primaryKey: true,
+        autoIncrement: true,
     },
     phone: {
         type: DataTypes.STRING(100),

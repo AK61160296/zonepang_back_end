@@ -1,6 +1,6 @@
 
 const authRouter = express.Router();
-import { login, register, sendOTP, verifyOTP, changePassword, verifyPassword, redgisterSendOTP, registerVerifyOTP } from '../controller/authController.js';
+import { login, register, sendOTP, verifyOTP, changePassword, verifyPassword, registerSendOTP, registerVerifyOTP } from '../controller/authController.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -28,10 +28,10 @@ authRouter.post('/register', async function (req, res) {
     }
 });
 
-authRouter.post('/redgisterSendOTP', async function (req, res) {
+authRouter.post('/registerSendOTP', async function (req, res) {
     try {
         const { countryCode, phoneNumber } = req.body
-        const otp = await redgisterSendOTP(countryCode, phoneNumber);
+        const otp = await registerSendOTP(countryCode, phoneNumber);
         res.json(otp);
     } catch (error) {
         console.log(error)

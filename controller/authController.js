@@ -137,7 +137,7 @@ async function register(name, tel, email, password) {
             },
             {
                 where: {
-                    phone: phoneNumber,
+                    phone: tel,
                 },
             }
 
@@ -163,14 +163,12 @@ function generateToken(user) {
     const token = jwt.sign(payload, process.env.JWT_SECRET_TOKEN, { expiresIn: '10 days' });
     return token;
 }
-async function redgisterSendOTP(countryCode, phoneNumber) {
+async function registerSendOTP(countryCode, phoneNumber) {
     try {
         const checkDuplicatePhone = await zpRegisterOtpModel.findOne({
             where: {
                 phone: phoneNumber,
-                is_active: {
-                    [Op.ne]: 1
-                }
+                is_active: 1
             }
         });
         if (checkDuplicatePhone) {
@@ -179,15 +177,13 @@ async function redgisterSendOTP(countryCode, phoneNumber) {
         const checkHavePhone = await zpRegisterOtpModel.findOne({
             where: {
                 phone: phoneNumber,
-                is_active: {
-                    [Op.ne]: 0
-                }
+                is_active: 0
             }
         });
         if (!checkHavePhone) {
             const creatPhoneOTP = await zpRegisterOtpModel.create({
                 phone: phoneNumber,
-                craeted_at: Date.now(),
+                created_at: Date.now(),
                 updated_at: Date.now()
             })
             const otpResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
@@ -233,9 +229,7 @@ async function registerVerifyOTP(countryCode, phoneNumber, otp) {
         const phoneOTP = await zpRegisterOtpModel.findOne({
             where: {
                 phone: phoneNumber,
-                is_active: {
-                    [Op.ne]: 0
-                }
+                is_active: 0
             }
         });
         const verifiedResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
@@ -397,6 +391,6 @@ export {
     verifyOTP,
     changePassword,
     verifyPassword,
-    redgisterSendOTP,
+    registerSendOTP,
     registerVerifyOTP
 }

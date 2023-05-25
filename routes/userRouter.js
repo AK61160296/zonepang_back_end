@@ -89,10 +89,15 @@ userRouter.post('/addPinBookmark', async function (req, res) {
 });
 userRouter.post('/getUserFollow', async function (req, res) {
     try {
-
         const { user_id } = req.body;
-        const userFollower = await getUserFollow(user_id);
-        res.json(userFollower);
+        if (user_id) {
+            const userFollower = await getUserFollow(user_id);
+            res.json(userFollower);
+        } else {
+            res.json({ status: 'error' });
+        }
+
+
     } catch (error) {
         console.log(error)
     }
@@ -189,8 +194,13 @@ userRouter.post('/deleteAddress', async function (req, res) {
 userRouter.post('/searchUsers', async function (req, res) {
     try {
         const { user_id, keywords } = req.body;
-        const response = await searchUsers(user_id, keywords);
-        res.json(response);
+        if (user_id) {
+            const response = await searchUsers(user_id, keywords);
+            res.json(response);
+        } else {
+            res.json({ status: "error" });
+        }
+
     } catch (error) {
         console.log(error)
     }

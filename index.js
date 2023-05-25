@@ -76,6 +76,7 @@ global.onlineUsersSystem = new Map();
 
 io.on('connection', (socket) => {
   socket.on("add-user", (userId) => {
+    console.log("add-userId",userId)
     onlineUsers.set(userId, socket.id);
   });
 
@@ -91,6 +92,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on("delete-user-chat", (userId) => {
+    console.log("delete-user-chat",userId)
     onlineUsersInChat.delete(userId);
   });
   socket.on("delete-user-online", (userId) => {

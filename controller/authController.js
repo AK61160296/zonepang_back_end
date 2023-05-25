@@ -1,6 +1,6 @@
 import { Sequelize, Op, DATE } from 'sequelize';
 import { connectDb } from '../config/database.js'
-import { zpGroupsModel, zpUserGroupsModel, zpUsersModel, zpUserSettingsModel } from '../models/index.js';
+import { zpGroupsModel, zpUserGroupsModel, zpUsersModel, zpUserSettingsModel, zpRegisterOtpModel } from '../models/index.js';
 import * as cheerio from "cheerio";
 import { URL } from "url";
 import axios from 'axios';
@@ -131,7 +131,17 @@ async function register(name, tel, email, password) {
 
             );
         }
+        await zpRegisterOtpModel.update(
+            {
+                is_active: 1
+            },
+            {
+                where: {
+                    phone: phoneNumber,
+                },
+            }
 
+        );
 
         // สร้าง JWT token ให้ผู้ใช้ใหม่
         const token = generateToken(newUser);
@@ -152,6 +162,103 @@ function generateToken(user) {
     };
     const token = jwt.sign(payload, process.env.JWT_SECRET_TOKEN, { expiresIn: '10 days' });
     return token;
+}
+async function redgisterSendOTP(countryCode, phoneNumber) {
+    try {
+        const checkDuplicatePhone = await zpRegisterOtpModel.findOne({
+            where: {
+                phone: phoneNumber,
+                is_active: {
+                    [Op.ne]: 1
+                }
+            }
+        });
+        if (checkDuplicatePhone) {
+            return { status: 'duplicate_phone', message: 'เบอร์โทรศัพท์นี้ถูกใช้งานไปเเล้ว' };
+        }
+        const checkHavePhone = await zpRegisterOtpModel.findOne({
+            where: {
+                phone: phoneNumber,
+                is_active: {
+                    [Op.ne]: 0
+                }
+            }
+        });
+        if (!checkHavePhone) {
+            const creatPhoneOTP = await zpRegisterOtpModel.create({
+                phone: phoneNumber,
+                craeted_at: Date.now(),
+                updated_at: Date.now()
+            })
+            const otpResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
+                .verifications.create({
+                    to: `+${countryCode}${phoneNumber}`,
+                    channel: "sms"
+                })
+            await creatPhoneOTP.update({
+                status_otp: 'pending',
+                time_otp: Date.now()
+            })
+            return { status: 'success', message: `ส่งหมายเลข OTP Tel.${phoneNumber} สำเร็จ`, data: JSON.stringify(otpResponse) };
+        } else {
+            const currentTime = Date.now();
+            const timeDiff = currentTime - checkHavePhone.time_otp;
+            const timeDiffInMinutes = Math.floor(timeDiff / (1000 * 60));
+
+            if (timeDiffInMinutes < 5) {
+                const remainingTime = 5 - timeDiffInMinutes;
+                return { status: 'wait', remainingTime, message: `กรุณารอเวลาการส่ง OTP ${remainingTime} นาที` };
+
+            } else {
+                const otpResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
+                    .verifications.create({
+                        to: `+${countryCode}${phoneNumber}`,
+                        channel: "sms"
+                    })
+                await checkHavePhone.update({
+                    status_otp: 'pending',
+                    time_otp: Date.now()
+                })
+                return { status: 'success', message: `ส่งหมายเลข OTP Tel.${phoneNumber} สำเร็จ`, data: JSON.stringify(otpResponse) };
+            }
+        }
+
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
+async function registerVerifyOTP(countryCode, phoneNumber, otp) {
+    try {
+        const phoneOTP = await zpRegisterOtpModel.findOne({
+            where: {
+                phone: phoneNumber,
+                is_active: {
+                    [Op.ne]: 0
+                }
+            }
+        });
+        const verifiedResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
+            .verificationChecks.create({
+                to: `+${countryCode}${phoneNumber}`,
+                code: otp
+            })
+
+        if (verifiedResponse.status === "approved") {
+            await phoneOTP.update({
+                status_otp: 'approved',
+                time_otp: Date.now()
+            })
+            return { status: 'success', message: 'หมายเลข OTP ถูกต้อง', data: JSON.stringify(verifiedResponse) };
+        } else {
+            return { status: 'error', message: 'หมายเลข OTP ไม่ถูกต้อง', data: JSON.stringify(verifiedResponse) };
+        }
+
+
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
 }
 
 async function sendOTP(countryCode, phoneNumber) {
@@ -179,7 +286,7 @@ async function sendOTP(countryCode, phoneNumber) {
 
             if (timeDiffInMinutes < 5) {
                 const remainingTime = 5 - timeDiffInMinutes;
-                return { status: 'wait', message: `กรุณารอเวลาการส่ง OTP ${remainingTime} นาที` };
+                return { status: 'wait', remainingTime, message: `กรุณารอเวลาการส่ง OTP ${remainingTime} นาที` };
 
             } else {
                 const otpResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
@@ -289,5 +396,7 @@ export {
     sendOTP,
     verifyOTP,
     changePassword,
-    verifyPassword
+    verifyPassword,
+    redgisterSendOTP,
+    registerVerifyOTP
 }

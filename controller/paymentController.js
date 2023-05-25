@@ -127,11 +127,11 @@ async function postAddOrderGB(userId, productPrice, productAmount, productId, pa
             const tokenKey = encodeURIComponent(token);
             const backgroundUrl = 'https://admin.zonepang.com/api/auth/hooks/deposit_GB';
             const url = 'https://api.gbprimepay.com/gbp/gateway/qrcode';
-            const field = `token=${tokenKey}&referenceNo=${referenceNo}&amount=${productPrice}&backgroundUrl=${backgroundUrl}`;
+            var field = `token=${tokenKey}&referenceNo=${referenceNo}&amount=${productPrice}&backgroundUrl=${backgroundUrl}`;
 
             const requestHeaders = {
-                'Cache-Control': 'no-cache',
                 'Content-Type': 'application/x-www-form-urlencoded',
+                'Cache-Control': 'no-cache',
             };
 
             const response = await axios.post(url, field,
@@ -144,7 +144,7 @@ async function postAddOrderGB(userId, productPrice, productAmount, productId, pa
             var body = `data:image/png;base64,${Buffer.from(output).toString('base64')}`;
         }
 
-        return { status: "0", msg: 'QR Payment success', productPrice: productPrice, img_qr: body, idQr: referenceNo };
+        return { status: "0", msg: 'QR Payment success', field, productPrice: productPrice, img_qr: body, idQr: referenceNo };
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };

@@ -27,6 +27,7 @@ import { zpOrdersModel } from "./orders.js";
 import { zpPackageDetailsModel } from "./package_details.js";
 import { zpProductsModel } from "./products.js";
 import { zpSlipPaymentsModel } from "./slip_payments.js";
+import { zpRegisterOtpModel } from "./register_otp.js";
 
 export {
     zpPinsModel,
@@ -53,5 +54,6 @@ export {
     zpOrdersModel,
     zpPackageDetailsModel,
     zpProductsModel,
-    zpSlipPaymentsModel
+    zpSlipPaymentsModel,
+    zpRegisterOtpModel
 }

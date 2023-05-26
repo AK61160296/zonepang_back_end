@@ -418,17 +418,27 @@ async function getPostsById(postId, user_id) {
             const groupId = post.group_id;
             let attachments = [];
             let atm_post_ids = [];
+            let videos = [];
             if (post.match_attachments && post.match_attachments.length > 0) {
                 atm_post_ids = post.match_attachments[0].atm_post_id.split(',');
 
                 // Query the zpAttchmentsPostsModel for the required information
-                attachments = await zpAttchmentsPostsModel.findAll({
+                const attachmentsData = await zpAttchmentsPostsModel.findAll({
                     where: {
                         atm_post_id: {
                             [Op.in]: atm_post_ids
                         }
                     }
                 });
+
+                for (let i = 0; i < attachmentsData.length; i++) {
+                    const attachment = attachmentsData[i];
+                    if (attachment.file_type.includes("image")) {
+                        attachments.push(attachment);
+                    } else if (attachment.file_type.includes("video")) {
+                        videos.push(attachment);
+                    }
+                }
             }
             const totalComment = await zpCommentsModel.count({
                 where: {
@@ -477,7 +487,8 @@ async function getPostsById(postId, user_id) {
                 attachments,
                 totalComment,
                 userBookmark,
-                isJoinGroup
+                isJoinGroup,
+                videos
             };
         };
 
@@ -875,6 +886,11 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, s
             const type = "reply_comment"
             createNotificationComment(user_id, post_id, reply_id, user_id_reply, type)
         } else {
+
+            let userIdReply = null
+            if (user_id_reply) {
+                userIdReply = user_id_reply
+            }
             comment = await zpCommentsModel.create({
                 text,
                 user_id,
@@ -884,12 +900,17 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, s
                 get_type: get_type,
                 reply: 0,
                 reply_to_reply: 0,
-                user_id_reply: null,
+                user_id_reply: userIdReply,
                 sub_to_reply: null,
                 create_at: Date.now(),
                 update_at: Date.now()
             });
-            const type = "comment"
+            let type = ""
+            if (user_id_reply) {
+                type = "reply_comment"
+            } else {
+                type = "comment"
+            }
             createNotificationComment(user_id, post_id, reply_id, user_id_reply, type)
         }
         // เชื่อมโยงกับตารางผู้ใช้งาน (zpUsersModel) โดยใช้ user_id เป็น key
@@ -920,8 +941,9 @@ async function createComments(post_id, user_id, text, reply_id, user_id_reply, s
         return { status: 'error', error: error };
     }
 }
-async function createNotificationComment(user_id, post_id, comment_id, user_id_reply, type) {
+async function createNotificationComment(userId, post_id, comment_id, user_id_reply, type) {
     try {
+        console.log("type",type)
         let postData = await zpPostsModel.findOne({
             attributes: ['user_id', 'content'],
             where: {
@@ -932,21 +954,20 @@ async function createNotificationComment(user_id, post_id, comment_id, user_id_r
         let userData = await zpUsersModel.findOne({
             attributes: ['id', 'name', 'avatar', 'code_user'],
             where: {
-                id: user_id
+                id: userId
             }
         })
-
-        let checkSettingNoti = await zpUserSettingsModel.findOne({
-            where: {
-                user_id: postData.dataValues.user_id
-            }
-        })
-
-        let checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
 
         if (type === "comment") {
+            let checkSettingNoti = await zpUserSettingsModel.findOne({
+                where: {
+                    user_id: postData.dataValues.user_id
+                }
+            })
+
+            let checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
             if (checkSettingNotiObj.comment) {
-                if (user_id != postData.dataValues.user_id) {
+                if (userId != postData.dataValues.user_id) {
                     const checkLenght = postData.dataValues.content.length
                     let subStr = postData.dataValues.content.substring(0, 15);
                     if (checkLenght > 15) {
@@ -959,7 +980,7 @@ async function createNotificationComment(user_id, post_id, comment_id, user_id_r
                         noti_type: "comment_post",
                         group_id_target: null,
                         post_id_target: post_id,
-                        user_id_actor: user_id,
+                        user_id_actor: userId,
                         comment_id_target: null,
                         read: false,
                         create_at: new Date(),
@@ -970,15 +991,15 @@ async function createNotificationComment(user_id, post_id, comment_id, user_id_r
 
             }
         } else if (type === "reply_comment") {
-            if (checkSettingNotiObj.tag) {
+            let checkSettingNoti = await zpUserSettingsModel.findOne({
+                where: {
+                    user_id: user_id_reply
+                }
+            })
 
-                let commentData = await zpCommentsModel.findOne({
-                    attributes: ['user_id'],
-                    where: {
-                        comment_id: comment_id
-                    }
-                })
-                if (user_id != commentData.dataValues.user_id) {
+            let checkSettingNotiObj = JSON.parse(checkSettingNoti.dataValues.setting);
+            if (checkSettingNotiObj.tag) {
+                if (userId != user_id_reply) {
                     const checkLenght = postData.dataValues.content.length
                     let subStr = postData.dataValues.content.substring(0, 15);
                     if (checkLenght > 15) {
@@ -986,12 +1007,12 @@ async function createNotificationComment(user_id, post_id, comment_id, user_id_r
                     }
 
                     const notification = {
-                        user_id: postData.dataValues.user_id,
+                        user_id: user_id_reply,
                         noti_text: userData.dataValues.name + " กล่าวถึงคุณในในความคิดเห็นใน " + subStr,
                         noti_type: "tag",
                         group_id_target: null,
                         post_id_target: post_id,
-                        user_id_actor: user_id,
+                        user_id_actor: userId,
                         comment_id_target: null,
                         read: false,
                         create_at: new Date(),

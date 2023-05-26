@@ -506,6 +506,7 @@ async function getPathPostId() {
 
 async function getPostComments(postId, limit, offset) {
     try {
+
         let comments = await zpCommentsModel.findAll({
             where: {
                 post_id: postId,
@@ -524,6 +525,7 @@ async function getPostComments(postId, limit, offset) {
         });
 
         const getModifiedComment = async (comment) => {
+            let user_reply = {}
             const totalReplyComment = await zpCommentsModel.count({
                 where: {
                     reply_to_reply: comment.comment_id,
@@ -540,6 +542,15 @@ async function getPostComments(postId, limit, offset) {
                     user_id: 1,
                 },
             });
+            if (comment.user_id_reply) {
+                user_reply = await zpUsersModel.findOne({
+                    attributes: ['id', 'name', 'avatar', 'code_user'],
+                    where: {
+                        id: comment.user_id_reply
+                    }
+                })
+            }
+
             let newReplyComments = []
             let statusLike = false
             if (userLike) {
@@ -551,7 +562,8 @@ async function getPostComments(postId, limit, offset) {
                 totalReplyComment,
                 totalLike,
                 statusLike,
-                newReplyComments
+                newReplyComments,
+                user_reply
             };
         };
 

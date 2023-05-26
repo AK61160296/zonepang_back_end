@@ -7,7 +7,7 @@ const zpAttchmentsPostsModel = connectDb.define("attachments_posts", {
         autoIncrement: true,
     },
     file_name: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.TEXT,
         allowNull: true,
     },
     file_type: {

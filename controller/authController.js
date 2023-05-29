@@ -220,8 +220,7 @@ async function registerSendOTP(countryCode, phoneNumber) {
         }
 
     } catch (error) {
-        console.error(error);
-        return { status: 'error', error: error };
+        return { status: 'invalid_number', message: 'หมายเลขโทรศัพท์ไม่ถูกต้อง' };
     }
 }
 async function registerVerifyOTP(countryCode, phoneNumber, otp) {
@@ -288,6 +287,8 @@ async function sendOTP(countryCode, phoneNumber) {
                         to: `+${countryCode}${phoneNumber}`,
                         channel: "sms"
                     })
+                
+
                 await userData.update({
                     is_verify: 1,
                     status_otp: 'pending',
@@ -297,8 +298,7 @@ async function sendOTP(countryCode, phoneNumber) {
             }
         }
     } catch (error) {
-        console.error(error);
-        return { status: 'error', error: error };
+        return { status: 'invalid_number', message: 'หมายเลขโทรศัพท์ไม่ถูกต้อง' };
     }
 }
 async function verifyOTP(countryCode, phoneNumber, otp) {

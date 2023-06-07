@@ -15,6 +15,8 @@ import { shortRouter } from "./shortRouter.js";
 import { productRouter } from "./productRouter.js";
 import { paymentRouter } from "./paymentRouter.js";
 import { createSlipRouter } from "./createSlipRouter.js";
+import { testRouter } from "./testRouter.js";
+
 export {
     chatsRouter,
     createChatsRouter,
@@ -32,5 +34,6 @@ export {
     shortRouter,
     productRouter,
     paymentRouter,
-    createSlipRouter
+    createSlipRouter,
+    testRouter
 }

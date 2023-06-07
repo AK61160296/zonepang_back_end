@@ -21,7 +21,8 @@ import {
   shortRouter,
   productRouter,
   paymentRouter,
-  createSlipRouter
+  createSlipRouter,
+  testRouter
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
@@ -47,7 +48,7 @@ app.use(cors());
 // });
 
 app.get("/", (req, res) => {
-  res.send("API Facebook Send");
+  res.send("API");
 });
 
 app.use("/api", apiKeyMiddleware, createCommentsRouter);
@@ -66,6 +67,7 @@ app.use("/api", apiKeyMiddleware, authRouter);
 app.use("/api", apiKeyMiddleware, appFreeRouter);
 app.use("/api", apiKeyMiddleware, productRouter);
 app.use("/api", apiKeyMiddleware, paymentRouter)
+app.use("/api", apiKeyMiddleware, testRouter) /////////
 app.use(shortRouter);
 
 

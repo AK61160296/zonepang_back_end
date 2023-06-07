@@ -3,8 +3,8 @@ dotenv.config();
 
 
 const redisConfig = {
-    port: 6379,
     host: process.env.REDIS_CONNECT_URL,
+    port: 6379,
     password: ''
 }
 

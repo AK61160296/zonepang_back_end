@@ -3,6 +3,7 @@ import http from "http";
 import { connectDb, mongoose } from "./config/database.js";
 import { addMessages } from './controller/chatsController.js';
 import bodyParser from "body-parser";
+import { arenaConfig } from "./config/bullArena.js";
 import cors from "cors";
 import {
   groupsRouter,
@@ -27,8 +28,8 @@ import {
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
 import { Server } from "socket.io";
-import { zpConversationsModel, zpMessagesModel } from './models/index.js';
-//Declaration Variables Section
+import job from './cronJob/testCronJob.js';
+import { clientRedis } from './config/redisConnect.js';
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -39,14 +40,6 @@ app.use(express.json({ limit: "10mb" }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-
-// const io = new Server(server, {
-//   cors: {
-//     origin: "http://localhost:3000/",
-//     methods: ["GET", "POST"],
-//   }
-// });
-
 app.get("/", (req, res) => {
   res.send("API");
 });
@@ -68,6 +61,7 @@ app.use("/api", apiKeyMiddleware, appFreeRouter);
 app.use("/api", apiKeyMiddleware, productRouter);
 app.use("/api", apiKeyMiddleware, paymentRouter)
 app.use("/api", apiKeyMiddleware, testRouter) /////////
+app.use("/arena", arenaConfig);
 app.use(shortRouter);
 
 
@@ -78,7 +72,7 @@ global.onlineUsersSystem = new Map();
 
 io.on('connection', (socket) => {
   socket.on("add-user", (userId) => {
-    console.log("add-userId",userId)
+    console.log("add-userId", userId)
     onlineUsers.set(userId, socket.id);
   });
 
@@ -94,7 +88,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on("delete-user-chat", (userId) => {
-    console.log("delete-user-chat",userId)
+    console.log("delete-user-chat", userId)
     onlineUsersInChat.delete(userId);
   });
   socket.on("delete-user-online", (userId) => {
@@ -118,6 +112,7 @@ io.on('connection', (socket) => {
 
 app.use(function (req, res, next) {
   res.io = io;
+  // job.start();
   next();
 });
 

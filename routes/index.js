@@ -16,6 +16,7 @@ import { productRouter } from "./productRouter.js";
 import { paymentRouter } from "./paymentRouter.js";
 import { createSlipRouter } from "./createSlipRouter.js";
 import { testRouter } from "./testRouter.js";
+import { worktestRouter } from "./worktestRouter.js";
 
 export {
     chatsRouter,
@@ -35,5 +36,6 @@ export {
     productRouter,
     paymentRouter,
     createSlipRouter,
-    testRouter
+    testRouter,
+    worktestRouter
 }

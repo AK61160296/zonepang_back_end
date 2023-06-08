@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import { connectDb, mongoose } from "./config/database.js";
-import { addMessages } from './controller/chatsController.js';
+import { addMessages } from "./controller/chatsController.js";
 import bodyParser from "body-parser";
 import { arenaConfig } from "./config/bullArena.js";
 import cors from "cors";
@@ -23,13 +23,14 @@ import {
   productRouter,
   paymentRouter,
   createSlipRouter,
-  testRouter
+  testRouter,
+  worktestRouter,
 } from "./routes/index.js";
 import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
 import { Server } from "socket.io";
-import job from './cronJob/testCronJob.js';
-import { clientRedis } from './config/redisConnect.js';
+import job from "./cronJob/testCronJob.js";
+import { clientRedis } from "./config/redisConnect.js";
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -59,50 +60,47 @@ app.use("/api", apiKeyMiddleware, reportsRouter);
 app.use("/api", apiKeyMiddleware, authRouter);
 app.use("/api", apiKeyMiddleware, appFreeRouter);
 app.use("/api", apiKeyMiddleware, productRouter);
-app.use("/api", apiKeyMiddleware, paymentRouter)
-app.use("/api", apiKeyMiddleware, testRouter) /////////
+app.use("/api", apiKeyMiddleware, paymentRouter);
+app.use("/api", apiKeyMiddleware, testRouter); /////////
+app.use("/api", apiKeyMiddleware, worktestRouter);
+
 app.use("/arena", arenaConfig);
 app.use(shortRouter);
-
-
 
 const onlineUsers = new Map();
 global.onlineUsersInChat = new Map();
 global.onlineUsersSystem = new Map();
 
-io.on('connection', (socket) => {
+io.on("connection", (socket) => {
   socket.on("add-user", (userId) => {
-    console.log("add-userId", userId)
+    console.log("add-userId", userId);
     onlineUsers.set(userId, socket.id);
   });
 
   socket.on("add-user-chat", (userId) => {
     onlineUsersInChat.set(userId, socket.id);
-
   });
 
   socket.on("add-user-online", (userId) => {
-    console.log("userId-online", userId)
+    console.log("userId-online", userId);
     onlineUsersSystem.set(userId, socket.id);
-    console.log("onlineUsersSystem", onlineUsersSystem)
+    console.log("onlineUsersSystem", onlineUsersSystem);
   });
 
   socket.on("delete-user-chat", (userId) => {
-    console.log("delete-user-chat", userId)
+    console.log("delete-user-chat", userId);
     onlineUsersInChat.delete(userId);
   });
   socket.on("delete-user-online", (userId) => {
     onlineUsersSystem.delete(userId);
-    console.log("onlineUsersSystem", onlineUsersSystem)
+    console.log("onlineUsersSystem", onlineUsersSystem);
   });
-
 
   socket.on("send-msg", async (data) => {
     const sendUserSocket = onlineUsers.get(data.to);
     const sendUserSystem = onlineUsersSystem.get(data.to);
     if (sendUserSocket) {
       socket.to(sendUserSocket).emit("msg-recieve", data);
-
     }
     if (sendUserSystem) {
       socket.to(sendUserSystem).emit("msg-new", data);

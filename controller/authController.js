@@ -298,6 +298,7 @@ async function sendOTP(countryCode, phoneNumber) {
             }
         }
     } catch (error) {
+        console.log("error",error)
         return { status: 'invalid_number', message: 'หมายเลขโทรศัพท์ไม่ถูกต้อง' };
     }
 }

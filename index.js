@@ -3,7 +3,7 @@ import http from "http";
 import { connectDb, mongoose } from "./config/database.js";
 import { addMessages } from "./controller/chatsController.js";
 import bodyParser from "body-parser";
-import { arenaConfig } from "./config/bullArena.js";
+// import { arenaConfig } from "./config/bullArena.js";
 import cors from "cors";
 import {
   groupsRouter,
@@ -30,7 +30,7 @@ import apiKeyMiddleware from "./middleware/apikey.js";
 import * as dotenv from "dotenv";
 import { Server } from "socket.io";
 import job from "./cronJob/testCronJob.js";
-import { clientRedis } from "./config/redisConnect.js";
+// import { clientRedis } from "./config/redisConnect.js";
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -64,7 +64,7 @@ app.use("/api", apiKeyMiddleware, paymentRouter);
 app.use("/api", apiKeyMiddleware, testRouter); /////////
 app.use("/api", apiKeyMiddleware, worktestRouter);
 
-app.use("/arena", arenaConfig);
+// app.use("/arena", arenaConfig);
 app.use(shortRouter);
 
 const onlineUsers = new Map();

@@ -20,7 +20,7 @@ const zpBookmarksModel = connectDb.define("bookmarks", {
     },
     pin: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: true, 
     },
     create_at: {
         type: DataTypes.DATE,

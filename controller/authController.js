@@ -186,7 +186,7 @@ async function registerSendOTP(countryCode, phoneNumber) {
                 created_at: Date.now(),
                 updated_at: Date.now()
             })
-            const otpResponse = await client.verify.services(process.env.TWILIO_VERIFY_SID)
+            const otpResponse = await client.verify.v2.services(process.env.TWILIO_VERIFY_SID)
                 .verifications.create({
                     to: `+${countryCode}${phoneNumber}`,
                     channel: "sms"
@@ -220,6 +220,7 @@ async function registerSendOTP(countryCode, phoneNumber) {
         }
 
     } catch (error) {
+        console.log("error",error)
         return { status: 'invalid_number', message: 'หมายเลขโทรศัพท์ไม่ถูกต้อง' };
     }
 }
@@ -287,7 +288,7 @@ async function sendOTP(countryCode, phoneNumber) {
                         to: `+${countryCode}${phoneNumber}`,
                         channel: "sms"
                     })
-                
+
 
                 await userData.update({
                     is_verify: 1,
@@ -298,7 +299,7 @@ async function sendOTP(countryCode, phoneNumber) {
             }
         }
     } catch (error) {
-        console.log("error",error)
+        console.log("error", error)
         return { status: 'invalid_number', message: 'หมายเลขโทรศัพท์ไม่ถูกต้อง' };
     }
 }

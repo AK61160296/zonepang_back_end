@@ -1,5 +1,5 @@
 import { sortBookmark, bookmarkPost, getBookmarks, addPinBookmark } from "./bookmarkController.js";
-import { followUser, settingNotification, getSettingNotification, getUserProfile, getUserPath, getUserFollow, checkFollow, getUserInfo, getUserAffiliate, getUserPartner, addPartner, createAddress, editAddress, defaultAddress, deleteAddress,searchUsers } from "./usersController.js";
+import { usersZonepang,followUser, settingNotification, getSettingNotification, getUserProfile, getUserPath, getUserFollow, checkFollow, getUserInfo, getUserAffiliate, getUserPartner, addPartner, createAddress, editAddress, defaultAddress, deleteAddress,searchUsers } from "./usersController.js";
 import { seachHistory, deleteSeachHistory, addSeachHistory } from "./feedController.js";
 import { createReport, getRepostList } from "./reportsController.js";
 export {
@@ -27,5 +27,6 @@ export {
     editAddress,
     defaultAddress,
     deleteAddress,
-    searchUsers
+    searchUsers,
+    usersZonepang
 }

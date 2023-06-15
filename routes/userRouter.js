@@ -1,7 +1,7 @@
 
 const userRouter = express.Router();
 import { editProfile } from '../controller/authController.js';
-import { sortBookmark, searchUsers, deleteAddress, defaultAddress, editAddress, createAddress, addPartner, getUserPartner, getUserAffiliate, getUserPath, getUserProfile, settingNotification, getSettingNotification, getBookmarks, addPinBookmark, getUserFollow, followUser, checkFollow, getUserInfo } from '../controller/index.js';
+import { usersZonepang, sortBookmark, searchUsers, deleteAddress, defaultAddress, editAddress, createAddress, addPartner, getUserPartner, getUserAffiliate, getUserPath, getUserProfile, settingNotification, getSettingNotification, getBookmarks, addPinBookmark, getUserFollow, followUser, checkFollow, getUserInfo } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
@@ -9,7 +9,6 @@ import AWS from 'aws-sdk'
 import multerS3 from 'multer-s3'
 
 const app = express();
-
 
 userRouter.put('/sortBookmark/:bookmark_id', async function (req, res) {
     try {
@@ -206,7 +205,15 @@ userRouter.post('/searchUsers', async function (req, res) {
     }
 });
 
-
+userRouter.post('/usersZonepang', async function (req, res) {
+    try {
+        const { keywords } = req.body
+        const result = await usersZonepang(keywords)
+        res.json(result)
+    } catch (error) {
+        console.log(error)
+    }
+});
 
 
 export { userRouter };

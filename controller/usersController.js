@@ -573,7 +573,7 @@ async function searchUsers(userId, keywords) {
                 },
             ]
         });
-        const usersData = users.map((user) => user.user); 
+        const usersData = users.map((user) => user.user);
 
         const promises = usersData.map(async (user) => {
             let isOnline = false
@@ -603,9 +603,36 @@ async function searchUsers(userId, keywords) {
     }
 }
 
+async function usersZonepang(keywords) {
+    try {
 
+        const users = await zpUsersModel.findAll({
+            where: {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${keywords}%` } },
+                    { fullname: { [Op.like]: `%${keywords}%` } },
+                    { email: { [Op.like]: `%${keywords}%` } },
+                ],
+            },
+            required: true,
+            attributes: ['id', 'name', 'avatar', 'code_user', 'provider', 'phone', 'email'],
+        });
+        var fuse = new Fuse([...users], {
+            keys: ["name", 'fullname', 'email'],
+        });
+
+        let sliceArr = fuse.search(keywords);
+        const result = sliceArr.slice(0, 50);
+
+        return { status: "success", result };
+    } catch (error) {
+        console.error(error);
+        return { status: 'error', error: error };
+    }
+}
 
 export {
+    usersZonepang,
     checkFollow,
     followUser,
     getUserFollow,

@@ -1,0 +1,14 @@
+version: '3.1'
+
+services:
+  api:
+    build: .
+    volumes:
+      - .:/app
+      - /app/node_modules
+    image: zonepangcloud/zonepang_backend:v1
+    env_file:
+      - .env
+    ports:
+      - 3004:4000
+

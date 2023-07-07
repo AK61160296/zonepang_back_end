@@ -18,6 +18,11 @@ async function bookmarkPost(userId, post_id, type) {
             //     attributes: [[Sequelize.fn('max', Sequelize.col('sort')), 'maxSort']],
             //     raw: true,
             // })
+                   // let sortLast = await zpBookmarksModel.findAll({
+            //     user_id: userId,
+            //     attributes: [[Sequelize.fn('max', Sequelize.col('sort')), 'maxSort']],
+            //     raw: true,
+            // })
             const bookmark = await zpBookmarksModel.create({
                 user_id: userId,
                 post_id: post_id,

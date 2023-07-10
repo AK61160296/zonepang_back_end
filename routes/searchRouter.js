@@ -1,5 +1,5 @@
 
-const feedRouter = express.Router();
+const searchRouter = express.Router();
 import { seachHistory, deleteSeachHistory, addSeachHistory } from '../controller/index.js';
 import path from 'path'
 import express from 'express';
@@ -8,7 +8,7 @@ import AWS from 'aws-sdk'
 import multerS3 from 'multer-s3'
 
 
-feedRouter.post('/searchHistory', async function (req, res) {
+searchRouter.post('/searchHistory', async function (req, res) {
     try {
         const { userId } = req.body;
         const historyData = await seachHistory(userId);
@@ -17,7 +17,7 @@ feedRouter.post('/searchHistory', async function (req, res) {
         console.log(error)
     }
 });
-feedRouter.post('/deleteSeachHistory', async function (req, res) {
+searchRouter.post('/deleteSeachHistory', async function (req, res) {
     try {
         const { history_id } = req.body;
         const status = await deleteSeachHistory(history_id);
@@ -26,7 +26,7 @@ feedRouter.post('/deleteSeachHistory', async function (req, res) {
         console.log(error)
     }
 });
-feedRouter.post('/addSeachHistory', async function (req, res) {
+searchRouter.post('/addSeachHistory', async function (req, res) {
     try {
         const { user_id, user_search_id, group_search_id, file_name, type, name, code_user } = req.body;
         const historyData = await addSeachHistory(user_id, name, user_search_id, group_search_id, file_name, type, code_user);
@@ -36,4 +36,4 @@ feedRouter.post('/addSeachHistory', async function (req, res) {
     }
 });
 
-export { feedRouter };
+export { searchRouter };

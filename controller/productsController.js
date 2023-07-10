@@ -2,7 +2,7 @@ import { Sequelize, Op } from 'sequelize';
 import { zpNotificationsModel } from '../models/notification.js';
 import { zpReportsModel, zpReportTypeModel, zpReportListModel } from '../models/index.js';
 import { connectDb } from '../config/database.js'
-async function getAllProduct() {
+async function getMenuProduct() {
     try {
         const catagory = await connectDb.query(`
         SELECT * FROM categories
@@ -276,7 +276,7 @@ async function getStock(userId, search, category_search) {
 
 
 export {
-    getAllProduct,
+    getMenuProduct,
     getOrderList,
     getProducts,
     salepageDetail,

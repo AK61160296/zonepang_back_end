@@ -10,7 +10,7 @@ import {
   postsRouter,
   userRouter,
   createCommentsRouter,
-  feedRouter,
+  searchRouter,
   notificationRouter,
   createPostsRouter,
   createChatsRouter,
@@ -53,7 +53,7 @@ app.use("/api", apiKeyMiddleware, userEditProfileRouter);
 app.use("/api", apiKeyMiddleware, groupsRouter);
 app.use("/api", apiKeyMiddleware, postsRouter);
 app.use("/api", apiKeyMiddleware, userRouter);
-app.use("/api", apiKeyMiddleware, feedRouter);
+app.use("/api", apiKeyMiddleware, searchRouter);
 app.use("/api", apiKeyMiddleware, notificationRouter);
 app.use("/api", apiKeyMiddleware, chatsRouter);
 app.use("/api", apiKeyMiddleware, reportsRouter);

@@ -1,13 +1,13 @@
 
 const productRouter = express.Router();
-import { getAllProduct, getProducts, salepageDetail, getOrderList, getStock } from '../controller/productsController.js';
+import { getMenuProduct, getProducts, salepageDetail, getOrderList, getStock } from '../controller/productsController.js';
 import path from 'path'
 import express from 'express';
 import multer from "multer";
 
-productRouter.get('/getAllProduct', async function (req, res) {
+productRouter.get('/getMenuProduct', async function (req, res) {
     try {
-        const response = await getAllProduct()
+        const response = await getMenuProduct()
         res.json(response)
     } catch (error) {
         console.log(error)

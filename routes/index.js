@@ -2,7 +2,7 @@ import { groupsRouter } from "./groupsRouter.js";
 import { postsRouter } from "./postsRouter.js";
 import { userRouter } from "./userRouter.js";
 import { createCommentsRouter } from "./createCommentsRouter.js";
-import { feedRouter } from "./feedRouter.js";
+import { searchRouter } from "./searchRouter.js";
 import { notificationRouter } from "./notificationRouter.js";
 import { createPostsRouter } from "./createPostsRouter.js";
 import { createChatsRouter } from "./createChatsRouter.js";
@@ -25,7 +25,7 @@ export {
     postsRouter,
     userRouter,
     createCommentsRouter,
-    feedRouter,
+    searchRouter,
     notificationRouter,
     createPostsRouter,
     reportsRouter,

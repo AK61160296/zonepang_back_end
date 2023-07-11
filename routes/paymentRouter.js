@@ -19,9 +19,9 @@ paymentRouter.post('/postAddOrderGB', async function (req, res) {
 
 paymentRouter.post('/depositGB', async function (req, res) {
     try {
-        console.log("req", req.body)
-        const response = req.body;
-        res.json(response)
+        const message = req.body
+        const result = await depositGB(message);
+        res.json(result)
     } catch (error) {
         console.log(error)
     }

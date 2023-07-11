@@ -125,7 +125,7 @@ async function postAddOrderGB(userId, productPrice, productAmount, productId, pa
         if (productPrice) {
             const token = process.env.TokenGB;
             const tokenKey = encodeURIComponent(token);
-            const backgroundUrl = 'https://admin.zonepang.com/api/auth/hooks/deposit_GB';
+            const backgroundUrl = 'https://api.zonepang.com/api/depositGB';
             const url = 'https://api.gbprimepay.com/gbp/gateway/qrcode';
             var field = `token=${tokenKey}&referenceNo=${referenceNo}&amount=${productPrice}&backgroundUrl=${backgroundUrl}`;
 
@@ -171,9 +171,32 @@ async function checkQrPayment(idQR) {
     }
 }
 
-async function depositGB() {
+async function depositGB(message) {
     try {
-
+        if (message) {
+            const referenceNo = message.referenceNo;
+            const check = await zpOrdersModel.findOne({
+                where: {
+                    referenceNo: referenceNo,
+                },
+            });
+            if (check) {
+                if (message.resultCode == '00') {
+                    await check.update({
+                        status: 1,
+                        resultCode: message.resultCode,
+                        amount: message.amount,
+                        gbpReferenceNo: message.gbpReferenceNo,
+                        currencyCode: message.currencyCode,
+                        issue_date: Date.now()
+                    })
+                }
+                return { status: 'success', message: "ชำระเงินสำเร็จ" };
+            }else{
+                return { status: 'error', message: "ชำระเงินไม่สำเร็จ" };
+            }
+        }
+   
     } catch (error) {
         console.error(error);
         return { status: 'error', error: error };
